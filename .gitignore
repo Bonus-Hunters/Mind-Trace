@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+./env 
 
 # Distribution / packaging
 .Python
@@ -136,6 +137,7 @@ celerybeat.pid
 
 # Environments
 .env
+postgres.env
 .envrc
 .venv
 env/
