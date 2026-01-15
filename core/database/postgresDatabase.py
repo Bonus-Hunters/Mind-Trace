@@ -10,19 +10,29 @@ from core.config_loader import DatabaseConfigLoader
 
 
 class PostgresDatabase:
+    _instance = None
 
-    def __init__(self):
-        configer = DatabaseConfigLoader()
-        if configer is None:
-            raise Exception("DatabaseConfigLoader is not initialized")
-        DATABASE_URL = configer.get("DATABASE_URL")
-        self.username = configer.get("POSTGRES_USER")
-        self.password = configer.get("POSTGRES_PASSWORD")
-        self.port = configer.get("POSTGRPGPORTES_PORT")
-        self.database_name = configer.get("POSTGRES_DB")
+    def __new__(cls):
+        if cls._instance is not None:
+            return cls._instance
+        cls._instance = super().__new__(cls)
+        cls._instance._init()
+
+    def _init(self):
+        config = DatabaseConfigLoader()
+        if config is None:
+            raise Exception(
+                "DatabaseConfigLoader instance is None [postgresDatabase.py]"
+            )
+        self.DATABASE_URL = config.get("DATABASE_URL")
+        self.username = config.get("POSTGRES_USER")
+        self.password = config.get("POSTGRES_PASSWORD")
+        self.port = config.get("PGPORT")
+        self.database_name = config.get("POSTGRES_DB")
         self.host = "localhost"
-        self.engine = create_async_engine(DATABASE_URL)
-        self._session_maker = async_sessionmaker(
+
+        self.engine = create_async_engine(self.DATABASE_URL)
+        self.session_maker = async_sessionmaker(
             bind=self.engine,
             class_=AsyncSession,
             expire_on_commit=False,

@@ -1,4 +1,6 @@
 from datetime import datetime
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 from typing import List, Optional
 from sqlalchemy import String, ForeignKey, DateTime, ARRAY, Text, ForeignKeyConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -48,7 +50,9 @@ class Developer(Base):
 class Meeting(Base):
     __tablename__ = "meetings"
 
-    meeting_id: Mapped[int] = mapped_column(primary_key=True)
+    meeting_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     title: Mapped[str] = mapped_column(String(255))
     date: Mapped[datetime] = mapped_column(DateTime)
     project_name: Mapped[str] = mapped_column(ForeignKey("projects.name"))
@@ -60,8 +64,12 @@ class Meeting(Base):
 class MeetingChunk(Base):
     __tablename__ = "meeting_chunks"
 
-    chunk_id: Mapped[int] = mapped_column(primary_key=True)
-    meeting_id: Mapped[int] = mapped_column(ForeignKey("meetings.meeting_id"))
+    chunk_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    meeting_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("meetings.meeting_id")
+    )
     text_content: Mapped[str] = mapped_column(Text)
 
     # Using pgvector for embeddings (requires 'pip install pgvector')
@@ -76,7 +84,9 @@ class MeetingChunk(Base):
 class Note(Base):
     __tablename__ = "notes"
 
-    note_id: Mapped[int] = mapped_column(primary_key=True)
+    note_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     category_name: Mapped[str] = mapped_column()
     project_name: Mapped[str] = mapped_column()
     author: Mapped[str] = mapped_column(String(255))
@@ -96,7 +106,9 @@ class Note(Base):
 class Task(Base):
     __tablename__ = "tasks"
 
-    task_id: Mapped[int] = mapped_column(primary_key=True)
+    task_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.name"))
     owner_id: Mapped[str] = mapped_column(ForeignKey("developers.name"))
     description: Mapped[str] = mapped_column(Text)
