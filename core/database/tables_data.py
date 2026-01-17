@@ -3,6 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 import uuid
 from pydantic import BaseModel
+from utils.constants import EMBEDDING_SIZE
 
 # --- PROJECT SCHEMAS ---
 
@@ -27,8 +28,8 @@ class Project(ProjectBase):
 
 class DeveloperBase(BaseModel):
     name: str
-    role: str = Field(..., max_length=100)
-    skills: List[str] = []
+    role: Optional[str] = Field(..., max_length=100)
+    skills: Optional[List[str]] = []
 
 
 class DeveloperCreate(DeveloperBase):
@@ -61,17 +62,19 @@ class CategoryMap(CategoryMapBase):
 
 class MeetingChunkBase(BaseModel):
     text_content: str
-    embedding: Optional[List[float]] = None
+    embedding: List[float] = Field(
+        ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
+    )
     speaker_names: List[str] = []
+    meeting_id: int
 
 
 class MeetingChunkCreate(MeetingChunkBase):
-    meeting_id: uuid.UUID
+    pass
 
 
 class MeetingChunk(MeetingChunkBase):
     model_config = ConfigDict(from_attributes=True)
-    chunk_id: uuid.UUID
 
 
 class MeetingBase(BaseModel):
@@ -86,19 +89,23 @@ class MeetingCreate(MeetingBase):
 
 class Meeting(MeetingBase):
     model_config = ConfigDict(from_attributes=True)
-    meeting_id: uuid.UUID
 
 
 # --- NOTE SCHEMAS ---
 
 
 class NoteBase(BaseModel):
-    category_name: str
-    project_name: str
+    project_name: str = Field(..., max_length=255)
     author: str = Field(..., max_length=255)
     note_text: str
-    embedding: Optional[List[float]] = None
-    date: datetime = Field(default_factory=datetime.utcnow)
+    embedding: List[float] = Field(
+        ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
+    )
+    type: str = Field(..., max_length=50)
+    tags: Optional[str] = Field(None, max_length=255)
+    function: Optional[str] = None
+    file_name: Optional[str] = Field(None, max_length=50)
+    module: Optional[str] = Field(None, max_length=50)
 
 
 class NoteCreate(NoteBase):
@@ -106,8 +113,8 @@ class NoteCreate(NoteBase):
 
 
 class Note(NoteBase):
+    date: datetime = Field(default_factory=datetime.utcnow)
     model_config = ConfigDict(from_attributes=True)
-    note_id: uuid.UUID
 
 
 # --- TASK SCHEMAS ---
@@ -117,16 +124,13 @@ class TaskBase(BaseModel):
     description: str
     status: str = "todo"
     source_type: str = Field(..., description="'note' or 'meeting'")
-    source_id: int
+    project_name: str
+    assignee_name: str
 
 
 class TaskCreate(TaskBase):
-    project_id: str
-    owner_id: str
+    pass
 
 
 class Task(TaskBase):
     model_config = ConfigDict(from_attributes=True)
-    task_id: uuid.UUID
-    project_id: str
-    owner_id: str

@@ -13,10 +13,10 @@ class PostgresDatabase:
     _instance = None
 
     def __new__(cls):
-        if cls._instance is not None:
-            return cls._instance
-        cls._instance = super().__new__(cls)
-        cls._instance._init()
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._init()
+        return cls._instance
 
     def _init(self):
         config = DatabaseConfigLoader()
@@ -31,15 +31,15 @@ class PostgresDatabase:
         self.database_name = config.get("POSTGRES_DB")
         self.host = "localhost"
 
-        self.engine = create_async_engine(self.DATABASE_URL)
-        self.session_maker = async_sessionmaker(
-            bind=self.engine,
+        self._engine = create_async_engine(self.DATABASE_URL)
+        self._session_maker = async_sessionmaker(
+            bind=self._engine,
             class_=AsyncSession,
             expire_on_commit=False,
         )
 
     def get_engine(self):
-        return self.engine
+        return self._engine
 
     def get_session_maker(self) -> async_sessionmaker[AsyncSession]:
         return self._session_maker
