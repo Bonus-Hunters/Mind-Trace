@@ -48,4 +48,3 @@ class TaskStatus(Enum):
 class TaskSourceType(Enum):
     NOTE = "note"
     MEETING = "meeting"
- 
