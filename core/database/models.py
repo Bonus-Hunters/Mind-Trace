@@ -6,6 +6,8 @@ from sqlalchemy import String, ForeignKey, DateTime, ARRAY, Text, ForeignKeyCons
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 from utils.constants import EMBEDDING_SIZE
+from sqlalchemy.dialects.postgresql import JSONB
+from typing import Dict, Any
 
 
 class Base(DeclarativeBase):
@@ -60,6 +62,9 @@ class Meeting(Base):
     title: Mapped[str] = mapped_column(String(255))
     date: Mapped[datetime] = mapped_column(DateTime)
     project_name: Mapped[str] = mapped_column(ForeignKey("projects.name"))
+    meta: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        JSONB, default=dict, server_default="{}", nullable=True
+    )
 
     # relations
     project_ref: Mapped["Project"] = relationship(back_populates="meetings")
@@ -100,6 +105,9 @@ class Note(Base):
     function: Mapped[str] = mapped_column(Text, nullable=True)
     file_name: Mapped[str] = mapped_column(String(50), nullable=True)
     module: Mapped[str] = mapped_column(String(50), nullable=True)
+    meta: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        JSONB, default=dict, server_default="{}", nullable=True
+    )
 
     # relation
     project: Mapped["Project"] = relationship(
