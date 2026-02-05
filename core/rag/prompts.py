@@ -12,9 +12,9 @@ Query: {query}
 from pydantic import BaseModel
 
 class IntentOutput(BaseModel):
-    intent: Literal["fact", "task", "summary", "decision", "discussion"]
-    source: Literal["meeting","note","both"]
-    needs_tasks: bool
+    intent: Literal["retrieve","discuss"]
+    source: Literal["meeting","note","task","all"]
+    # needs_tasks: bool
 
 
 

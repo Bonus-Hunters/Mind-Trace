@@ -1,3 +1,4 @@
+from typing import List, Optional
 from langchain_core.output_parsers import StrOutputParser,JsonOutputParser
 from prompts import *
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
@@ -7,6 +8,7 @@ from core.database.repos import TaskRepository, MeetingRepository, MeetingChunkR
 from langchain_core.documents import Document
 import numpy as np
 from langchain_core.output_parsers import PydanticOutputParser
+import core.database.tables_data as tables_data
 
 llm = OllamaLLM(model=LLM_MODEL, temperature=0)
 embeddings = OllamaEmbeddings(model=EMBED_MODEL)
@@ -83,14 +85,14 @@ async def retrieve_context(query: str, project: str, source: str = "both"):
     
     return docs
 
-async def get_tasks_for_user(user_id: str, project_name: str):
+async def get_tasks_for_user(assignee_name: str, project_name: str)-> Optional[List[tables_data.Task]]:
     """Fetch tasks for a specific user in a project from PostgreSQL database"""
     db = PostgresDatabase()
     session_maker = db.get_session_maker()
     task_repo = TaskRepository(session_maker)
     
     # Get all tasks for the project and filter by owner/assignee
-    tasks = await task_repo.get_by_project_and_assignee(project_name, user_id)
+    tasks = await task_repo.get_by_developer_in_project(assignee_name,project_name)
     return tasks
 
 
@@ -122,30 +124,27 @@ def answer_question(context, question):
 async def mind_trace_query(
     query: str,
     project: str,
-    user_id: str
+    assignee_name: str
 ):
     """Main query function that uses PostgreSQL database for task retrieval and context"""
-    intent = classify_query(query)
+    classification = classify_query(query)
     rewritten = rewrite_query(query)
-    # if "task" in intent.lower():
-    #     tasks = await get_tasks_for_user(user_id, project)
-    #     if tasks:
-    #         return tasks
-    match intent.intent:
+
+    match classification.source:
         case "task":
-            tasks = await get_tasks_for_user(user_id,project)
-            if tasks:
+            tasks = await get_tasks_for_user(assignee_name,project)
+            if tasks==None:
+                return
+            if classification.intent=="retrieve":
                 return tasks
-        case "summary":
-            pass
-        case "fact":
-            pass
+            
+
 
 
     docs = await retrieve_context(
         rewritten,
         project,
-        source=intent.source
+        source=classification.source
     )
 
     compressed = compress_context(docs, rewritten)
