@@ -1,11 +1,9 @@
-from datetime import datetime
-from typing import Optional, List
-import core 
+from typing import Optional, List 
 from core.database.postgresDatabase import PostgresDatabase
-from core.database.repos import NoteRepository, ProjectRepository, DeveloperRepository
+from core.database.repos import NoteRepository
 from core.database import tables_data
-from langchain_ollama import OllamaEmbeddings, OllamaLLM
-from core.rag.models import LLM_MODEL, EMBED_MODEL
+from langchain_ollama import OllamaEmbeddings 
+from core.rag.models import EMBED_MODEL
 class DatabaseNoteManager:
     def __init__(self):
         """Initializes database connection and sets up the note repository."""
@@ -23,13 +21,14 @@ class DatabaseNoteManager:
         text: str,
         project_name: str,
         author: str,
-        embedding: List[float],
         note_type: str = "general",
         tags: Optional[str] = None,
         function: Optional[str] = None,
     ) -> Optional[int]:
         """Creates a new note record and triggers a RAG sync."""
         try:
+            embeddings = OllamaEmbeddings(model=EMBED_MODEL)
+            embedding = embeddings.embed_query(text)
             new_note = tables_data.NoteCreate(
                 project_name=project_name,
                 author=author,
@@ -55,14 +54,15 @@ class DatabaseNoteManager:
             print(f"Error adding note: {e}")
             return None
 
-    async def edit_note(self, note_id: int, new_text: str, new_embedding: List[float]) -> bool:
+    async def edit_note(self, note_id: int, new_text: str) -> bool:
         """Updates an existing note's text and embedding, then syncs changes."""
         try:
             note = await self.note_repo.get_by_id(note_id)
             if note is None:
                 print(f"Error: Note ID {note_id} not found.")
                 return False
-
+            embeddings = OllamaEmbeddings(model=EMBED_MODEL)
+            new_embedding = embeddings.embed_query(new_text)
             success = await self.note_repo.update(
                 note_id,
                 {"note_text": new_text, "embedding": new_embedding}
@@ -146,74 +146,23 @@ if __name__ == "__main__":
         db = PostgresDatabase()
         session_maker = db.get_session_maker()
         
-        # Create project first
-        new_project = tables_data.ProjectCreate(
-            name="Test Project",
-            description="Test Project",
-            delivered=False,
-        )
-        project_repo = ProjectRepository(session_maker)
-        project_success = await project_repo.create(new_project)
-        if project_success:
-            print("Project created successfully.")
-        else:
-            print("Project already exists or failed to create.")
-        
-        # Create developer (author) - must exist before creating notes
-        new_developer = tables_data.DeveloperCreate(
-            name="Test Author",
-            role="Tester",
-            skills=["testing", "development"],
-        )
-        developer_repo = DeveloperRepository(session_maker)
-        dev_success = await developer_repo.create(new_developer)
-        if dev_success:
-            print("Developer created successfully.")
-        else:
-            print("Developer already exists or failed to create.")
         manager = DatabaseNoteManager()
-        """
-async def add_note(
-        self,
-        text: str,
-        project_name: str,
-        author: str,
-        embedding: List[float],
-        note_type: str = "general",
-        tags: Optional[str] = None,
-        function: Optional[str] = None,
-    ) -> Optional[int]:
-        """
-        text = "This is a test note."
         embeddings = OllamaEmbeddings(model=EMBED_MODEL)
-        embedding = embeddings.embed_query(text)
-        print('EMBEDDING 1:',len(embedding))
-        note = await manager.add_note(
-            text="This is a test note.",
-            project_name="Test Project",
-            author="Test Author",
-            embedding=embedding,
-            note_type="test",
-            tags="test",
-            function="test",
-        )
-        print(note)
-        text = "this is develop note"
-        embedding = embeddings.embed_query(text)
-        print('EMBEDDING 2:',len(embedding))
+        """
+        async def edit_note(self, note_id: int,
+          new_text: str,
+            new_embedding: List[float]) -> bool:
 
-        note2 = await manager.add_note(
-            text=text,
-            project_name="Test Project",
-            author="Test Author",
-            embedding=embedding,
-            note_type="test",
-            tags="test",
-            function="test",
-        )
-        print(note2)
+        """
+        text = "This is a test note but we modified it a bit again fr fr."
+        note = await manager.edit_note(1,text)
+        print(note)
         await manager.list_notes("Test Project")
-        # await manager.delete_note(note)
+
+
+        # note2 = await manager.delete_note(2)
+        # print(note2)
         # await manager.list_notes("Test Project")
+
 
     asyncio.run(main())

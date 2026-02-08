@@ -1,14 +1,13 @@
-from typing import List, Optional, Dict
-from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
-from .prompts import *
+from typing import List
+from langchain_core.output_parsers import StrOutputParser
+from core.rag.prompts import *
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
-from .models import LLM_MODEL, EMBED_MODEL
+from core.rag.models import LLM_MODEL, EMBED_MODEL
 from core.database.postgresDatabase import PostgresDatabase
 from langchain_core.documents import Document
-import numpy as np
 from langchain_core.output_parsers import PydanticOutputParser
-from sqlalchemy import select, desc
-from core.database.models import Meeting, MeetingChunk, Note, Project
+from sqlalchemy import select
+from core.database.models import Meeting, MeetingChunk, Note
 
 llm = OllamaLLM(model=LLM_MODEL, temperature=0)
 embeddings = OllamaEmbeddings(model=EMBED_MODEL)
@@ -146,8 +145,7 @@ def answer_question(context, question):
 
 async def mind_trace_query(
     query: str,
-    project: str,
-    assignee_name: str
+    project: str
 ):
     """Main query function that uses PostgreSQL database for task retrieval and context"""
     # 1. Classify intent (optional, currently not fully utilized but kept for future structure)
@@ -168,3 +166,13 @@ async def mind_trace_query(
     
     # 5. Generate Answer
     return answer_question(compressed, query)
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        """Main entry point for testing manager logic."""
+
+        print(await mind_trace_query("what is the note written by Test Author?","Test Project"))
+
+    asyncio.run(main())
