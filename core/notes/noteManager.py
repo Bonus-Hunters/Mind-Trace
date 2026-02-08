@@ -1,9 +1,11 @@
 from datetime import datetime
 from typing import Optional, List
+import core 
 from core.database.postgresDatabase import PostgresDatabase
-from core.database.repos import NoteRepository
+from core.database.repos import NoteRepository, ProjectRepository, DeveloperRepository
 from core.database import tables_data
-
+from langchain_ollama import OllamaEmbeddings, OllamaLLM
+from core.rag.models import LLM_MODEL, EMBED_MODEL
 class DatabaseNoteManager:
     def __init__(self):
         """Initializes database connection and sets up the note repository."""
@@ -141,7 +143,77 @@ if __name__ == "__main__":
 
     async def main():
         """Main entry point for testing manager logic."""
+        db = PostgresDatabase()
+        session_maker = db.get_session_maker()
+        
+        # Create project first
+        new_project = tables_data.ProjectCreate(
+            name="Test Project",
+            description="Test Project",
+            delivered=False,
+        )
+        project_repo = ProjectRepository(session_maker)
+        project_success = await project_repo.create(new_project)
+        if project_success:
+            print("Project created successfully.")
+        else:
+            print("Project already exists or failed to create.")
+        
+        # Create developer (author) - must exist before creating notes
+        new_developer = tables_data.DeveloperCreate(
+            name="Test Author",
+            role="Tester",
+            skills=["testing", "development"],
+        )
+        developer_repo = DeveloperRepository(session_maker)
+        dev_success = await developer_repo.create(new_developer)
+        if dev_success:
+            print("Developer created successfully.")
+        else:
+            print("Developer already exists or failed to create.")
         manager = DatabaseNoteManager()
-        pass
+        """
+async def add_note(
+        self,
+        text: str,
+        project_name: str,
+        author: str,
+        embedding: List[float],
+        note_type: str = "general",
+        tags: Optional[str] = None,
+        function: Optional[str] = None,
+    ) -> Optional[int]:
+        """
+        text = "This is a test note."
+        embeddings = OllamaEmbeddings(model=EMBED_MODEL)
+        embedding = embeddings.embed_query(text)
+        print('EMBEDDING 1:',len(embedding))
+        note = await manager.add_note(
+            text="This is a test note.",
+            project_name="Test Project",
+            author="Test Author",
+            embedding=embedding,
+            note_type="test",
+            tags="test",
+            function="test",
+        )
+        print(note)
+        text = "this is develop note"
+        embedding = embeddings.embed_query(text)
+        print('EMBEDDING 2:',len(embedding))
+
+        note2 = await manager.add_note(
+            text=text,
+            project_name="Test Project",
+            author="Test Author",
+            embedding=embedding,
+            note_type="test",
+            tags="test",
+            function="test",
+        )
+        print(note2)
+        await manager.list_notes("Test Project")
+        # await manager.delete_note(note)
+        # await manager.list_notes("Test Project")
 
     asyncio.run(main())

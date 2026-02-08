@@ -13,8 +13,10 @@ from pydantic import BaseModel
 
 class IntentOutput(BaseModel):
     intent: Literal["retrieve","discuss"]
-    source: Literal["meeting","note","task","all"]
-    # needs_tasks: bool
+    # source: Literal["meeting","note","task","all"]
+    use_tasks: bool
+    use_meetings: bool
+    use_notes: bool
 
 
 

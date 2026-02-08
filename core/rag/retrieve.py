@@ -1,14 +1,14 @@
-from typing import List, Optional
-from langchain_core.output_parsers import StrOutputParser,JsonOutputParser
-from prompts import *
+from typing import List, Optional, Dict
+from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from .prompts import *
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
-from models import LLM_MODEL, EMBED_MODEL
+from .models import LLM_MODEL, EMBED_MODEL
 from core.database.postgresDatabase import PostgresDatabase
-from core.database.repos import TaskRepository, MeetingRepository, MeetingChunkRepository
 from langchain_core.documents import Document
 import numpy as np
 from langchain_core.output_parsers import PydanticOutputParser
-import core.database.tables_data as tables_data
+from sqlalchemy import select, desc
+from core.database.models import Meeting, MeetingChunk, Note, Project
 
 llm = OllamaLLM(model=LLM_MODEL, temperature=0)
 embeddings = OllamaEmbeddings(model=EMBED_MODEL)
@@ -25,101 +25,124 @@ rewrite_chain = rewrite_prompt | llm | StrOutputParser()
 def rewrite_query(query: str):
     return rewrite_chain.invoke({"query": query})
 
-def cosine_similarity(query_embedding,chunk_embedding):
-    return np.dot(query_embedding, chunk_embedding) / (
-                np.linalg.norm(query_embedding) * np.linalg.norm(chunk_embedding)
-            )
+def embed_query(query):
+    return embeddings.embed_query(query)
 
-async def retrieve_context(query: str, project: str, source: str = "both"):
-    """Retrieve context from PostgreSQL database using vector similarity search"""
+async def retrieve_context(query: str, project_name: str, limit: int = 5) -> List[Document]:
+    """Retrieve context from PostgreSQL database using vector similarity search on both MeetingChunks and Notes"""
     db = PostgresDatabase()
     session_maker = db.get_session_maker()
-    meeting_repo = MeetingRepository(session_maker)
     
-    # Get query embedding
-    query_embedding = embeddings.embed_query(query)
-    query_embedding = np.array(query_embedding)
+    query_embedding = embed_query(query)
     
-    # Retrieve all meetings for the project
     async with session_maker() as session:
-        from sqlalchemy import select
-        from core.database.models import Meeting, MeetingChunk,Note
-        
-        # Query meetings by project
-        stmt = select(Meeting).where(Meeting.project_name == project)
-        result = await session.execute(stmt)
-        meetings = result.scalars().all()
-    
-    # Collect all chunks from meetings
-    all_chunks = []
-    for meeting in meetings:
-        chunks = await meeting_repo.get_all_chunks(meeting.id)
-        if chunks:
-            all_chunks.extend(chunks)
-    
-    # Calculate similarity scores and sort
-    chunk_similarities = []
-    for chunk in all_chunks:
-        if chunk.embedding:
-            chunk_embedding = np.array(chunk.embedding)
-            # Cosine similarity
-            similarity = cosine_similarity(query_embedding,chunk_embedding)
-            chunk_similarities.append((chunk, similarity))
-    
-    # Sort by similarity and get top k
-    chunk_similarities.sort(key=lambda x: x[1], reverse=True)
-    top_chunks = [chunk for chunk, _ in chunk_similarities[:8]]
-    
-    # Convert to Document objects for compatibility with downstream functions
-    docs = [
-        Document(
-            page_content=chunk.text_content,
-            metadata={
-                "project": project,
-                "speaker_names": chunk.speaker_names,
-                "meeting_id": chunk.meeting_id
-            }
+        # 1. Search Meeting Chunks
+        # We join with Meeting to filter by project and get meeting metadata
+        chunk_stmt = (
+            select(
+                MeetingChunk,
+                Meeting,
+                MeetingChunk.embedding.cosine_distance(query_embedding).label("distance")
+            )
+            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+            .where(Meeting.project_name == project_name)
+            .order_by("distance")
+            .limit(limit)
         )
-        for chunk in top_chunks
-    ]
-    
-    return docs
+        
+        chunk_results = await session.execute(chunk_stmt)
+        chunk_rows = chunk_results.all() # list of (MeetingChunk, Meeting, distance)
 
-async def get_tasks_for_user(assignee_name: str, project_name: str)-> Optional[List[tables_data.Task]]:
-    """Fetch tasks for a specific user in a project from PostgreSQL database"""
-    db = PostgresDatabase()
-    session_maker = db.get_session_maker()
-    task_repo = TaskRepository(session_maker)
-    
-    # Get all tasks for the project and filter by owner/assignee
-    tasks = await task_repo.get_by_developer_in_project(assignee_name,project_name)
-    return tasks
+        # 2. Search Notes
+        note_stmt = (
+            select(
+                Note,
+                Note.embedding.cosine_distance(query_embedding).label("distance")
+            )
+            .where(Note.project_name == project_name)
+            .order_by("distance")
+            .limit(limit)
+        )
 
+        note_results = await session.execute(note_stmt)
+        note_rows = note_results.all() # list of (Note, distance)
 
-compress_chain = (
-    compression_prompt
-    | llm
-    | StrOutputParser()
-)
+    # Combine and format results
+    docs = []
+
+    # Process chunks
+    for chunk, meeting, distance in chunk_rows:
+        # Distance is 0 to 2 (cosine distance), similarity = 1 - distance
+        # But we really just care about relative ranking usually. 
+        # For now let's keep the distance or convert to a score if needed.
+        # Let's perform a cutoff if distance is too high (low similarity) if desired, 
+        # but for now we just take the top K.
+        
+        docs.append(
+            Document(
+                page_content=chunk.text_content,
+                metadata={
+                    "source": "meeting",
+                    "type": "meeting_chunk",
+                    "project": project_name,
+                    "title": meeting.title,
+                    "meeting_id": meeting.id,
+                    "speaker_names": chunk.speaker_names,
+                    "date": meeting.date.isoformat() if meeting.date else None,
+                    "score": 1 - distance # Convert distance to similarity score
+                }
+            )
+        )
+
+    # Process notes
+    for note, distance in note_rows:
+        docs.append(
+            Document(
+                page_content=note.note_text,
+                metadata={
+                    "source": "note",
+                    "type": note.type,
+                    "project": project_name,
+                    "author": note.author,
+                    "file_name": note.file_name,
+                    "module": note.module,
+                    "tags": note.tags,
+                    "date": note.date.isoformat() if note.date else None,
+                    "score": 1 - distance
+                }
+            )
+        )
+
+    # Sort combined results by score (descending)
+    docs.sort(key=lambda x: x.metadata["score"], reverse=True)
+
+    # Return top K from the combined list
+    return docs[:limit]
+
+compress_chain = (compression_prompt | llm | StrOutputParser())
 
 def compress_context(docs, query):
-    raw_context = "\n\n".join(d.page_content for d in docs)
-    return compress_chain.invoke({
-        "context": raw_context,
-        "query": query
-    })
+    if not docs:
+        return ""
+    
+    # Format context with source information
+    formatted_docs = []
+    for d in docs:
+        source_info = f"[Source: {d.metadata.get('source', 'unknown')} - {d.metadata.get('type', 'unknown')}]"
+        if d.metadata.get('source') == 'meeting':
+            source_info += f" (Meeting: {d.metadata.get('title')})"
+        elif d.metadata.get('source') == 'note':
+            source_info += f" (Author: {d.metadata.get('author')})"
+            
+        formatted_docs.append(f"{source_info}\n{d.page_content}")
 
-rag_chain = (
-    rag_prompt
-    | llm
-    | StrOutputParser()
-)
+    raw_context = "\n\n---\n\n".join(formatted_docs)
+    return compress_chain.invoke({"context": raw_context, "query": query})
+
+rag_chain = (rag_prompt | llm | StrOutputParser())
 
 def answer_question(context, question):
-    return rag_chain.invoke({
-        "context": context,
-        "question": question
-    })
+    return rag_chain.invoke({"context": context, "question": question})
 
 async def mind_trace_query(
     query: str,
@@ -127,26 +150,21 @@ async def mind_trace_query(
     assignee_name: str
 ):
     """Main query function that uses PostgreSQL database for task retrieval and context"""
-    classification = classify_query(query)
+    # 1. Classify intent (optional, currently not fully utilized but kept for future structure)
+    # classification = classify_query(query) 
+    
+    # 2. Rewrite query for better retrieval
     rewritten = rewrite_query(query)
 
-    match classification.source:
-        case "task":
-            tasks = await get_tasks_for_user(assignee_name,project)
-            if tasks==None:
-                return
-            if classification.intent=="retrieve":
-                return tasks
-            
-
-
-
+    # 3. Retrieve context from DB (Meetings & Notes)
     docs = await retrieve_context(
         rewritten,
         project,
-        source=classification.source
+        limit=8 # Get top 8 chunks/notes total
     )
 
+    # 4. Compress context (re-rank/summarize)
     compressed = compress_context(docs, rewritten)
-
+    
+    # 5. Generate Answer
     return answer_question(compressed, query)
