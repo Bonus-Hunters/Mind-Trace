@@ -1,0 +1,291 @@
+/* ========================================
+   Meeting Summarization - Main Styles
+   ======================================== */
+
+/* Theme Colors */
+:root {
+    --primary-color: #6366f1;
+    --secondary-color: #8b5cf6;
+    --accent-color: #06b6d4;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --background-dark: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+}
+
+/* Hide Streamlit Branding */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* ========================================
+   Typography
+   ======================================== */
+
+.main-header {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 3rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.sub-header {
+    color: #94a3b8;
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    font-weight: 400;
+}
+
+/* ========================================
+   Cards & Containers
+   ======================================== */
+
+.stCard {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.transcript-container {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    margin-top: 1rem;
+}
+
+.transcript-text {
+    font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #e2e8f0;
+}
+
+.timestamp {
+    color: #6366f1;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.85rem;
+}
+
+/* ========================================
+   Stats Cards
+   ======================================== */
+
+.stat-card {
+    background: linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6366f1, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ========================================
+   Model Status Cards
+   ======================================== */
+
+.model-status {
+    padding: 1rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.model-loaded {
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.model-loaded .status-icon {
+    color: #10b981;
+    font-size: 1.5rem;
+}
+
+.model-loaded .status-text {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.model-not-loaded {
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.model-not-loaded .status-icon {
+    color: #f59e0b;
+    font-size: 1.5rem;
+}
+
+.model-not-loaded .status-text {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+
+.stButton > button {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    width: 100%;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
+}
+
+/* Upload Area */
+.uploadedFile {
+    background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+    border: 2px dashed rgba(99, 102, 241, 0.4) !important;
+    border-radius: 16px !important;
+}
+
+/* ========================================
+   Sidebar
+   ======================================== */
+
+.css-1d391kg {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* ========================================
+   Expander
+   ======================================== */
+
+.streamlit-expanderHeader {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+/* ========================================
+   Progress Bar
+   ======================================== */
+
+.stProgress > div > div {
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+}
+
+/* ========================================
+   Segments
+   ======================================== */
+
+.segment {
+    background: rgba(99, 102, 241, 0.05);
+    border-left: 3px solid #6366f1;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0;
+    border-radius: 0 8px 8px 0;
+    transition: background 0.2s ease;
+}
+
+.segment:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+/* ========================================
+   Info & Alert Boxes
+   ======================================== */
+
+.info-box {
+    background: linear-gradient(145deg, rgba(6, 182, 212, 0.1), rgba(99, 102, 241, 0.05));
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    margin: 1rem 0;
+}
+
+.warning-box {
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    margin: 1rem 0;
+}
+
+.success-box {
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    margin: 1rem 0;
+}
+
+/* ========================================
+   Dividers
+   ======================================== */
+
+.custom-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #6366f1, #8b5cf6, #06b6d4, transparent);
+    margin: 2rem 0;
+    border-radius: 1px;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #64748b;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-subtitle {
+    font-size: 0.9rem;
+}

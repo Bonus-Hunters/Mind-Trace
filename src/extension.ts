@@ -36,6 +36,17 @@ export function activate(context: vscode.ExtensionContext) {
           ),
         ),
       );
+      const styleUri = panel.webview.asWebviewUri(
+        vscode.Uri.file(
+          path.join(
+            context.extensionPath,
+            "webview-ui",
+            "dist",
+            "assets",
+            "index.css",
+          ),
+        ),
+      );
 
       // 3. Set the HTML
       panel.webview.html = `
@@ -44,6 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link rel="stylesheet" type="text/css" href="${styleUri}">
                 <title>Mindtrace</title>
             </head>
             <body>
