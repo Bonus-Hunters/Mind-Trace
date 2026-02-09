@@ -141,7 +141,24 @@ def compress_context(docs, query):
 rag_chain = (rag_prompt | llm | StrOutputParser())
 
 def answer_question(context, question):
+    print("==== RAG CONTEXT SENT TO LLM ====")
+    print(context)
+    print("================================")
+
     return rag_chain.invoke({"context": context, "question": question})
+def build_context(docs):
+    blocks = []
+    for d in docs:
+        blocks.append(
+            f"""Source: {d.metadata.get('source')}
+            Author: {d.metadata.get('author')}
+            Date: {d.metadata.get('date')}
+
+            Content:
+            {d.page_content}
+            """
+        )
+    return "\n---\n".join(blocks)
 
 async def mind_trace_query(
     query: str,
@@ -153,19 +170,20 @@ async def mind_trace_query(
     
     # 2. Rewrite query for better retrieval
     rewritten = rewrite_query(query)
-
+    print(rewritten)
     # 3. Retrieve context from DB (Meetings & Notes)
     docs = await retrieve_context(
         rewritten,
         project,
         limit=8 # Get top 8 chunks/notes total
     )
-
+    print(docs)
     # 4. Compress context (re-rank/summarize)
-    compressed = compress_context(docs, rewritten)
-    
+    # compressed = compress_context(docs, rewritten)
+    # print(compressed)
+    final_context = build_context(docs)
     # 5. Generate Answer
-    return answer_question(compressed, query)
+    return answer_question(final_context, query)
 
 if __name__ == "__main__":
     import asyncio

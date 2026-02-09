@@ -22,15 +22,24 @@ class IntentOutput(BaseModel):
 
 
 rewrite_prompt = PromptTemplate.from_template("""
-Rewrite the query to maximize semantic retrieval.
-Do NOT answer it.
+Rewrite the query into a short, concrete search query.
+Rules:
+- Output ONE sentence only
+- NO explanations
+- NO bullet points
+- NO meta reasoning
+- Preserve entities exactly as written
+- Prefer explicit filters like author, date, type when possible
 
 Query: {query}
 """)
 
 
 compression_prompt = PromptTemplate.from_template("""
-Extract only parts relevant to the query.
+From the context below, keep ONLY sentences that directly help answer the query.
+Do NOT explain.
+Do NOT rephrase.
+If nothing is relevant, return an empty string.
 
 Context:
 {context}
@@ -40,10 +49,14 @@ Query:
 """)
 
 
+
 rag_prompt = PromptTemplate.from_template("""
 You are Mind Trace Assistant.
-Answer ONLY from the context.
-If not found, say "Not found in project data".
+
+Rules:
+- Answer ONLY using the provided context
+- If the context does not answer the question, say exactly:
+  "Not found in project data"
 
 Context:
 {context}
@@ -51,5 +64,6 @@ Context:
 Question:
 {question}
 
-Answer with sources if possible.
+Answer:
 """)
+
