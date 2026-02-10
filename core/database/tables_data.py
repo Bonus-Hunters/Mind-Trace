@@ -12,11 +12,33 @@ class Project(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class Developer(BaseModel):
+class ProjectUpdate(BaseModel):
+    description: Optional[str] = None
+    delivered: Optional[bool] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EmployeeProject(BaseModel):
+    employee_name: str
+    project_name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Employees(BaseModel):
     name: str
     role: Optional[str] = Field(..., max_length=100)
     skills: Optional[List[str]] = []
+    voice_print: Optional[List[float]] = Field(
+        ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
+    )
+    model_config = ConfigDict(from_attributes=True)
 
+
+class EmployeeUpdate(BaseModel):
+    name: Optional[str] = Field(..., max_length=255)
+    role: Optional[str] = Field(..., max_length=100)
+    skills: Optional[List[str]] = []
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -28,13 +50,29 @@ class CategoryMap(BaseModel):
 
 
 class MeetingChunk(BaseModel):
-    text_content: str
+    raw_text: str
+    summary_text: str
+    start_time_sec: float
+    end_time_sec: float
     embedding: List[float] = Field(
         ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
     )
     speaker_names: List[str] = []
     meeting_id: int
+    meta: Optional[Dict[str, Any]]
+    model_config = ConfigDict(from_attributes=True)
 
+
+class MeetingChunkUpdate(BaseModel):
+    raw_text: Optional[str] = None
+    summary_text: Optional[str] = None
+    start_time_sec: Optional[float] = None
+    end_time_sec: Optional[float] = None
+    embedding: Optional[List[float]] = Field(
+        None, min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
+    )
+    speaker_names: Optional[List[str]] = None
+    meta: Optional[Dict[str, Any]] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -43,6 +81,12 @@ class Meeting(BaseModel):
     date: datetime
     project_name: str
     meta: Optional[Dict[str, Any]]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MeetingUpdate(BaseModel):
+    title: Optional[str] = Field(None, max_length=255)
+    meta: Optional[Dict[str, Any]] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -64,11 +108,28 @@ class Note(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class NoteUpdate(BaseModel):
+    type: Optional[str] = Field(None, max_length=50)
+    tags: Optional[str] = Field(None, max_length=255)
+    function: Optional[str] = None
+    file_name: Optional[str] = Field(None, max_length=50)
+    module: Optional[str] = Field(None, max_length=50)
+    meta: Optional[Dict[str, Any]] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
 class Task(BaseModel):
     description: str
     status: str = "todo"
     source_type: str = Field(..., description="'note' or 'meeting'")
     project_name: str
     assignee_name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TaskUpdate(BaseModel):
+    status: Optional[str] = None
+    assignee_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

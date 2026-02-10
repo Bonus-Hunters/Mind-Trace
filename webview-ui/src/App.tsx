@@ -2,7 +2,7 @@ import "./App.css";
 import { useState } from "react";
 import TabButton from "./components/TabButton.tsx";
 import { SearchPanel } from "./components/SearchPanel.tsx";
-import { AddNoteModal } from "./components/AddNoteModal.tsx";
+import { AddNoteModal } from "./components/NoteModal/AddNoteModal.tsx";
 import {
   Search,
   MessageSquare,
@@ -32,7 +32,6 @@ function App() {
           className="flex items-center gap-1 px-2 py-1 text-xs bg-[#0e639c] hover:bg-[#1177bb] rounded transition-colors"
         >
           <Plus className="w-3 h-3" />
-          New Note
         </button>
       </div>
 

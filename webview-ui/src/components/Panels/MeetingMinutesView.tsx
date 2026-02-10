@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { Calendar, Clock, Users, Tag, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  Calendar,
+  Clock,
+  Users,
+  Tag,
+  Filter,
+  GripHorizontal,
+} from "lucide-react";
 
 interface Meeting {
   id: string;
@@ -157,11 +164,56 @@ export function MeetingMinutesView() {
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(
     mockMeetings[0],
   );
+  const [topHeight, setTopHeight] = useState(50); // percentage
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+
+    const container = document.getElementById("meetings-container");
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const newHeight =
+      ((e.clientY - containerRect.top) / containerRect.height) * 100;
+
+    // Constrain between 20% and 80%
+    if (newHeight >= 20 && newHeight <= 80) {
+      setTopHeight(newHeight);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Add and remove mouse event listeners
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [isDragging]);
 
   return (
-    <div className="h-full flex flex-col bg-[#1e1e1e]">
+    <div
+      id="meetings-container"
+      className="h-full flex flex-col bg-[#1e1e1e] relative"
+    >
       {/* Meeting List */}
-      <div className="flex-1 overflow-auto p-2 space-y-2">
+      <div
+        className="overflow-auto p-2 space-y-2"
+        style={{ height: selectedMeeting ? `${topHeight}%` : "100%" }}
+      >
         {mockMeetings.map((meeting) => (
           <MeetingCard
             key={meeting.id}
@@ -172,9 +224,35 @@ export function MeetingMinutesView() {
         ))}
       </div>
 
+      {/* Resize Handle */}
+      {selectedMeeting && (
+        <div
+          onMouseDown={handleMouseDown}
+          className={`
+            flex items-center justify-center
+            border-t border-b border-[#3e3e42] 
+            bg-[#252526] cursor-ns-resize
+            transition-colors
+            ${isDragging ? "bg-[#007acc]" : "hover:bg-[#2a2d2e]"}
+          `}
+          style={{ height: "4px" }}
+        >
+          <GripHorizontal
+            className={`w-4 h-4 transition-colors ${isDragging ? "text-[#ffffff]" : "text-[#6a6a6a]"}`}
+            style={{
+              position: "absolute",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
+      )}
+
       {/* Selected Meeting Details - Expandable Bottom Panel */}
       {selectedMeeting && (
-        <div className="border-t border-[#3e3e42] bg-[#252526] max-h-96 overflow-auto">
+        <div
+          className="border-t border-[#3e3e42] bg-[#252526] overflow-auto"
+          style={{ height: `${100 - topHeight}%` }}
+        >
           <MeetingDetails meeting={selectedMeeting} />
         </div>
       )}

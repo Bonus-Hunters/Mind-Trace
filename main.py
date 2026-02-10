@@ -5,7 +5,7 @@ from core.config_loader import ConfigLoader, DatabaseConfigLoader
 from core.database.postgresDatabase import PostgresDatabase
 from core.database.repos import (
     ProjectRepository,
-    DeveloperRepository,
+    EmployeesRepository,
     CategoryMapRepository,
     NoteRepository,
     TaskRepository,
@@ -16,7 +16,7 @@ from core.database.tables_data import (
     Project,
     Meeting,
     MeetingChunk,
-    Developer,
+    Employees,
     CategoryMap,
     Note,
     Task,
@@ -39,7 +39,7 @@ async_session_maker = database.get_session_maker()
 
 print("--- Initializing Repositories ---")
 project_repo = ProjectRepository(async_session_maker)
-developer_repo = DeveloperRepository(async_session_maker)
+developer_repo = EmployeesRepository(async_session_maker)
 category_map_repo = CategoryMapRepository(async_session_maker)
 note_repo = NoteRepository(async_session_maker)
 task_repo = TaskRepository(async_session_maker)
@@ -82,13 +82,14 @@ async def test():
     obj1 = await task_repo.delete(1)
     return obj1
 
-asyncio.run(test())
 
-# asyncio.run(test2())
+# asyncio.run(test())
+
+asyncio.run(test2())
 
 # for p in proj:
 #     print(p.project_name)
-pprint.pprint(proj)
+# pprint.pprint(proj)
 
 # if proj is None:
 #     print(" --- project not found --- ")

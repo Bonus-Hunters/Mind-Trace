@@ -14,6 +14,14 @@ import core.database.models as models
 """
     - Should pass in any reposity the session maker from PostgresDatabase
     - Before passing data make sure to pass as dict and key names match the name in tables_data.py 
+        - then pass object to funcs as an instance of  tables_data classes 
+        - example:
+            data = {
+                "name": "Project Alpha", ... other fields
+            }
+            project_data = tables_data.Project(**data)
+            project_repo.create(project_data)
+            
     - As for embedding features, pass as List[float] -> embed it beforehand
     - emedding size is saved in utils/constants.py as EMBEDDING_SIZE
     - gonnna handle update function later 
@@ -45,6 +53,22 @@ class BaseRepository(Generic[T], ABC):
     async def _flush(self):
         await self._session_maker().flush()
 
+    async def generic_update(self, id: int, data: Any, model_class: Type[T]) -> bool:
+        async with self._get_session() as session:
+            stmt = select(model_class).where(model_class.id == id)
+            result = await session.execute(stmt)
+            db_item = result.scalars().first()
+
+            if not db_item:
+                return False
+
+            update_data = data.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
+                setattr(db_item, key, value)
+
+            await session.commit()
+            return True
+
 
 class ProjectRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
@@ -54,6 +78,12 @@ class ProjectRepository(BaseRepository):
     async def get_by_name(self, name: str) -> Optional[tables_data.Project]:
         async with self._get_session() as session:
             stmt = select(models.Project).where(models.Project.name == name)
+            result = await session.execute(stmt)
+            return result.scalars().first()
+
+    async def get_by_id(self, id: int) -> Optional[tables_data.Project]:
+        async with self._get_session() as session:
+            stmt = select(models.Project).where(models.Project.id == id)
             result = await session.execute(stmt)
             return result.scalars().first()
 
@@ -81,6 +111,25 @@ class ProjectRepository(BaseRepository):
                 return False
 
             await session.delete(project)
+            await session.commit()
+            return True
+
+    # should pass id of the desired project to update
+    async def update(self, id: int, data: tables_data.ProjectUpdate) -> bool:
+        async with self._get_session() as session:
+            project = await session.scalar(
+                select(models.Project).where(models.Project.id == id)
+            )
+
+            if not project:
+                print(
+                    f"--- Error updating project: Project with id {id} does not exist ---"
+                )
+                return False
+
+            for key, value in data.model_dump(exclude_unset=True).items():
+                setattr(project, key, value)
+
             await session.commit()
             return True
 
@@ -146,15 +195,15 @@ class CategoryMapRepository(BaseRepository):
             return True
 
 
-class DeveloperRepository(BaseRepository):
+class EmployeesRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
-        super().__init__(tables_data.Developer, session_maker)
+        super().__init__(tables_data.Employees, session_maker)
 
     # working
-    async def create(self, data: tables_data.Developer) -> bool:
+    async def create(self, data: tables_data.Employees) -> bool:
         async with self._get_session() as session:
             try:
-                new_developer = models.Developer(**data.model_dump())
+                new_developer = models.Employee(**data.model_dump())
                 session.add(new_developer)
                 await session.commit()
                 return True
@@ -163,22 +212,22 @@ class DeveloperRepository(BaseRepository):
                 await session.rollback()
                 return False
 
-    async def _get_obj(self, name: str) -> Optional[tables_data.Developer]:
+    async def _get_obj(self, name: str) -> Optional[tables_data.Employees]:
         async with self._get_session() as session:
-            stmt = select(models.Developer).where(models.Developer.name == name)
+            stmt = select(models.Employee).where(models.Employee.name == name)
             result = await session.execute(stmt)
             return result.scalars().first()
 
     # working
-    async def get_by_name(self, name: str) -> Optional[tables_data.Developer]:
+    async def get_by_name(self, name: str) -> Optional[tables_data.Employees]:
         async with self._get_session() as session:
             res = await self._get_obj(name)
             return res if res else None
 
     # working
-    async def get_by_role(self, role: str) -> Optional[List[tables_data.Developer]]:
+    async def get_by_role(self, role: str) -> Optional[List[tables_data.Employees]]:
         async with self._get_session() as session:
-            stmt = select(models.Developer).where(models.Developer.role == role)
+            stmt = select(models.Employee).where(models.Employee.role == role)
             result = await session.execute(stmt)
             return result.scalars().all()
 
@@ -193,6 +242,22 @@ class DeveloperRepository(BaseRepository):
                 return False
 
             await session.delete(res)
+            await session.commit()
+            return True
+
+    async def update(self, name: str, data: tables_data.EmployeeUpdate) -> bool:
+        async with self._get_session() as session:
+            employee = await self._get_obj(name)
+
+            if not employee:
+                print(
+                    f"--- Error updating employee: Employee name {name} does not exist ---"
+                )
+                return False
+
+            for key, value in data.model_dump(exclude_unset=True).items():
+                setattr(employee, key, value)
+
             await session.commit()
             return True
 
@@ -346,7 +411,7 @@ class NoteRepository(BaseRepository):
                     print(
                         f"--- Error creating note: Project {data.project_name} does not exist ---"
                     )
-                dev_repo = DeveloperRepository(self._session_maker)
+                dev_repo = EmployeesRepository(self._session_maker)
                 developer = await dev_repo.get_by_name(data.author)
                 if developer is None:
                     print(
@@ -441,7 +506,7 @@ class TaskRepository(BaseRepository):
                     print(
                         f"--- Error creating task: Project {data.project_name} does not exist ---"
                     )
-                developer = DeveloperRepository(self._session_maker)
+                developer = EmployeesRepository(self._session_maker)
                 developer = await developer.get_by_name(data.assignee_name)
                 if developer is None:
                     print(

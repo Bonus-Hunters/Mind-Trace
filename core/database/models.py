@@ -1,23 +1,51 @@
 from datetime import datetime
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from typing import List, Optional
-from sqlalchemy import String, ForeignKey, DateTime, ARRAY, Text, ForeignKeyConstraint
+from typing import List, Optional, Dict, Any
+from sqlalchemy import (
+    String,
+    ForeignKey,
+    DateTime,
+    ARRAY,
+    Text,
+    ForeignKeyConstraint,
+    Float,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 from utils.constants import EMBEDDING_SIZE
 from sqlalchemy.dialects.postgresql import JSONB
-from typing import Dict, Any
 
 
 class Base(DeclarativeBase):
     pass
 
 
+class CategoryMap(Base):
+    __tablename__ = "category_maps"
+
+    name: Mapped[str] = mapped_column(primary_key=True)
+    project_name: Mapped[str] = mapped_column(
+        ForeignKey("projects.name"), primary_key=True
+    )
+    type: Mapped[str] = mapped_column(String(50))
+
+
+class EmployeeProject(Base):
+    __tablename__ = "employee_projects"
+    # Foreign keys pointing to your primary keys
+    employee_name: Mapped[str] = mapped_column(
+        ForeignKey("employees.name", ondelete="CASCADE"), primary_key=True
+    )
+    project_name: Mapped[str] = mapped_column(
+        ForeignKey("projects.name", ondelete="CASCADE"), primary_key=True
+    )
+
+
 class Project(Base):
     __tablename__ = "projects"
-
-    name: Mapped[str] = mapped_column(String(255), primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     delivered: Mapped[bool] = mapped_column(default=False)
@@ -32,26 +60,26 @@ class Project(Base):
     notes: Mapped[List["Note"]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
-
-
-class CategoryMap(Base):
-    __tablename__ = "category_maps"
-
-    name: Mapped[str] = mapped_column(primary_key=True)
-    project_name: Mapped[str] = mapped_column(
-        ForeignKey("projects.name"), primary_key=True
+    team_members: Mapped[List["Employee"]] = relationship(
+        secondary="employee_projects",
+        back_populates="assigned_projects",
     )
-    type: Mapped[str] = mapped_column(String(50))
 
 
-class Developer(Base):
-    __tablename__ = "developers"
-
-    name: Mapped[str] = mapped_column(primary_key=True)
+class Employee(Base):
+    __tablename__ = "employees"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     role: Mapped[str] = mapped_column(String(100), nullable=True)
-    skills: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
-
-    # Relationship for Tasks
+    skills: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), nullable=True)
+    voice_print: Mapped[Optional[List[float]]] = mapped_column(
+        Vector(dim=EMBEDDING_SIZE), nullable=True
+    )
+    assigned_projects: Mapped[List["Project"]] = relationship(
+        secondary="employee_projects",  # Matches the __tablename__ of the link table
+        back_populates="team_members",
+    )
+    # Relationships
     tasks: Mapped[List["Task"]] = relationship(back_populates="owner")
 
 
@@ -78,12 +106,20 @@ class MeetingChunk(Base):
     meeting_id: Mapped[int] = mapped_column(
         ForeignKey("meetings.id", ondelete="CASCADE")
     )
-    text_content: Mapped[str] = mapped_column(Text)
+    raw_text: Mapped[str] = mapped_column(Text)
+    summary_text: Mapped[str] = mapped_column(Text)
+
+    start_time_sec: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    end_time_sec: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+
+    meta: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        JSONB, default=dict, server_default="{}", nullable=True
+    )
 
     # Using pgvector for embeddings (requires 'pip install pgvector')
     embedding: Mapped[Optional[List[float]]] = mapped_column(Vector(dim=EMBEDDING_SIZE))
 
-    # FKs to Developers (Speakers)
+    # FKs to Employees (Speakers)
     speaker_names: Mapped[List[str]] = mapped_column(ARRAY(String))
 
     meeting: Mapped["Meeting"] = relationship(back_populates="chunks")
@@ -123,7 +159,7 @@ class Task(Base):
         ForeignKey("projects.name", ondelete="CASCADE")
     )
     assignee_name: Mapped[str] = mapped_column(
-        ForeignKey("developers.name", ondelete="SET NULL")
+        ForeignKey("employees.name", ondelete="SET NULL")
     )
     description: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(
@@ -134,4 +170,4 @@ class Task(Base):
     source_type: Mapped[str] = mapped_column(String(20))  # 'note' or 'meeting'
 
     project: Mapped["Project"] = relationship(back_populates="tasks")
-    owner: Mapped["Developer"] = relationship(back_populates="tasks")
+    owner: Mapped["Employee"] = relationship(back_populates="tasks")
