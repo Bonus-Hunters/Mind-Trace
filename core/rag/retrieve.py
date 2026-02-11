@@ -8,31 +8,15 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import PydanticOutputParser
 from sqlalchemy import select
 from core.database.models import Meeting, MeetingChunk, Note
+from core.rag.llm_factory import get_llm, get_embeddings
+from core.rag.llm_config import LLMConfig
 
-llm = OllamaLLM(model=LLM_MODEL, temperature=0)
-embeddings = OllamaEmbeddings(model=EMBED_MODEL)
-
-parser = PydanticOutputParser(pydantic_object=IntentOutput)
-
-intent_chain = intent_prompt | llm | parser
-
-def classify_query(query: str) -> IntentOutput:
-    return intent_chain.invoke({"query": query})
-
-rewrite_chain = rewrite_prompt | llm | StrOutputParser()
-
-def rewrite_query(query: str):
-    return rewrite_chain.invoke({"query": query})
-
-def embed_query(query):
-    return embeddings.embed_query(query)
-
-async def retrieve_context(query: str, project_name: str, limit: int = 5) -> List[Document]:
+async def retrieve_context(query: str, project_name: str, limit: int,embed_query_fn) -> List[Document]:
     """Retrieve context from PostgreSQL database using vector similarity search on both MeetingChunks and Notes"""
     db = PostgresDatabase()
     session_maker = db.get_session_maker()
     
-    query_embedding = embed_query(query)
+    query_embedding = embed_query_fn(query)
     
     async with session_maker() as session:
         # 1. Search Meeting Chunks
@@ -118,34 +102,28 @@ async def retrieve_context(query: str, project_name: str, limit: int = 5) -> Lis
     # Return top K from the combined list
     return docs[:limit]
 
-compress_chain = (compression_prompt | llm | StrOutputParser())
 
-def compress_context(docs, query):
-    if not docs:
-        return ""
+# def compress_context(docs, query):
+#     if not docs:
+#         return ""
     
-    # Format context with source information
-    formatted_docs = []
-    for d in docs:
-        source_info = f"[Source: {d.metadata.get('source', 'unknown')} - {d.metadata.get('type', 'unknown')}]"
-        if d.metadata.get('source') == 'meeting':
-            source_info += f" (Meeting: {d.metadata.get('title')})"
-        elif d.metadata.get('source') == 'note':
-            source_info += f" (Author: {d.metadata.get('author')})"
+#     # Format context with source information
+#     formatted_docs = []
+#     for d in docs:
+#         source_info = f"[Source: {d.metadata.get('source', 'unknown')} - {d.metadata.get('type', 'unknown')}]"
+#         if d.metadata.get('source') == 'meeting':
+#             source_info += f" (Meeting: {d.metadata.get('title')})"
+#         elif d.metadata.get('source') == 'note':
+#             source_info += f" (Author: {d.metadata.get('author')})"
             
-        formatted_docs.append(f"{source_info}\n{d.page_content}")
+#         formatted_docs.append(f"{source_info}\n{d.page_content}")
 
-    raw_context = "\n\n---\n\n".join(formatted_docs)
-    return compress_chain.invoke({"context": raw_context, "query": query})
+#     raw_context = "\n\n---\n\n".join(formatted_docs)
+#     return compress_chain.invoke({"context": raw_context, "query": query})
 
-rag_chain = (rag_prompt | llm | StrOutputParser())
 
-def answer_question(context, question):
-    print("==== RAG CONTEXT SENT TO LLM ====")
-    print(context)
-    print("================================")
 
-    return rag_chain.invoke({"context": context, "question": question})
+
 def build_context(docs):
     blocks = []
     for d in docs:
@@ -162,28 +140,38 @@ def build_context(docs):
 
 async def mind_trace_query(
     query: str,
-    project: str
+    project: str,
+    llm_config: LLMConfig,
+    embed_config: LLMConfig
 ):
-    """Main query function that uses PostgreSQL database for task retrieval and context"""
-    # 1. Classify intent (optional, currently not fully utilized but kept for future structure)
-    # classification = classify_query(query) 
-    
-    # 2. Rewrite query for better retrieval
+    llm = get_llm(llm_config)
+    embeddings = get_embeddings(embed_config)
+
+    parser = PydanticOutputParser(pydantic_object=IntentOutput)
+
+    intent_chain = intent_prompt | llm | parser
+    rewrite_chain = rewrite_prompt | llm | StrOutputParser()
+    rag_chain = rag_prompt | llm | StrOutputParser()
+    compress_chain = (compression_prompt | llm | StrOutputParser())
+
+    def rewrite_query(query):
+        return rewrite_chain.invoke({"query": query})
+
+    def embed_query(query):
+        return embeddings.embed_query(query)
+
     rewritten = rewrite_query(query)
-    print(rewritten)
-    # 3. Retrieve context from DB (Meetings & Notes)
+
     docs = await retrieve_context(
         rewritten,
         project,
-        limit=8 # Get top 8 chunks/notes total
+        limit=8,
+        embed_query_fn=embed_query
     )
-    print(docs)
-    # 4. Compress context (re-rank/summarize)
-    # compressed = compress_context(docs, rewritten)
-    # print(compressed)
+
     final_context = build_context(docs)
-    # 5. Generate Answer
-    return answer_question(final_context, query)
+    return rag_chain.invoke({"context": final_context, "question": query})
+
 
 if __name__ == "__main__":
     import asyncio
