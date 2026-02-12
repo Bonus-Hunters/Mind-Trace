@@ -5,6 +5,29 @@ import * as vscode from "vscode";
 // This method is called
 import * as path from "path";
 
+function handleReceivedMessage(
+  webview: vscode.Webview,
+  context: vscode.ExtensionContext,
+) {
+  webview.onDidReceiveMessage(
+    (message: any) => {
+      switch (message.command) {
+        case "saveNote":
+          console.log("Saving note in extension.ts", message);
+          return;
+        case "log":
+          vscode.window.showInformationMessage(
+            `Log from webview: ${message.msg}`,
+          );
+          console.log("Log from webview:", message.msg);
+          return;
+      }
+    },
+    undefined,
+    context.subscriptions,
+  );
+}
+
 export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     "Mind-Trace.helloWorld",
@@ -23,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
           ],
         },
       );
-
+      handleReceivedMessage(panel.webview, context);
       // 2. Generate the path to your React JS file
       const scriptUri = panel.webview.asWebviewUri(
         vscode.Uri.file(

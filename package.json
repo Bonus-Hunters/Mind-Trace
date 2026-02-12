@@ -15,7 +15,8 @@
     "commands": [
       {
         "command": "Mind-Trace.helloWorld",
-        "title": "Hello World"
+        "title": "Hello World",
+        "category": "Mind-Trace"
       }
     ]
   },

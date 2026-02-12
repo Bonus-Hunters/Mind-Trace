@@ -3,6 +3,7 @@ import { X, FileText, FunctionSquare, Tag, Calendar } from "lucide-react";
 import MeetingContent from "./MeetingContent";
 import TagsInput from "./TagsInput";
 import { TypeButton } from "./TypeButtons";
+// import { vscode } from "../../scripts/vscodeApi.ts";
 
 interface AddNoteModalProps {
   onClose: () => void;
@@ -23,6 +24,12 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
   const [meetingDate, setMeetingDate] = useState("");
   const [language, setLanguage] = useState("en");
   const [audioFile, setAudioFile] = useState<File | null>(null);
+
+  const handleSave = () => {
+    // Example of sending data back to the extension
+
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -181,7 +188,7 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
             Cancel
           </button>
           <button
-            onClick={onClose}
+            onClick={handleSave}
             disabled={
               noteType === "meeting"
                 ? !title || !meetingDate || !audioFile
