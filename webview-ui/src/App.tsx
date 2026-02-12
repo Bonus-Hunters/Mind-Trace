@@ -32,9 +32,10 @@ function App() {
         </div>
         <button
           onClick={() => {
+            console.log("Plus button clicked!");
             {
               if (vscode) console.log("vscode api in App.tsx:", vscode);
-              vscode.postMessage("log", {
+              vscode.postMessage("openAddNoteModal", {
                 msg: "working biches",
               });
               setShowAddNote(true);

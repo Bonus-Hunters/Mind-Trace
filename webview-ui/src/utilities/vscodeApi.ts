@@ -20,6 +20,7 @@ class VSCodeWrapper {
   }
 
   public postMessage(command: string, data?: any) {
+    console.log("Webview: Sending message:", { command, data });
     this.vscode.postMessage({ command, data });
   }
 }
