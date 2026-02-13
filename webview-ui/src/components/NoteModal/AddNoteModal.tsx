@@ -3,7 +3,7 @@ import { X, FileText, FunctionSquare, Tag, Calendar } from "lucide-react";
 import MeetingContent from "./MeetingContent";
 import TagsInput from "./TagsInput";
 import { TypeButton } from "./TypeButtons";
-// import { vscode } from "../../scripts/vscodeApi.ts";
+import { vscode } from "../../utilities/vscodeApi.ts";
 
 interface AddNoteModalProps {
   onClose: () => void;
@@ -23,11 +23,30 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
   // Meeting-specific fields
   const [meetingDate, setMeetingDate] = useState("");
   const [language, setLanguage] = useState("en");
-  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState(null);
+
+  const closeModal = () => {
+    vscode.postMessage("closeAddNoteModal", {
+      audioFile: audioFile,
+    });
+    onClose();
+  };
 
   const handleSave = () => {
-    // Example of sending data back to the extension
-
+    vscode.postMessage("saveNote", {
+      data: {
+        noteType: noteType,
+        title: title,
+        description: description,
+        filePath: filePath,
+        functionName: functionName,
+        lineNumber: lineNumber,
+        tags: tags,
+        meetingDate: meetingDate,
+        language: language,
+        audioFile: audioFile,
+      },
+    });
     onClose();
   };
 
@@ -40,7 +59,7 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
             {noteType === "meeting" ? "Add Meeting" : "Add New Note"}
           </h2>
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="p-1 hover:bg-[#2a2d2e] rounded transition-colors"
           >
             <X className="w-4 h-4 text-[#cccccc]" />
@@ -182,7 +201,7 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 p-4 border-t border-[#3e3e42]">
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="px-4 py-1.5 text-xs bg-[#3c3c3c] hover:bg-[#4a4a4a] text-[#cccccc] rounded transition-colors"
           >
             Cancel

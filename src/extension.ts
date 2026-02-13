@@ -1,32 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-
 // This method is called
 import * as path from "path";
-
-function handleReceivedMessage(
-  webview: vscode.Webview,
-  context: vscode.ExtensionContext,
-) {
-  webview.onDidReceiveMessage(
-    (message: any) => {
-      switch (message.command) {
-        case "saveNote":
-          console.log("Saving note in extension.ts", message);
-          return;
-        case "log":
-          vscode.window.showInformationMessage(
-            `Log from webview: ${message.msg}`,
-          );
-          console.log("Log from webview:", message.msg);
-          return;
-      }
-    },
-    undefined,
-    context.subscriptions,
-  );
-}
+import { getUri, handleReceivedMessage } from "./utilities";
 
 export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
@@ -48,28 +25,18 @@ export function activate(context: vscode.ExtensionContext) {
       );
       handleReceivedMessage(panel.webview, context);
       // 2. Generate the path to your React JS file
-      const scriptUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(
-          path.join(
-            context.extensionPath,
-            "webview-ui",
-            "dist",
-            "assets",
-            "index.js",
-          ),
-        ),
-      );
-      const styleUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(
-          path.join(
-            context.extensionPath,
-            "webview-ui",
-            "dist",
-            "assets",
-            "index.css",
-          ),
-        ),
-      );
+      const scriptUri = getUri(panel.webview, context.extensionUri, [
+        "webview-ui",
+        "dist",
+        "assets",
+        "index.js",
+      ]);
+      const styleUri = getUri(panel.webview, context.extensionUri, [
+        "webview-ui",
+        "dist",
+        "assets",
+        "index.css",
+      ]);
 
       // 3. Set the HTML
       panel.webview.html = `
@@ -78,6 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src ${panel.webview.cspSource};">
                 <link rel="stylesheet" type="text/css" href="${styleUri}">
                 <title>Mindtrace</title>
             </head>

@@ -12,15 +12,12 @@ import {
 } from "lucide-react";
 import { AISummaryPanel } from "./components/Panels/AISummaryPanel.tsx";
 import { MeetingMinutesView } from "./components/Panels/MeetingMinutesView.tsx";
-import { vscode } from "./utilities/vscodeApi.ts";
 
 type View = "search" | "ai" | "meetings";
 
 function App() {
   const [currentView, setCurrentView] = useState<View>("search");
   const [showAddNote, setShowAddNote] = useState(false);
-
-  const [status, setStatus] = useState("Ready");
 
   return (
     <div className="h-screen shrink-0 min-w-xs overflow-x-hidden flex flex-col bg-[#1e1e1e] text-[#cccccc]">
@@ -32,14 +29,7 @@ function App() {
         </div>
         <button
           onClick={() => {
-            console.log("Plus button clicked!");
-            {
-              if (vscode) console.log("vscode api in App.tsx:", vscode);
-              vscode.postMessage("openAddNoteModal", {
-                msg: "working biches",
-              });
-              setShowAddNote(true);
-            }
+            setShowAddNote(true);
           }}
           className="flex items-center gap-1 px-2 py-1 text-xs bg-[#0e639c] hover:bg-[#1177bb] rounded transition-colors"
         >

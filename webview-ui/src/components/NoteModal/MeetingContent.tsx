@@ -1,6 +1,7 @@
-import React from "react";
+import { useEffect } from "react";
 import { X, Calendar, Upload } from "lucide-react";
 import TagsInput from "./TagsInput";
+import { vscode } from "../../utilities/vscodeApi.ts";
 
 const languageOptions = [
   { value: "en", label: "English" },
@@ -17,6 +18,10 @@ const languageOptions = [
   { value: "hi", label: "Hindi" },
 ];
 
+const handleUpload = () => {
+  vscode.postMessage("selectAudioFile");
+};
+
 const MeetingContent = ({
   title,
   meetingDate,
@@ -29,26 +34,27 @@ const MeetingContent = ({
   setTags,
   setAudioFile,
 }: any) => {
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const allowedFormats = [
-        "audio/wav",
-        "audio/mp4",
-        "audio/mpeg",
-        "audio/m4a",
-        "video/mp4",
-      ];
-      if (
-        allowedFormats.includes(file.type) ||
-        file.name.match(/\.(wav|mp4|mp3|m4a)$/i)
-      ) {
-        setAudioFile(file);
-      } else {
-        alert("Please select a valid audio file (wav, mp3, mp4, m4a)");
+  useEffect(() => {
+    // define the listener function
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+
+      switch (message.command) {
+        case "audioProcessingFinished":
+          setAudioFile({
+            filename: message.data.filename,
+            size: message.data.size,
+          });
+          break;
       }
-    }
-  };
+    };
+
+    // Add the listener to the window
+    window.addEventListener("message", handleMessage);
+
+    // Clean up the listener when the component unmounts
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   return (
     <div>
@@ -97,7 +103,6 @@ const MeetingContent = ({
                 {option.label}
               </option>
             ))}
-            ;
           </select>
         </div>
 
@@ -109,14 +114,7 @@ const MeetingContent = ({
           <label className="block text-xs text-[#cccccc] mb-2 font-mono">
             Audio File *
           </label>
-          <div className="space-y-2">
-            <input
-              type="file"
-              id="audio-upload"
-              accept=".wav,.mp3,.mp4,.m4a,audio/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
+          <div className="space-y-2" onClick={handleUpload}>
             <label
               htmlFor="audio-upload"
               className="flex items-center justify-center gap-2 w-full px-3 py-3 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] hover:bg-[#4a4a4a] transition-colors cursor-pointer"
@@ -124,29 +122,32 @@ const MeetingContent = ({
               <Upload className="w-4 h-4" />
               <span className="font-mono">Browse Audio File</span>
             </label>
-            {audioFile && (
-              <div className="flex items-center justify-between px-3 py-2 bg-[#252526] border border-[#3e3e42] rounded">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xs text-[#4ec9b0] font-mono">📁</span>
-                  <span className="text-xs text-[#cccccc] font-mono truncate">
-                    {audioFile.name}
-                  </span>
-                  <span className="text-xs text-[#6a6a6a] font-mono flex-shrink-0">
-                    ({(audioFile.size / 1024 / 1024).toFixed(2)} MB)
-                  </span>
-                </div>
-                <button
-                  onClick={() => setAudioFile(null)}
-                  className="ml-2 p-1 hover:bg-[#3c3c3c] rounded transition-colors flex-shrink-0"
-                >
-                  <X className="w-3 h-3 text-[#cccccc]" />
-                </button>
-              </div>
+
+            {!audioFile && (
+              <p className="text-xs text-[#6a6a6a] font-mono">
+                Supported formats: WAV, MP3, MP4, M4A
+              </p>
             )}
-            <p className="text-xs text-[#6a6a6a] font-mono">
-              Supported formats: WAV, MP3, MP4, M4A
-            </p>
           </div>
+          {audioFile && (
+            <div className="flex items-center justify-between px-3 py-2 bg-[#252526] border border-[#3e3e42] rounded">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs text-[#4ec9b0] font-mono">📁</span>
+                <span className="text-xs text-[#cccccc] font-mono truncate">
+                  {audioFile.filename}
+                </span>
+                <span className="text-xs text-[#6a6a6a] font-mono flex-shrink-0">
+                  ({(audioFile.size / 1024 / 1024).toFixed(2)} MB)
+                </span>
+              </div>
+              <button
+                onClick={() => setAudioFile(null)}
+                className="ml-2 p-1 hover:bg-[#3c3c3c] rounded transition-colors flex-shrink-0"
+              >
+                <X className="w-3 h-3 text-[#cccccc]" />
+              </button>
+            </div>
+          )}
         </div>
       </>
     </div>
