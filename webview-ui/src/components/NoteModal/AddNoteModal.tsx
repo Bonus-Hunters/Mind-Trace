@@ -34,18 +34,17 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
 
   const handleSave = () => {
     vscode.postMessage("saveNote", {
-      data: {
-        noteType: noteType,
-        title: title,
-        description: description,
-        filePath: filePath,
-        functionName: functionName,
-        lineNumber: lineNumber,
-        tags: tags,
-        meetingDate: meetingDate,
-        language: language,
-        audioFile: audioFile,
-      },
+      noteType: noteType,
+      title: title,
+      description: description,
+      filePath: filePath,
+      functionName: functionName,
+      lineNumber: lineNumber,
+      tags: tags,
+      meetingDate: meetingDate,
+      language: language,
+      audioFile: audioFile,
+
     });
     onClose();
   };

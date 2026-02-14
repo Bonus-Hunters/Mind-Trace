@@ -59,6 +59,25 @@ async function _closeAddNoteModal(panel: vscode.Webview, data?: any) {
   }
 }
 
+async function _process_meeting(panel: vscode.Webview, data?: any) {
+  try {
+    const meeting_data = {
+      filename: data.audioFile.filename,
+      tags: data.tags,
+      title: data.title,
+      description: data.description,
+      meetingDate: data.meetingDate,
+    };
+    console.log("Sending meeting data to backend:", meeting_data);
+    const response = await axios.post(
+      `http://127.0.0.1:8000/process_meeting`,
+      meeting_data,
+    );
+  } catch (error) {
+    vscode.window.showErrorMessage(`Failed to save data properly: ${error}`);
+  }
+}
+
 export function handleReceivedMessage(
   panel: vscode.Webview,
   context: vscode.ExtensionContext,
@@ -76,6 +95,7 @@ export function handleReceivedMessage(
             case "feature":
               return;
             case "meeting":
+              _process_meeting(panel, message.data);
               return;
           }
           return;

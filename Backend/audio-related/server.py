@@ -9,7 +9,7 @@ TEMP_PATH = "../../Temp"
 app = FastAPI()
 
 origins = [
-    "http://localhost:8080",
+    "http://localhost:8000",
 ]
 
 app.add_middleware(
@@ -19,6 +19,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.onevent("startup")
+async def startup_event():
+    pass
+
+
+@app.onevent("shutdown")
+async def shutdown_event():
+    pass
 
 
 @app.post("/save_meeting_audio")
@@ -44,6 +54,14 @@ async def close_modal(filename: str):
     return {"message": "Modal closed successfully"}
 
 
-@app.post("/process-meeting")
-async def process_meeting():
-    pass
+@app.post("/process_meeting")
+async def process_meeting(data: dict):
+    file = f"{TEMP_PATH}/Audio/{data.filename}"
+    audio = None
+    if os.path.exists(file):
+        with open(file, "rb") as f:
+            audio = f.read()
+    if audio is None:
+        return JSONResponse(status_code=404, content={"error": "Audio file not found"})
+
+    return {"message": "Meeting processed successfully"}
