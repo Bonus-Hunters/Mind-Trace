@@ -26,7 +26,7 @@ def upgrade() -> None:
         "meeting_chunks",
         "embedding",
         existing_type=pgvector.sqlalchemy.vector.VECTOR(dim=1536),
-        type_=pgvector.sqlalchemy.vector.VECTOR(dim=1024),
+        type_=pgvector.sqlalchemy.vector.VECTOR(dim=384),
         existing_nullable=True,
     )
     op.alter_column(

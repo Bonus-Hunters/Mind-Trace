@@ -18,6 +18,8 @@ const languageOptions = [
   { value: "hi", label: "Hindi" },
 ];
 
+const projectOptions = [{ value: "Test Project2", label: "Test Project2" }];
+
 const handleUpload = () => {
   vscode.postMessage("selectAudioFile");
 };
@@ -33,6 +35,8 @@ const MeetingContent = ({
   setLanguage,
   setTags,
   setAudioFile,
+  setProjectName,
+  projectName,
 }: any) => {
   useEffect(() => {
     // define the listener function
@@ -41,6 +45,10 @@ const MeetingContent = ({
 
       switch (message.command) {
         case "audioProcessingFinished":
+          console.log(
+            "Received audio processing result in react:",
+            message.data.filename,
+          );
           setAudioFile({
             filename: message.data.filename,
             size: message.data.size,
@@ -55,7 +63,7 @@ const MeetingContent = ({
     // Clean up the listener when the component unmounts
     return () => window.removeEventListener("message", handleMessage);
   }, []);
-
+  setProjectName(projectOptions[0].value); // Set default project name on component mount
   return (
     <div>
       <>
@@ -79,7 +87,7 @@ const MeetingContent = ({
           </label>
           <div className="relative">
             <input
-              type="datetime-local"
+              type="date"
               value={meetingDate}
               onChange={(e) => setMeetingDate(e.target.value)}
               className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
@@ -105,7 +113,23 @@ const MeetingContent = ({
             ))}
           </select>
         </div>
-
+        {/* Project Name */}
+        <div>
+          <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+            Project Name *
+          </label>
+          <select
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono appearance-none cursor-pointer"
+          >
+            {projectOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
         {/* Tags */}
         <TagsInput tags={tags} setTags={setTags} />
 

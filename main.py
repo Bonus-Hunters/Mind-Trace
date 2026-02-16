@@ -1,9 +1,9 @@
 import pprint
 import asyncio, warnings
 from datetime import datetime
-from core.config_loader import ConfigLoader, DatabaseConfigLoader
-from core.database.postgresDatabase import PostgresDatabase
-from core.database.repos import (
+from backend.core.config_loader import ConfigLoader, DatabaseConfigLoader
+from backend.core.database.postgresDatabase import PostgresDatabase
+from backend.core.database.repos import (
     ProjectRepository,
     EmployeesRepository,
     CategoryMapRepository,
@@ -12,7 +12,7 @@ from core.database.repos import (
     MeetingRepository,
     MeetingChunkRepository,
 )
-from core.database.tables_data import (
+from backend.core.database.tables_data import (
     Project,
     Meeting,
     MeetingChunk,
@@ -20,14 +20,6 @@ from core.database.tables_data import (
     CategoryMap,
     Note,
     Task,
-)
-from utils.constants import EMBEDDING_SIZE
-from utils.enums import (
-    CategoryType,
-    NoteType,
-    DeveloperRole,
-    TaskSourceType,
-    TaskStatus,
 )
 
 
@@ -46,25 +38,19 @@ task_repo = TaskRepository(async_session_maker)
 meeting_repo = MeetingRepository(async_session_maker)
 meeting_chunk_repo = MeetingChunkRepository(async_session_maker)
 
+meeting_data = {
+    "title": "Projeaaaaickoff",
+    "date": "2024-10-01",
+    "language": "en",
+    "duration_sec": 3600,
+    "project_name": "Test Project2",
+    "meta": {"location": "Zoom", "organizer": "Alice"},
+}
+
 print("--- Repositories Created ---")
 
 print(" --- starting to test project repo")
 embedding = [0.0] * 1536
-
-task1 = {
-    "project_name": "Test Project2",  # Must exist in 'projects' table
-    "assignee_name": "hossam",  # Must exist in 'developers' table
-    "description": "Refactor the vector search logic to support cosine similarity and increase top_k results to 10.",
-    "status": "in_progress",  # Options: todo, in_progress, done
-    "source_type": "meeting",  # Origin of the task
-}
-task2 = {
-    "project_name": "Test Project2",
-    "assignee_name": "mahmoud",  # Must exist in 'developers' table
-    "description": "Refactor the vector search logic to support cosine similarity and increase top_k results to 10.",
-    "status": "complited ",  # Options: todo, in_progress, done
-    "source_type": "note",  # Origin of the task
-}
 
 
 # try:
@@ -73,20 +59,26 @@ task2 = {
 #     print(f"--- Error creating Project instance: {e} ---")
 
 
+# tmp = Task(**task1)
+
+# print(tmp)
+# print("------------[]")
+# print(tmp.description)
+
+
 async def test2():
-    await task_repo.create(Task(**task1))
-    await task_repo.create(Task(**task2))
+    return await meeting_repo.create(Meeting(**meeting_data))
 
 
-async def test():
-    obj1 = await task_repo.delete(1)
-    return obj1
+# async def test():
+#     obj1 = await task_repo.delete(1)
+#     return obj1
 
 
-# asyncio.run(test())
+# # asyncio.run(test())
 
-asyncio.run(test2())
-
+id = asyncio.run(test2())
+print(f"Created meeting with ID: {id}")
 # for p in proj:
 #     print(p.project_name)
 # pprint.pprint(proj)

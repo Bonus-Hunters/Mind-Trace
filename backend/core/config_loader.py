@@ -1,9 +1,11 @@
 import os, logging
 from dotenv import load_dotenv
+from pathlib import Path
 
 
 class DatabaseConfigLoader:
     _instance = None
+    current_dir = Path(__file__).resolve().parent.parent
 
     def __new__(cls):
         if cls._instance is None:
@@ -13,7 +15,7 @@ class DatabaseConfigLoader:
 
     # load variables from .env file only once
     def _load_config(self):
-        env_file = f"docker/postgres/postgres.env"
+        env_file = self.current_dir / "docker" / "postgres" / "postgres.env"
 
         if os.path.exists(env_file):
             load_dotenv(dotenv_path=env_file)
@@ -26,6 +28,7 @@ class DatabaseConfigLoader:
 
 class ConfigLoader:
     _instance = None
+    current_dir = Path(__file__).resolve().parent.parent
 
     def __new__(cls):
         if cls._instance is None:
@@ -35,7 +38,12 @@ class ConfigLoader:
 
     # load variables from .env file only once
     def _load_config(self):
-        load_dotenv()
+        env_file = self.current_dir / ".env"
+
+        if os.path.exists(env_file):
+            load_dotenv(dotenv_path=env_file)
+        else:
+            print(f"--- Warning [config_loader.py]: {env_file} not found ---")
 
     def get(self, key, default=None):
         return getattr(self, key.lower(), os.getenv(key, default))

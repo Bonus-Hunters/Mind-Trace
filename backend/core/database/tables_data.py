@@ -54,9 +54,7 @@ class MeetingChunk(BaseModel):
     summary_text: str
     start_time_sec: float
     end_time_sec: float
-    embedding: List[float] = Field(
-        ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
-    )
+    embedding: List[float] = Field(..., min_items=384, max_items=384)
     speaker_names: List[str] = []
     meeting_id: int
     meta: Optional[Dict[str, Any]]
@@ -79,8 +77,11 @@ class MeetingChunkUpdate(BaseModel):
 class Meeting(BaseModel):
     title: str = Field(..., max_length=255)
     date: datetime
+    language: str = Field(None, max_length=50)
+    duration_sec: Optional[float] = None
     project_name: str
     meta: Optional[Dict[str, Any]]
+    # tags: Optional[str] = Field(None, max_length=255)
     model_config = ConfigDict(from_attributes=True)
 
 

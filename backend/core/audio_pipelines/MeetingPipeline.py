@@ -10,10 +10,10 @@ from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 import json
 
-from Models.audio.SileroVad import SileroVAD
-from Models.audio.SpeakerDiarization import SpeakerDiarizer
-from Models.audio.FasterWhisper import FasterWhisperTranscriber
-from Models.audio.TextSummarizer import TextSummarizer
+from models.audio.SileroVad import SileroVAD
+from models.audio.SpeakerDiarization import SpeakerDiarizer
+from models.audio.FasterWhisper import FasterWhisperTranscriber
+from models.audio.TextSummarizer import TextSummarizer
 
 
 class MeetingPipeline:
@@ -31,8 +31,8 @@ class MeetingPipeline:
     def __init__(
         self,
         whisper_model_size: str = "large-v2",
-        device: str = "auto",
-        compute_type: str = "float16",
+        device: str = "cpu",
+        compute_type: str = "int8",
         hf_token: Optional[str] = None,
         use_vad: bool = True,
         enable_summarization: bool = False,

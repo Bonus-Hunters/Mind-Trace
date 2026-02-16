@@ -22,25 +22,20 @@ async function _handleFileSelection(panel: vscode.Webview) {
 
   const uri = fileUri[0];
   try {
-    // read data from hardisk
-    const fileData = await vscode.workspace.fs.readFile(uri);
-    const fileName = uri.path.split("/").pop();
-    const formData = new FormData();
-    const blob = new Blob([fileData], { type: "audio/wav" });
-    formData.append("file", blob, fileName);
-
     const response = await axios.post(
-      "http://127.0.0.1:8000/save_meeting_audio",
-      formData,
+      `http://127.0.0.1:8000/save_meeting_audio`,
+      {
+        filePath: uri.fsPath,
+      },
     );
-
     // send results back to React
     panel.postMessage({
       command: "audioProcessingFinished",
       data: response.data,
     });
-  } catch (error) {
-    vscode.window.showErrorMessage(`Failed to Upload File: ${error}`);
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error || error.message;
+    vscode.window.showErrorMessage(`Backend Error: ${serverMessage}`);
   }
 }
 
@@ -48,9 +43,10 @@ async function _handleFileSelection(panel: vscode.Webview) {
 async function _closeAddNoteModal(panel: vscode.Webview, data?: any) {
   if (data && data.audioFile) {
     try {
-      const response = await axios.post(
-        `http://127.0.0.1:8000/close_modal?filename=${data.audioFile.filename}`,
-      );
+      const response = await axios.post(`http://127.0.0.1:8000/close_modal`, {
+        filePath: data.audioFile["filename"],
+      });
+      vscode.window.showInformationMessage(`${response.data.message}`);
     } catch (error) {
       vscode.window.showErrorMessage(
         `Failed to close modal properly: ${error}`,
@@ -65,16 +61,18 @@ async function _process_meeting(panel: vscode.Webview, data?: any) {
       filename: data.audioFile.filename,
       tags: data.tags,
       title: data.title,
-      description: data.description,
-      meetingDate: data.meetingDate,
+      language: data.language,
+      date: data.meetingDate,
+      projectName: data.projectName,
     };
-    console.log("Sending meeting data to backend:", meeting_data);
     const response = await axios.post(
       `http://127.0.0.1:8000/process_meeting`,
       meeting_data,
     );
-  } catch (error) {
-    vscode.window.showErrorMessage(`Failed to save data properly: ${error}`);
+    vscode.window.showInformationMessage(`${response.data.message}`);
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error || error.message;
+    vscode.window.showErrorMessage(`Backend Error: ${serverMessage}`);
   }
 }
 
@@ -86,7 +84,6 @@ export function handleReceivedMessage(
     (message: any) => {
       switch (message.command) {
         case "saveNote":
-          console.log("Saving note in extension.ts", message);
           switch (message.data.noteType) {
             case "function":
               return;

@@ -24,6 +24,7 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
   const [meetingDate, setMeetingDate] = useState("");
   const [language, setLanguage] = useState("en");
   const [audioFile, setAudioFile] = useState(null);
+  const [projectName, setProjectName] = useState("");
 
   const closeModal = () => {
     vscode.postMessage("closeAddNoteModal", {
@@ -44,7 +45,7 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
       meetingDate: meetingDate,
       language: language,
       audioFile: audioFile,
-
+      projectName: projectName,
     });
     onClose();
   };
@@ -113,6 +114,8 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
               setLanguage={setLanguage}
               setTags={setTags}
               setAudioFile={setAudioFile}
+              setProjectName={setProjectName}
+              projectName={projectName}
             />
           ) : (
             <>

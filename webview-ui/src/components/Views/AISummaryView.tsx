@@ -95,6 +95,12 @@ export function AISummaryPanel() {
       <div className="h-10 bg-[#252526] border-b border-[#3e3e42] flex items-center px-3">
         <Bot className="w-3.5 h-3.5 text-[#4ec9b0] mr-2" />
         <h2 className="text-xs text-[#ffffff]">AI Summary</h2>
+        {/*
+            TODO:
+              add selection for llm 
+              check how to get models download by ollama 
+              + hugging face 
+        */}
       </div>
 
       {/* Messages */}

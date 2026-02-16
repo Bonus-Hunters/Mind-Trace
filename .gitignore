@@ -7,8 +7,8 @@ __pycache__/
 *.so
 ./env 
 **/node_modules
-Temp
-
+Temp/Audio/*
+backend/app/temp/audio/*
 # Distribution / packaging
 .Python
 build/

@@ -1,8 +1,6 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from contextlib import asynccontextmanager
-from unicodedata import name
-import uuid
-from sqlalchemy import extract, select, update, delete
+from sqlalchemy import select
 from typing import Any, Type, TypeVar, Generic, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from core.database.models import Base
@@ -280,6 +278,9 @@ class MeetingRepository(BaseRepository):
                 new_meeting = models.Meeting(**data.model_dump())
                 session.add(new_meeting)
                 await session.commit()
+                await session.refresh(new_meeting)
+                return new_meeting.id
+
             except SQLAlchemyError as e:
                 print(f"--- Error creating meeting: {e} ---")
                 await session.rollback()

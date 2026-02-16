@@ -49,6 +49,7 @@ class Project(Base):
     description: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     delivered: Mapped[bool] = mapped_column(default=False)
+    tags: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # Relationships
     tasks: Mapped[List["Task"]] = relationship(
@@ -90,6 +91,8 @@ class Meeting(Base):
     title: Mapped[str] = mapped_column(String(255))
     date: Mapped[datetime] = mapped_column(DateTime)
     project_name: Mapped[str] = mapped_column(ForeignKey("projects.name"))
+    duration_sec: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    language: Mapped[Optional[str]] = mapped_column(String(50))
     meta: Mapped[Optional[Dict[str, Any]]] = mapped_column(
         JSONB, default=dict, server_default="{}", nullable=True
     )
@@ -117,7 +120,7 @@ class MeetingChunk(Base):
     )
 
     # Using pgvector for embeddings (requires 'pip install pgvector')
-    embedding: Mapped[Optional[List[float]]] = mapped_column(Vector(dim=EMBEDDING_SIZE))
+    embedding: Mapped[Optional[List[float]]] = mapped_column(Vector(dim=384))
 
     # FKs to Employees (Speakers)
     speaker_names: Mapped[List[str]] = mapped_column(ARRAY(String))
