@@ -1,7 +1,6 @@
 from typing import List
 from langchain_core.output_parsers import StrOutputParser
 from core.rag.prompts import *
-from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from core.rag.models import LLM_MODEL, EMBED_MODEL
 from core.database.postgresDatabase import PostgresDatabase
 from langchain_core.documents import Document
@@ -159,17 +158,18 @@ async def mind_trace_query(
 
     def embed_query(query):
         return embeddings.embed_query(query)
-
     rewritten = rewrite_query(query)
+    print(rewritten)
 
     docs = await retrieve_context(
-        rewritten,
+        query,
         project,
         limit=8,
         embed_query_fn=embed_query
     )
-
+    print(docs)
     final_context = build_context(docs)
+    print(final_context)
     return rag_chain.invoke({"context": final_context, "question": query})
 
 
@@ -178,7 +178,22 @@ if __name__ == "__main__":
 
     async def main():
         """Main entry point for testing manager logic."""
+        llm_cfg = LLMConfig(
+            provider="ollama",
+            model= LLM_MODEL,
+            temperature=0.8
+        )
 
-        print(await mind_trace_query("what is the note written by Test Author?","Test Project"))
+        embed_cfg = LLMConfig(
+            provider="ollama",
+            model=EMBED_MODEL
+        )
+
+        print(await mind_trace_query(
+            "what is the note written by Test Author? can you also comment on the note?",
+            "Test Project",
+            llm_cfg,
+            embed_cfg
+            ))
 
     asyncio.run(main())
