@@ -1,16 +1,21 @@
-from core.audio_pipelines import helpers
-from models.audio.SileroVad import SileroVAD
-from models.audio.SpeakerDiarization import SpeakerDiarizer
-from models.audio.FasterWhisper import FasterWhisperTranscriber
-from models.audio.TextSummarizer import TextSummarizer
 from core.audio_pipelines.MeetingPipeline import MeetingPipeline
 from core.database.repos import MeetingChunkRepository, MeetingRepository
-import pprint
 from core.config_loader import ConfigLoader
 from core.database.tables_data import Meeting, MeetingChunk
 from core.database.postgresDatabase import PostgresDatabase
 
 config_loader = ConfigLoader()
+
+
+def get_language_code(language: str) -> str:
+    language_mapping = {
+        "English": "en",
+        "Spanish": "es",
+        "French": "fr",
+        "Arabic": "ar",
+        "German": "de",
+    }
+    return language_mapping.get(language, "en")
 
 
 # can add meta data later if needed, for now it is set to None
@@ -22,14 +27,11 @@ async def process_meeting_audio(
         enable_summarization=True, hf_token=config_loader.get("HF_TOKEN")
     )
     results = meetingPipeline.process(
-        audio_path=file_path, language=helpers.get_language_code(language)
+        audio_path=file_path, language=get_language_code(language)
     )
 
     # return results
     try:
-        print(
-            f"in DB handling, creating Meeting instance with project name = {project_name}"
-        )
         meeting_data = Meeting(
             **{
                 "title": title,
@@ -73,4 +75,5 @@ async def process_meeting_audio(
             print(f"--- Error creating meeting chunks in DB: {e} ---")
             return False
     else:
+        print(f"--- Error: Meeting ID not returned after creation ---")
         return False

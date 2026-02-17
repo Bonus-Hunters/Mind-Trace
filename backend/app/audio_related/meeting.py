@@ -1,11 +1,9 @@
-import asyncio
 import os
 from pathlib import Path
 from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from core.audio_pipelines import db_handling
-import pprint
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMP_PATH = BASE_DIR / "temp" / "audio"
@@ -80,8 +78,13 @@ async def process_meeting(data: dict = Body(...)):
         date=data["date"],
     )
 
-    if not valid_process:
+    if valid_process is False:
         return JSONResponse(
             status_code=500, content={"error": "Failed to process meeting"}
         )
+    # remove temp file
+    print(f"Processing completed for file: {data['filename']}. Removing temp file.")
+    target_file = TEMP_PATH / data["filename"]
+    if os.path.exists(target_file):
+        os.remove(target_file)
     return {"message": f"Successfully processed meeting: {data['title']}"}

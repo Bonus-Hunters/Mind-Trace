@@ -2,6 +2,13 @@ from fastapi import FastAPI
 from app.audio_related import meeting
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+from core.database.postgresDatabase import PostgresDatabase
+from core.config_loader import DatabaseConfigLoader, ConfigLoader
+
+# init singleton  objects to stay in memory
+db = PostgresDatabase()
+db_config_loader = DatabaseConfigLoader()
+config_loader = ConfigLoader()
 
 
 def include_router(app: FastAPI):

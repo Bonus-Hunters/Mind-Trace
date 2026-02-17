@@ -5,7 +5,6 @@ from typing import Any, Type, TypeVar, Generic, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from core.database.models import Base
 from sqlalchemy.exc import SQLAlchemyError
-from core.database.postgresDatabase import PostgresDatabase
 import core.database.tables_data as tables_data
 import core.database.models as models
 
@@ -72,7 +71,6 @@ class ProjectRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.Project, session_maker)
 
-    # wokring
     async def get_by_name(self, name: str) -> Optional[tables_data.Project]:
         async with self._get_session() as session:
             stmt = select(models.Project).where(models.Project.name == name)
@@ -85,7 +83,6 @@ class ProjectRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().first()
 
-    # wokring
     async def create(self, data: tables_data.Project) -> bool:
         async with self._get_session() as session:
             try:
@@ -98,7 +95,6 @@ class ProjectRepository(BaseRepository):
                 print(f"--- Error creating project: {e} ---")
                 return False
 
-    # wokring
     async def delete_by_name(self, name: str) -> bool:
         async with self._get_session() as session:
             project = await session.scalar(
@@ -136,11 +132,12 @@ class CategoryMapRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.CategoryMap, session_maker)
 
-    # working
     async def create(self, data: tables_data.CategoryMap) -> bool:
         async with self._get_session() as session:
             try:
-                project = ProjectRepository.get_by_name(data.project_name)
+                project_repo = ProjectRepository(self._session_maker)
+                project = await project_repo.get_by_name(data.project_name)
+                del project_repo
                 if project is None:
                     print(
                         f"--- Error creating category map: Project {data.project_name} does not exist ---"
@@ -166,7 +163,6 @@ class CategoryMapRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().first()
 
-    # wokring
     async def get_type(self, feature_name: str, project_name: str) -> Optional[str]:
         res = await self._get_obj(feature_name, project_name)
         return res.type if res else None
@@ -177,7 +173,6 @@ class CategoryMapRepository(BaseRepository):
         res = await self._get_obj(feature_name, project_name)
         return res if res else None
 
-    # working
     async def delete(self, feature_name: str, project_name: str) -> bool:
         async with self._get_session() as session:
             res = await self._get_obj(feature_name, project_name)
@@ -197,7 +192,6 @@ class EmployeesRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.Employees, session_maker)
 
-    # working
     async def create(self, data: tables_data.Employees) -> bool:
         async with self._get_session() as session:
             try:
@@ -216,20 +210,17 @@ class EmployeesRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().first()
 
-    # working
     async def get_by_name(self, name: str) -> Optional[tables_data.Employees]:
         async with self._get_session() as session:
             res = await self._get_obj(name)
             return res if res else None
 
-    # working
     async def get_by_role(self, role: str) -> Optional[List[tables_data.Employees]]:
         async with self._get_session() as session:
             stmt = select(models.Employee).where(models.Employee.role == role)
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # working
     async def delete(self, name: str) -> bool:
         async with self._get_session() as session:
             res = await self._get_obj(name)
@@ -270,6 +261,7 @@ class MeetingRepository(BaseRepository):
             try:
                 project_repo = ProjectRepository(self._session_maker)
                 project = await project_repo.get_by_name(name=data.project_name)
+                del project_repo
                 if project is None:
                     print(
                         f"--- Error creating meeting: Project {data.project_name} does not exist ---"
@@ -285,16 +277,13 @@ class MeetingRepository(BaseRepository):
                 print(f"--- Error creating meeting: {e} ---")
                 await session.rollback()
                 return False
-            return True
 
-    # wokring
     async def get_by_id(self, meeting_id: int) -> Optional[tables_data.Meeting]:
         async with self._get_session() as session:
             stmt = select(models.Meeting).where(models.Meeting.id == meeting_id)
             result = await session.execute(stmt)
             return result.scalars().first()
 
-    # working
     # returns list because titles may not be unique
     async def get_by_title(self, title: str) -> Optional[List[tables_data.Meeting]]:
         async with self._get_session() as session:
@@ -302,7 +291,6 @@ class MeetingRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # working
     async def delete(self, meeting_id: int) -> bool:
         async with self._get_session() as session:
             obj = await self.get_by_id(meeting_id)
@@ -321,7 +309,6 @@ class MeetingRepository(BaseRepository):
             -> no chunks found
     """
 
-    # working
     async def get_all_chunks(
         self, meeting_id: int
     ) -> Optional[List[tables_data.MeetingChunk]]:
@@ -337,12 +324,12 @@ class MeetingChunkRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.MeetingChunk, session_maker)
 
-    # working
     async def create(self, data: tables_data.MeetingChunk):
         async with self._get_session() as session:
             try:
                 meeting_repo = MeetingRepository(self._session_maker)
                 meeting = await meeting_repo.get_by_id(data.meeting_id)
+                del meeting_repo
                 if meeting is None:
                     print(
                         f"--- Error creating meeting chunk: Meeting {data.meeting_id} does not exist ---"
@@ -357,7 +344,6 @@ class MeetingChunkRepository(BaseRepository):
                 return False
             return True
 
-    # working
     async def get_by_id(
         self, meeting_chunk_id: int
     ) -> Optional[tables_data.MeetingChunk]:
@@ -368,7 +354,6 @@ class MeetingChunkRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().first()
 
-    # working
     async def get_meeting_id(self, chunk_id: int) -> Optional[int]:
         async with self._get_session() as session:
             stmt = select(models.MeetingChunk).where(models.MeetingChunk.id == chunk_id)
@@ -376,7 +361,6 @@ class MeetingChunkRepository(BaseRepository):
             chunk = result.scalars().first()
             return chunk.meeting_id if chunk else None
 
-    # working
     async def get_chunk_embedding(self, chunk_id: int) -> Optional[List[float]]:
         async with self._get_session() as session:
             stmt = select(models.MeetingChunk).where(models.MeetingChunk.id == chunk_id)
@@ -384,7 +368,6 @@ class MeetingChunkRepository(BaseRepository):
             chunk = result.scalars().first()
             return chunk.embedding if chunk else None
 
-    # working
     async def delete(self, meeting_chunk_id: int) -> bool:
         async with self._get_session() as session:
             obj = await self.get_by_id(meeting_chunk_id)
@@ -402,12 +385,12 @@ class NoteRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.Note, session_maker)
 
-    # working
     async def create(self, data: tables_data.Note) -> bool:
         async with self._get_session() as session:
             try:
                 proj_repo = ProjectRepository(self._session_maker)
                 project = await proj_repo.get_by_name(data.project_name)
+                del proj_repo
                 if project is None:
                     print(
                         f"--- Error creating note: Project {data.project_name} does not exist ---"
@@ -430,14 +413,12 @@ class NoteRepository(BaseRepository):
                 await session.rollback()
                 return False
 
-    # wokring
     async def get_by_id(self, note_id: int) -> Optional[tables_data.Note]:
         async with self._get_session() as session:
             stmt = select(models.Note).where(models.Note.id == note_id)
             result = await session.execute(stmt)
             return result.scalars().first()
 
-    # wokring
     async def get_note_embedding(self, note_id: int) -> Optional[List[float]]:
         async with self._get_session() as session:
             stmt = select(models.Note).where(models.Note.id == note_id)
@@ -445,7 +426,6 @@ class NoteRepository(BaseRepository):
             note = result.scalars().first()
             return note.embedding if note else None
 
-    # wokring
     async def get_all_by_note_type(
         self, note_type: str
     ) -> Optional[List[tables_data.Note]]:
@@ -454,7 +434,6 @@ class NoteRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # wokring
     async def get_all_by_author_name(
         self, author: str
     ) -> Optional[List[tables_data.Note]]:
@@ -463,7 +442,6 @@ class NoteRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # wokring
     async def get_all_by_project_name(
         self, project_name: str
     ) -> Optional[List[tables_data.Note]]:
@@ -472,7 +450,6 @@ class NoteRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # wokring
     async def get_all_by_function_name(
         self, function_name: str
     ) -> Optional[List[tables_data.Note]]:
@@ -481,7 +458,6 @@ class NoteRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # working
     async def delete(self, note_id: int) -> bool:
         async with self._get_session() as session:
             obj = await self.get_by_id(note_id)
@@ -497,12 +473,12 @@ class TaskRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.Task, session_maker)
 
-    # working
     async def create(self, data: tables_data.Task) -> bool:
         async with self._get_session() as session:
             try:
                 proj_repo = ProjectRepository(self._session_maker)
                 project = await proj_repo.get_by_name(data.project_name)
+                del proj_repo
                 if project is None:
                     print(
                         f"--- Error creating task: Project {data.project_name} does not exist ---"
@@ -524,21 +500,18 @@ class TaskRepository(BaseRepository):
                 await session.rollback()
                 return False
 
-    # working
     async def get_by_id(self, task_id: int) -> Optional[tables_data.Task]:
         async with self._get_session() as session:
             stmt = select(models.Task).where(models.Task.id == task_id)
             result = await session.execute(stmt)
             return result.scalars().first()
 
-    # working
     async def get_by_status(self, status: str) -> Optional[List[tables_data.Task]]:
         async with self._get_session() as session:
             stmt = select(models.Task).where(models.Task.status == status)
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # working
     async def get_by_status_in_project(
         self, status: str, project_name: str
     ) -> Optional[List[tables_data.Task]]:
@@ -550,7 +523,6 @@ class TaskRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # working
     async def get_all_by_developer(
         self, assignee_name: str
     ) -> Optional[List[tables_data.Task]]:
@@ -559,7 +531,6 @@ class TaskRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # working
     async def get_by_developer_in_project(
         self, assignee_name: str, project_name: str
     ) -> Optional[List[tables_data.Task]]:
@@ -571,7 +542,6 @@ class TaskRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    # working
     async def delete(self, task_id: int) -> bool:
         async with self._get_session() as session:
             obj = await self.get_by_id(task_id)
