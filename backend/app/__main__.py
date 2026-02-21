@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from app.audio_related import meeting
+from app.apis import meeting, auth
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from core.database.postgresDatabase import PostgresDatabase
 from core.config_loader import DatabaseConfigLoader, ConfigLoader
+
 
 # init singleton  objects to stay in memory
 db = PostgresDatabase()
@@ -13,6 +14,7 @@ config_loader = ConfigLoader()
 
 def include_router(app: FastAPI):
     app.include_router(meeting.router)
+    app.include_router(auth.router, prefix="/auth")
 
 
 def create_server():

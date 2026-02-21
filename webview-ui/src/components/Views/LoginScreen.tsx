@@ -1,38 +1,55 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { StickyNote, Mail, Lock, LogIn } from "lucide-react";
+import { StickyNote, Mail, Lock, LogIn, UserRound } from "lucide-react";
 
 interface LoginScreenProps {
-  onLogin: (email: string, password: string) => void;
+  onLogin: (name: string, email: string, password: string) => void;
+  name: string;
+  setName: any;
+  password: string;
+  setPassword: any;
+  setLoginLoading: any;
+  isLoginLoading: boolean;
 }
 
-const LoginScreen = ({ onLogin }: LoginScreenProps) => {
+const LoginScreen = ({
+  onLogin,
+  name,
+  setName,
+  password,
+  setPassword,
+  setLoginLoading,
+  isLoginLoading,
+}: LoginScreenProps) => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const companyDomain = "@company_domain.com";
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Only allow input before @ or full email with company domain
-    if (!value.includes("@")) {
-      setEmail(value);
-    }
-  };
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.command === "otp-error") {
+        setLoginLoading(false);
+      }
+    };
+    window.addEventListener("message", handler);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Validate email
-    const fullEmail = email.includes("@") ? email : `${email}${companyDomain}`;
+    if (!name || name.length === 0) {
+      setError("Please enter your name");
+      return;
+    }
 
     if (!email || email.length === 0) {
       setError("Please enter your email");
       return;
     }
 
-    if (!fullEmail.includes("@")) {
+    if (!email.includes("@")) {
       setError(`Email must have a domain`);
       return;
     }
@@ -42,7 +59,9 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
       return;
     }
 
-    onLogin(fullEmail, password);
+    setLoginLoading(true);
+    // Call the onLogin callback which will trigger OTP sending
+    onLogin(name, email, password);
   };
   const displayEmail = email.includes("@") ? email : email;
 
@@ -64,6 +83,22 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-[#252526] border border-[#3e3e42] rounded-lg p-6 space-y-4">
             {/* Email Field */}
+            {/* Name Field */}
+            <div>
+              <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+                Full Name *
+              </label>
+              <div className="relative">
+                <UserRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6a6a6a]" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your full name"
+                  className="w-full pl-10 pr-24 py-2.5 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
+                />
+              </div>
+            </div>
             <div>
               <label className="block text-xs text-[#cccccc] mb-2 font-mono">
                 Email Address *
@@ -73,13 +108,12 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
                 <input
                   type="text"
                   value={displayEmail}
-                  onChange={handleEmailChange}
-                  placeholder="username"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                  }}
+                  placeholder={companyDomain}
                   className="w-full pl-10 pr-24 py-2.5 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#6a6a6a] font-mono pointer-events-none">
-                  {companyDomain}
-                </span>
               </div>
             </div>
 
@@ -110,10 +144,11 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs bg-[#0e639c] hover:bg-[#1177bb] text-[#ffffff] rounded transition-colors font-mono"
+              disabled={isLoginLoading}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs bg-[#0e639c] hover:bg-[#1177bb] text-[#ffffff] rounded transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <LogIn className="w-4 h-4" />
-              Sign In
+              {isLoginLoading ? "Sending OTP..." : "Sign In"}
             </button>
           </div>
         </form>

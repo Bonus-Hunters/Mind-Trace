@@ -4,11 +4,18 @@ from pydantic import BaseModel, ConfigDict, Field
 from utils.constants import EMBEDDING_SIZE
 
 
+class Company(BaseModel):
+    name: str = Field(..., max_length=255)
+    domain: str = Field(..., max_length=255)
+    model_config = ConfigDict(from_attributes=True)
+
+
 class Project(BaseModel):
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
     delivered: bool = False
     created_at: datetime
+    company_id: int
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -21,17 +28,30 @@ class ProjectUpdate(BaseModel):
 class EmployeeProject(BaseModel):
     employee_name: str
     project_name: str
+    company_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
+"""
+    TODO: 
+        - make email, password optional since not every employee need to 
+            have an account [AKA using the extension].
+        - before user login check if he's in the database [his name]    
+            [issue: name in db might be different than what user write.]
+"""
+
+
 class Employees(BaseModel):
     name: str
+    email: str
+    password: str
     role: Optional[str] = Field(..., max_length=100)
     skills: Optional[List[str]] = []
     voice_print: Optional[List[float]] = Field(
         ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
     )
+    company_id: int
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -46,6 +66,12 @@ class CategoryMap(BaseModel):
     name: str
     project_name: str
     type: str = Field(..., max_length=50)
+    company_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CategoryMapUpdate(BaseModel):
+    type: Optional[str] = Field(None, max_length=50)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -81,6 +107,7 @@ class Meeting(BaseModel):
     duration_sec: Optional[float] = None
     project_name: str
     meta: Optional[Dict[str, Any]]
+    company_id: int
     # tags: Optional[str] = Field(None, max_length=255)
     model_config = ConfigDict(from_attributes=True)
 
@@ -106,6 +133,7 @@ class Note(BaseModel):
 
     date: datetime = Field(default_factory=datetime.utcnow)
     meta: Optional[Dict[str, Any]]
+    company_id: int
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -125,6 +153,7 @@ class Task(BaseModel):
     source_type: str = Field(..., description="'note' or 'meeting'")
     project_name: str
     assignee_name: str
+    company_id: int
 
     model_config = ConfigDict(from_attributes=True)
 

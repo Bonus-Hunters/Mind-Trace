@@ -39,6 +39,7 @@ const MeetingContent = ({
   projectName,
 }: any) => {
   useEffect(() => {
+    // TODO: should execute each time user upload a video
     // define the listener function
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;

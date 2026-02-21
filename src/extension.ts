@@ -1,13 +1,23 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-// This method is called
+import { Uri, Webview } from "vscode";
 import * as path from "path";
-import { getUri, handleReceivedMessage } from "./utilities";
+import { handleReceivedMessage } from "./messages";
+
+function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
+  return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
+}
+// clear token
+async function _logout(context: vscode.ExtensionContext) {
+  await context.globalState.update("userEmail", undefined);
+  await context.secrets.delete("userAuthToken");
+}
 
 export function activate(context: vscode.ExtensionContext) {
+  // _logout(context);
   let disposable = vscode.commands.registerCommand(
-    "Mind-Trace.helloWorld",
+    "Mind-Trace.runextension",
     () => {
       // 1. Create the panel
       const panel = vscode.window.createWebviewPanel(

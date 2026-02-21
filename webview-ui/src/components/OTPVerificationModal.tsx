@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Mail, ShieldCheck } from "lucide-react";
+import { vscode } from "../utilities/vscodeApi";
 
 interface OTPVerificationModalProps {
   email: string;
@@ -14,6 +15,8 @@ export function OTPVerificationModal({
 }: OTPVerificationModalProps) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -67,17 +70,22 @@ export function OTPVerificationModal({
       return;
     }
 
-    // For demo purposes, accept any 6-digit code
-    // In production, this would verify against the server
+    setIsLoading(true);
+    setError("");
     onVerify(otpCode);
   };
 
   const handleResend = () => {
+    setIsResending(true);
     setOtp(["", "", "", "", "", ""]);
     setError("");
     inputRefs.current[0]?.focus();
-    // In production, this would trigger a new OTP to be sent
-    console.log("Resending OTP to:", email);
+    // Send resend OTP request to the extension
+    vscode.postMessage("resendOTP", { email: email });
+    // Assume resend is successful - in production, wait for backend confirmation
+    setTimeout(() => {
+      setIsResending(false);
+    }, 1000);
   };
 
   return (
@@ -148,21 +156,22 @@ export function OTPVerificationModal({
           <div className="text-center">
             <button
               type="button"
+              disabled={isResending}
               onClick={handleResend}
-              className="text-xs text-[#4ec9b0] hover:text-[#6ed4b5] transition-colors font-mono underline"
+              className="text-xs text-[#4ec9b0] hover:text-[#6ed4b5] transition-colors font-mono underline disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Didn't receive the code? Resend
+              {isResending ? "Resending..." : "Didn't receive the code? Resend"}
             </button>
           </div>
 
           {/* Verify Button */}
           <button
             type="submit"
-            disabled={otp.join("").length !== 6}
+            disabled={otp.join("").length !== 6 || isLoading}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs bg-[#0e639c] hover:bg-[#1177bb] text-[#ffffff] rounded transition-colors font-mono disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ShieldCheck className="w-4 h-4" />
-            Verify & Sign In
+            {isLoading ? "Verifying..." : "Verify & Sign In"}
           </button>
         </form>
       </div>

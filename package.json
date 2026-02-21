@@ -1,7 +1,8 @@
 {
   "name": "Mind-Trace",
-  "displayName": "Mind-Trace",
+  "displayName": "Mind Trace",
   "description": "",
+  "icon":"./assets/notebook-pen.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.109.0"
@@ -14,9 +15,9 @@
   "contributes": {
     "commands": [
       {
-        "command": "Mind-Trace.helloWorld",
-        "title": "Hello World",
-        "category": "Mind-Trace"
+        "command": "Mind-Trace.runextension",
+        "title": "Run Extension",
+        "category": "Mind Trace"
       }
     ]
   },

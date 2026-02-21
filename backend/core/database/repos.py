@@ -67,6 +67,56 @@ class BaseRepository(Generic[T], ABC):
             return True
 
 
+class CompanyRepository(BaseRepository):
+    def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+        super().__init__(tables_data.Company, session_maker)
+
+    async def get_by_id(self, company_id: int) -> Optional[tables_data.Company]:
+        async with self._get_session() as session:
+            stmt = select(models.Company).where(models.Company.id == company_id)
+            result = await session.execute(stmt)
+            return result.scalars().first()
+
+    async def get_by_name(self, name: str) -> Optional[tables_data.Company]:
+        async with self._get_session() as session:
+            stmt = select(models.Company).where(models.Company.name == name)
+            result = await session.execute(stmt)
+            return result.scalars().first()
+
+    async def get_all(self) -> List[tables_data.Company]:
+        async with self._get_session() as session:
+            stmt = select(models.Company)
+            result = await session.execute(stmt)
+            return result.scalars().all()
+
+    async def create(self, data: tables_data.Company) -> bool:
+        async with self._get_session() as session:
+            try:
+                new_company = models.Company(**data.model_dump())
+                session.add(new_company)
+                await session.commit()
+                await session.refresh(new_company)
+                return new_company.id
+            except SQLAlchemyError as e:
+                await session.rollback()
+                print(f"--- Error creating company: {e} ---")
+                return False
+
+    # companis table cannot be altered
+
+    async def delete(self, company_id: int) -> bool:
+        async with self._get_session() as session:
+            company = await self.get_by_id(company_id)
+            if not company:
+                print(
+                    f"--- Error deleting company: Company with id {company_id} does not exist ---"
+                )
+                return False
+            await session.delete(company)
+            await session.commit()
+            return True
+
+
 class ProjectRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.Project, session_maker)
@@ -86,6 +136,14 @@ class ProjectRepository(BaseRepository):
     async def create(self, data: tables_data.Project) -> bool:
         async with self._get_session() as session:
             try:
+                company_repo = CompanyRepository(self._session_maker)
+                company = await company_repo.get_by_id(data.company_id)
+                del company_repo
+                if company is None:
+                    print(
+                        f"--- Error creating project: Company with id {data.company_id} does not exist ---"
+                    )
+                    return False
                 new_project = models.Project(**data.model_dump())
                 session.add(new_project)
                 await session.commit()
@@ -135,6 +193,14 @@ class CategoryMapRepository(BaseRepository):
     async def create(self, data: tables_data.CategoryMap) -> bool:
         async with self._get_session() as session:
             try:
+                company_repo = CompanyRepository(self._session_maker)
+                company = await company_repo.get_by_id(data.company_id)
+                del company_repo
+                if company is None:
+                    print(
+                        f"--- Error creating category map: Company with id {data.company_id} does not exist ---"
+                    )
+                    return False
                 project_repo = ProjectRepository(self._session_maker)
                 project = await project_repo.get_by_name(data.project_name)
                 del project_repo
@@ -173,6 +239,21 @@ class CategoryMapRepository(BaseRepository):
         res = await self._get_obj(feature_name, project_name)
         return res if res else None
 
+    async def update(
+        self, feature_name: str, project_name: str, data: tables_data.CategoryMapUpdate
+    ) -> bool:
+        async with self._get_session() as session:
+            obj = await self._get_obj(feature_name, project_name)
+            if not obj:
+                print(
+                    f"--- Error updating category map: Category map {feature_name} in project {project_name} does not exist ---"
+                )
+                return False
+            for key, value in data.model_dump(exclude_unset=True).items():
+                setattr(obj, key, value)
+            await session.commit()
+            return True
+
     async def delete(self, feature_name: str, project_name: str) -> bool:
         async with self._get_session() as session:
             res = await self._get_obj(feature_name, project_name)
@@ -195,10 +276,19 @@ class EmployeesRepository(BaseRepository):
     async def create(self, data: tables_data.Employees) -> bool:
         async with self._get_session() as session:
             try:
+                company_repo = CompanyRepository(self._session_maker)
+                company = await company_repo.get_by_id(data.company_id)
+                del company_repo
+                if company is None:
+                    print(
+                        f"--- Error creating employee: Company with id {data.company_id} does not exist ---"
+                    )
+                    return False
                 new_developer = models.Employee(**data.model_dump())
                 session.add(new_developer)
                 await session.commit()
-                return True
+                await session.refresh(new_developer)
+                return new_developer.id
             except SQLAlchemyError as e:
                 print(f"--- Error creating developer: {e} ---")
                 await session.rollback()
@@ -259,6 +349,14 @@ class MeetingRepository(BaseRepository):
     async def create(self, data: tables_data.Meeting):
         async with self._get_session() as session:
             try:
+                company_repo = CompanyRepository(self._session_maker)
+                company = await company_repo.get_by_id(data.company_id)
+                del company_repo
+                if company is None:
+                    print(
+                        f"--- Error creating meeting: Company with id {data.company_id} does not exist ---"
+                    )
+                    return False
                 project_repo = ProjectRepository(self._session_maker)
                 project = await project_repo.get_by_name(name=data.project_name)
                 del project_repo
@@ -290,6 +388,21 @@ class MeetingRepository(BaseRepository):
             stmt = select(models.Meeting).where(models.Meeting.title == title)
             result = await session.execute(stmt)
             return result.scalars().all()
+
+    async def update(self, meeting_id: int, data: tables_data.MeetingUpdate) -> bool:
+        async with self._get_session() as session:
+            meeting = await session.scalar(
+                select(models.Meeting).where(models.Meeting.id == meeting_id)
+            )
+            if not meeting:
+                print(
+                    f"--- Error updating meeting: Meeting ID {meeting_id} does not exist ---"
+                )
+                return False
+            for key, value in data.model_dump(exclude_unset=True).items():
+                setattr(meeting, key, value)
+            await session.commit()
+            return True
 
     async def delete(self, meeting_id: int) -> bool:
         async with self._get_session() as session:
@@ -338,11 +451,12 @@ class MeetingChunkRepository(BaseRepository):
                 new_meeting_chunk = models.MeetingChunk(**data.model_dump())
                 session.add(new_meeting_chunk)
                 await session.commit()
+                await session.refresh(new_meeting_chunk)
+                return new_meeting_chunk.id
             except SQLAlchemyError as e:
                 print(f"--- Error creating meeting chunk: {e} ---")
                 await session.rollback()
                 return False
-            return True
 
     async def get_by_id(
         self, meeting_chunk_id: int
@@ -368,6 +482,25 @@ class MeetingChunkRepository(BaseRepository):
             chunk = result.scalars().first()
             return chunk.embedding if chunk else None
 
+    async def update(
+        self, meeting_chunk_id: int, data: tables_data.MeetingChunkUpdate
+    ) -> bool:
+        async with self._get_session() as session:
+            chunk = await session.scalar(
+                select(models.MeetingChunk).where(
+                    models.MeetingChunk.id == meeting_chunk_id
+                )
+            )
+            if not chunk:
+                print(
+                    f"--- Error updating meeting chunk: Meeting Chunk ID {meeting_chunk_id} does not exist ---"
+                )
+                return False
+            for key, value in data.model_dump(exclude_unset=True).items():
+                setattr(chunk, key, value)
+            await session.commit()
+            return True
+
     async def delete(self, meeting_chunk_id: int) -> bool:
         async with self._get_session() as session:
             obj = await self.get_by_id(meeting_chunk_id)
@@ -388,6 +521,13 @@ class NoteRepository(BaseRepository):
     async def create(self, data: tables_data.Note) -> bool:
         async with self._get_session() as session:
             try:
+                company_repo = CompanyRepository(self._session_maker)
+                company = await company_repo.get_by_id(data.company_id)
+                del company_repo
+                if company is None:
+                    print(
+                        f"--- Error creating note: Company with id {data.company_id} does not exist ---"
+                    )
                 proj_repo = ProjectRepository(self._session_maker)
                 project = await proj_repo.get_by_name(data.project_name)
                 del proj_repo
@@ -401,13 +541,14 @@ class NoteRepository(BaseRepository):
                     print(
                         f"--- Error creating note: Developer {data.author} does not exist ---"
                     )
-                if project is None or developer is None:
+                if company is None or project is None or developer is None:
                     return False
 
                 new_note = models.Note(**data.model_dump())
                 session.add(new_note)
                 await session.commit()
-                return True
+                await session.refresh(new_note)
+                return new_note.id
             except SQLAlchemyError as e:
                 print(f"--- Error creating note: {e} ---")
                 await session.rollback()
@@ -458,6 +599,19 @@ class NoteRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
+    async def update(self, note_id: int, data: tables_data.NoteUpdate) -> bool:
+        async with self._get_session() as session:
+            note = await session.scalar(
+                select(models.Note).where(models.Note.id == note_id)
+            )
+            if not note:
+                print(f"--- Error updating note: Note ID {note_id} does not exist ---")
+                return False
+            for key, value in data.model_dump(exclude_unset=True).items():
+                setattr(note, key, value)
+            await session.commit()
+            return True
+
     async def delete(self, note_id: int) -> bool:
         async with self._get_session() as session:
             obj = await self.get_by_id(note_id)
@@ -476,6 +630,13 @@ class TaskRepository(BaseRepository):
     async def create(self, data: tables_data.Task) -> bool:
         async with self._get_session() as session:
             try:
+                company_repo = CompanyRepository(self._session_maker)
+                company = await company_repo.get_by_id(data.company_id)
+                del company_repo
+                if company is None:
+                    print(
+                        f"--- Error creating task: Company with id {data.company_id} does not exist ---"
+                    )
                 proj_repo = ProjectRepository(self._session_maker)
                 project = await proj_repo.get_by_name(data.project_name)
                 del proj_repo
@@ -489,12 +650,13 @@ class TaskRepository(BaseRepository):
                     print(
                         f"--- Error creating task: Developer {data.assignee_name} does not exist ---"
                     )
-                if project is None or developer is None:
+                if company is None or project is None or developer is None:
                     return False
                 new_task = models.Task(**data.model_dump())
                 session.add(new_task)
                 await session.commit()
-                return True
+                await session.refresh(new_task)
+                return new_task.id
             except SQLAlchemyError as e:
                 print(f"--- Error creating task: {e} ---")
                 await session.rollback()
@@ -541,6 +703,19 @@ class TaskRepository(BaseRepository):
             )
             result = await session.execute(stmt)
             return result.scalars().all()
+
+    async def update(self, task_id: int, data: tables_data.TaskUpdate) -> bool:
+        async with self._get_session() as session:
+            task = await session.scalar(
+                select(models.Task).where(models.Task.id == task_id)
+            )
+            if not task:
+                print(f"--- Error updating task: Task ID {task_id} does not exist ---")
+                return False
+            for key, value in data.model_dump(exclude_unset=True).items():
+                setattr(task, key, value)
+            await session.commit()
+            return True
 
     async def delete(self, task_id: int) -> bool:
         async with self._get_session() as session:

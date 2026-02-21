@@ -19,6 +19,38 @@ class Base(DeclarativeBase):
     pass
 
 
+class Company(Base):
+    __tablename__ = "companies"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+
+    name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    domain: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+
+    # Relationships
+    notes: Mapped[List["Note"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan"
+    )
+    tasks: Mapped[List["Task"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan"
+    )
+    employees: Mapped[List["Employee"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan"
+    )
+    projects: Mapped[List["Project"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan"
+    )
+    meetings: Mapped[List["Meeting"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan"
+    )
+    category_maps: Mapped[List["CategoryMap"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan"
+    )
+    employee_projects: Mapped[List["EmployeeProject"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan"
+    )
+
+
 class CategoryMap(Base):
     __tablename__ = "category_maps"
 
@@ -27,6 +59,12 @@ class CategoryMap(Base):
         ForeignKey("projects.name"), primary_key=True
     )
     type: Mapped[str] = mapped_column(String(50))
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), primary_key=True
+    )
+
+    # Relationship
+    company: Mapped["Company"] = relationship(back_populates="category_maps")
 
 
 class EmployeeProject(Base):
@@ -38,6 +76,12 @@ class EmployeeProject(Base):
     project_name: Mapped[str] = mapped_column(
         ForeignKey("projects.name", ondelete="CASCADE"), primary_key=True
     )
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), primary_key=True
+    )
+
+    # Relationship
+    company: Mapped["Company"] = relationship(back_populates="employee_projects")
 
 
 class Project(Base):
@@ -48,6 +92,9 @@ class Project(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     delivered: Mapped[bool] = mapped_column(default=False)
     tags: Mapped[str] = mapped_column(String(255), nullable=True)
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
+    )
 
     # Relationships
     tasks: Mapped[List["Task"]] = relationship(
@@ -63,6 +110,7 @@ class Project(Base):
         secondary="employee_projects",
         back_populates="assigned_projects",
     )
+    company: Mapped["Company"] = relationship(back_populates="projects")
 
 
 class Employee(Base):
@@ -70,9 +118,14 @@ class Employee(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     role: Mapped[str] = mapped_column(String(100), nullable=True)
+    email: Mapped[str] = mapped_column(String(100))
+    password: Mapped[str] = mapped_column(String(60))
     skills: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), nullable=True)
     voice_print: Mapped[Optional[List[float]]] = mapped_column(
         Vector(dim=EMBEDDING_SIZE), nullable=True
+    )
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
     )
     assigned_projects: Mapped[List["Project"]] = relationship(
         secondary="employee_projects",  # Matches the __tablename__ of the link table
@@ -80,6 +133,7 @@ class Employee(Base):
     )
     # Relationships
     tasks: Mapped[List["Task"]] = relationship(back_populates="owner")
+    company: Mapped["Company"] = relationship(back_populates="employees")
 
 
 class Meeting(Base):
@@ -94,10 +148,14 @@ class Meeting(Base):
     meta: Mapped[Optional[Dict[str, Any]]] = mapped_column(
         JSONB, default=dict, server_default="{}", nullable=True
     )
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
+    )
 
     # relations
     project_ref: Mapped["Project"] = relationship(back_populates="meetings")
     chunks: Mapped[List["MeetingChunk"]] = relationship(back_populates="meeting")
+    company: Mapped["Company"] = relationship(back_populates="meetings")
 
 
 class MeetingChunk(Base):
@@ -145,11 +203,15 @@ class Note(Base):
     meta: Mapped[Optional[Dict[str, Any]]] = mapped_column(
         JSONB, default=dict, server_default="{}", nullable=True
     )
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
+    )
 
     # relation
     project: Mapped["Project"] = relationship(
         back_populates="notes", foreign_keys=[project_name]
     )
+    company: Mapped["Company"] = relationship(back_populates="notes")
 
 
 class Task(Base):
@@ -169,6 +231,10 @@ class Task(Base):
 
     # Polymorphic-lite reference
     source_type: Mapped[str] = mapped_column(String(20))  # 'note' or 'meeting'
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
+    )
 
     project: Mapped["Project"] = relationship(back_populates="tasks")
     owner: Mapped["Employee"] = relationship(back_populates="tasks")
+    company: Mapped["Company"] = relationship(back_populates="tasks")
