@@ -15,8 +15,7 @@ async function _logout(context: vscode.ExtensionContext) {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  // _logout(context);
-  let disposable = vscode.commands.registerCommand(
+  let extension_run_command = vscode.commands.registerCommand(
     "Mind-Trace.runextension",
     () => {
       // 1. Create the panel
@@ -68,7 +67,13 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
-  context.subscriptions.push(disposable);
+  let logout_command = vscode.commands.registerCommand(
+    "Mind-Trace.logout",
+    () => {
+      _logout(context);
+    },
+  );
+  context.subscriptions.push(extension_run_command, logout_command);
 }
 
 // This method is called when your extension is deactivated

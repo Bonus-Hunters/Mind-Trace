@@ -7,7 +7,9 @@ from sqlalchemy import (
     ARRAY,
     Text,
     ForeignKeyConstraint,
+    UniqueConstraint,
     Float,
+    Identity,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
@@ -53,14 +55,21 @@ class Company(Base):
 
 class CategoryMap(Base):
     __tablename__ = "category_maps"
+    id: Mapped[int] = mapped_column(primary_key=True, server_default=Identity())
 
-    name: Mapped[str] = mapped_column(primary_key=True)
-    project_name: Mapped[str] = mapped_column(
-        ForeignKey("projects.name"), primary_key=True
-    )
+    name: Mapped[str] = mapped_column()
+    project_name: Mapped[str] = mapped_column(ForeignKey("projects.name"))
     type: Mapped[str] = mapped_column(String(50))
     company_id: Mapped[int] = mapped_column(
-        ForeignKey("companies.id", ondelete="CASCADE"), primary_key=True
+        ForeignKey("companies.id", ondelete="CASCADE")
+    )
+    __table_args__ = (
+        UniqueConstraint(
+            "name",
+            "project_name",
+            "company_id",
+            name="uq_category_name_project_company",
+        ),
     )
 
     # Relationship
@@ -69,24 +78,34 @@ class CategoryMap(Base):
 
 class EmployeeProject(Base):
     __tablename__ = "employee_projects"
+    id: Mapped[int] = mapped_column(primary_key=True, server_default=Identity())
+
     # Foreign keys pointing to your primary keys
+
     employee_name: Mapped[str] = mapped_column(
-        ForeignKey("employees.name", ondelete="CASCADE"), primary_key=True
+        ForeignKey("employees.name", ondelete="CASCADE")
     )
     project_name: Mapped[str] = mapped_column(
-        ForeignKey("projects.name", ondelete="CASCADE"), primary_key=True
+        ForeignKey("projects.name", ondelete="CASCADE")
     )
     company_id: Mapped[int] = mapped_column(
-        ForeignKey("companies.id", ondelete="CASCADE"), primary_key=True
+        ForeignKey("companies.id", ondelete="CASCADE")
     )
-
+    __table_args__ = (
+        UniqueConstraint(
+            "employee_name",
+            "project_name",
+            "company_id",
+            name="uq_name_project_company",
+        ),
+    )
     # Relationship
     company: Mapped["Company"] = relationship(back_populates="employee_projects")
 
 
 class Project(Base):
     __tablename__ = "projects"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, server_default=Identity())
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -115,7 +134,7 @@ class Project(Base):
 
 class Employee(Base):
     __tablename__ = "employees"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, server_default=Identity())
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     role: Mapped[str] = mapped_column(String(100), nullable=True)
     email: Mapped[str] = mapped_column(String(100))
@@ -161,7 +180,7 @@ class Meeting(Base):
 class MeetingChunk(Base):
     __tablename__ = "meeting_chunks"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     meeting_id: Mapped[int] = mapped_column(
         ForeignKey("meetings.id", ondelete="CASCADE")
     )

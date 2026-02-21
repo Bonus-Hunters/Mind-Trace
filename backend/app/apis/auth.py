@@ -61,8 +61,9 @@ async def register_user(data: UserData):
                     "skills": None,
                 }
             )
-            await employee_repo.create(employee_data)
-            del employee_repo
+            employee_id = await employee_repo.create(employee_data)
+            # del employee_repo
+            print(f"BACKEND: {employee_id }")
             print("BACKEND: Employee added to db succ")
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

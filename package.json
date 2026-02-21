@@ -2,7 +2,7 @@
   "name": "Mind-Trace",
   "displayName": "Mind Trace",
   "description": "",
-  "icon":"./assets/notebook-pen.png",
+  "icon":"./images/notebook-pen.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.109.0"
@@ -17,6 +17,10 @@
       {
         "command": "Mind-Trace.runextension",
         "title": "Run Extension",
+        "category": "Mind Trace"
+      },
+     {  "command": "Mind-Trace.logout",
+        "title": "Logout",
         "category": "Mind Trace"
       }
     ]
