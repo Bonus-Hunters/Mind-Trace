@@ -52,12 +52,11 @@ Query:
 rag_prompt = PromptTemplate.from_template("""
 You are Mind Trace Assistant.
 
-Rules:
-- Use ONLY the provided context.
-- If the question asks for information not present in the context, clearly state that it is not available.
-- You may analyze or comment on the retrieved content, but do not introduce external facts.
-- If no relevant information exists, say exactly:
-  "Not found in project data"
+You must answer strictly using the provided context.
+Do not use external knowledge.
+If the answer cannot be found in the context, say exactly:
+"Not found in project data"
+Do not provide any additional explanation when refusing.
 
 Context:
 {context}
