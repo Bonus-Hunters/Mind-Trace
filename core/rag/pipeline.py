@@ -14,12 +14,14 @@ from core.rag.prompts import IntentOutput, intent_prompt, rag_prompt, rewrite_pr
 from core.rag.search import retrieve_by_vector, retrieve_hybrid
 
 
+from typing import AsyncGenerator
+
 async def mind_trace_query(
     query: str,
     project: str,
     llm_config: LLMConfig,
     embed_config: LLMConfig,
-) -> str:
+) -> AsyncGenerator[str, None]:
     """Run the full Mind-Trace RAG pipeline for a user query.
 
     Steps
@@ -36,8 +38,8 @@ async def mind_trace_query(
     rag_chain = rag_prompt | llm | StrOutputParser()
 
     # 1. Rewrite
-    rewritten = rewrite_chain.invoke({"query": query})
-    print(rewritten)
+    # rewritten = rewrite_chain.invoke({"query": query})
+    # print(rewritten)
 
     # 2. Retrieve
     embed_query_fn = embeddings.embed_query
@@ -60,7 +62,9 @@ async def mind_trace_query(
     # 3. Generate
     final_context = build_context(docs)
     print(final_context)
-    return rag_chain.invoke({"context": final_context, "question": query})
+    
+    async for chunk in rag_chain.astream({"context": final_context, "question": query}):
+        yield chunk
 
 
 # ---------------------------------------------------------------------------
@@ -82,12 +86,14 @@ if __name__ == "__main__":
             model=EMBED_MODEL,
         )
 
-        result = await mind_trace_query(
+        print("Streaming response:")
+        async for chunk in mind_trace_query(
             "what is the note written by Test Author? can you also comment on the note?",
             "Test Project",
             llm_cfg,
             embed_cfg,
-        )
-        print(result)
+        ):
+            print(chunk, end="", flush=True)
+        print()
 
     asyncio.run(main())
