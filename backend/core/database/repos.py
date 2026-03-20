@@ -553,6 +553,18 @@ class NoteRepository(BaseRepository):
                 print(f"--- Error creating note: {e} ---")
                 await session.rollback()
                 return False
+                # working
+    async def update(self, note_id: int, data: dict) -> bool:
+        async with self._get_session() as session:
+            try:
+                stmt = update(models.Note).where(models.Note.id == note_id).values(**data)
+                await session.execute(stmt)
+                await session.commit()
+                return True
+            except SQLAlchemyError as e:
+                print(f"--- Error updating note: {e} ---")
+                await session.rollback()
+                return False
 
     async def get_by_id(self, note_id: int) -> Optional[tables_data.Note]:
         async with self._get_session() as session:

@@ -14,6 +14,7 @@ from models.audio.SileroVad import SileroVAD
 from models.audio.SpeakerDiarization import SpeakerDiarizer
 from models.audio.FasterWhisper import FasterWhisperTranscriber
 from models.audio.TextSummarizer import TextSummarizer
+from models.audio.CodeSwitchingHandler import CodeSwitchingHandler
 
 
 class MeetingPipeline:
@@ -37,6 +38,8 @@ class MeetingPipeline:
         use_vad: bool = True,
         enable_summarization: bool = False,
         summarization_config: Optional[Dict[str, Any]] = None,
+        enable_code_switching: bool = False,
+        code_switching_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize the meeting pipeline.
@@ -49,6 +52,11 @@ class MeetingPipeline:
             use_vad: Whether to use VAD filtering
             enable_summarization: Whether to enable text summarization and chunking
             summarization_config: Configuration dict for TextSummarizer (optional)
+            enable_code_switching: Route Arabic audio through the code-switching
+                handler (fine-tuned Whisper + Ollama translation) instead of the
+                standard Whisper model.
+            code_switching_config: Optional kwargs forwarded to CodeSwitchingHandler
+                (e.g. whisper_model_id, translation_model_id, temperature).
         """
         self.whisper_model_size = whisper_model_size
         self.device = device
@@ -57,12 +65,15 @@ class MeetingPipeline:
         self.use_vad = use_vad
         self.enable_summarization = enable_summarization
         self.summarization_config = summarization_config or {}
+        self.enable_code_switching = enable_code_switching
+        self.code_switching_config = code_switching_config or {}
 
         # Initialize components (lazy loading)
         self.vad: Optional[SileroVAD] = None
         self.diarizer: Optional[SpeakerDiarizer] = None
         self.transcriber: Optional[FasterWhisperTranscriber] = None
         self.summarizer: Optional[TextSummarizer] = None
+        self.code_switcher: Optional[CodeSwitchingHandler] = None
 
         self._models_loaded = False
 
@@ -94,6 +105,13 @@ class MeetingPipeline:
                 device=self.device, **self.summarization_config
             )
             self.summarizer.load_models()
+
+        # Initialize code-switching handler if enabled
+        if self.enable_code_switching:
+            self.code_switcher = CodeSwitchingHandler(
+                device=self.device, **self.code_switching_config
+            )
+            self.code_switcher.load_model()
 
         self._models_loaded = True
 
@@ -140,9 +158,45 @@ class MeetingPipeline:
         speaker_segments = diarization_result["segments"]
 
         # Step 2: Transcribe the full audio
-        transcription_result = self.transcriber.transcribe(
-            audio_path, language=language, word_timestamps=True, vad_filter=self.use_vad
-        )
+        # For Arabic code-switching, detect language first (fast pass) then
+        # re-route through the specialised code-switching handler.
+        detected_language = language  # may be None (auto-detect)
+
+        if self.enable_code_switching and self.code_switcher is not None:
+            if detected_language is None:
+                # Quick language-detection pass using standard Whisper
+                detect_result = self.transcriber.transcribe(
+                    audio_path,
+                    language=None,
+                    word_timestamps=False,
+                    vad_filter=self.use_vad,
+                )
+                detected_language = detect_result.get("language", None)
+
+            if detected_language == "ar":
+                # Use the fine-tuned code-switching model
+                transcription_result = self.code_switcher.transcribe(
+                    audio_path,
+                    language=detected_language,
+                    word_timestamps=True,
+                    vad_filter=self.use_vad,
+                )
+            else:
+                # Non-Arabic: standard Whisper
+                transcription_result = self.transcriber.transcribe(
+                    audio_path,
+                    language=detected_language,
+                    word_timestamps=True,
+                    vad_filter=self.use_vad,
+                )
+        else:
+            # Code-switching disabled: always use standard Whisper
+            transcription_result = self.transcriber.transcribe(
+                audio_path,
+                language=language,
+                word_timestamps=True,
+                vad_filter=self.use_vad,
+            )
 
         # Step 3: Align transcription with speaker segments
         dialogue = self._align_transcription_with_speakers(
@@ -367,6 +421,10 @@ class MeetingPipeline:
         if self.summarizer:
             self.summarizer.unload_models()
             self.summarizer = None
+
+        if self.code_switcher:
+            self.code_switcher.unload_model()
+            self.code_switcher = None
 
         self._models_loaded = False
 

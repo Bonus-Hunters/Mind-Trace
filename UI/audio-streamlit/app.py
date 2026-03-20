@@ -306,6 +306,33 @@ def render_sidebar() -> dict:
                 }
 
         st.markdown("---")
+        st.markdown("### 🔤 Code-Switching (Arabic)")
+
+        enable_code_switching = st.checkbox(
+            "🌐 Enable Arabic Code-Switching",
+            value=False,
+            help="When Arabic is detected, use a fine-tuned Whisper + PEFT Llama 3 to transcribe and translate code-switched speech to English",
+        )
+
+        code_switching_config = {}
+        if enable_code_switching:
+            with st.expander("⚙️ Model Settings", expanded=False):
+                cs_whisper_model = st.text_input(
+                    "ASR Model (HuggingFace ID)",
+                    value="ahmedheakl/arazn-whisper-small-v2",
+                    help="Fine-tuned Whisper model for Arabic-English code-switching",
+                )
+                cs_translation_model = st.text_input(
+                    "Translation Model (HuggingFace PEFT ID)",
+                    value="ahmedheakl/arazn-llama3-english",
+                    help="PEFT/LoRA adapter on Llama 3 for Arabic→English translation (loaded via HuggingFace, no Ollama needed)",
+                )
+                code_switching_config = {
+                    "whisper_model_id": cs_whisper_model,
+                    "translation_model_id": cs_translation_model,
+                }
+
+        st.markdown("---")
         st.markdown(
             """
         <div class="info-box">
@@ -329,6 +356,8 @@ def render_sidebar() -> dict:
             "num_speakers": num_speakers,
             "enable_summarization": enable_summarization,
             "summarization_config": summarization_config,
+            "enable_code_switching": enable_code_switching,
+            "code_switching_config": code_switching_config,
         }
 
 
@@ -927,6 +956,8 @@ def run_diarization(uploaded_file, settings: dict):
                 use_vad=settings["vad_filter"],
                 enable_summarization=settings.get("enable_summarization", False),
                 summarization_config=settings.get("summarization_config", {}),
+                enable_code_switching=settings.get("enable_code_switching", False),
+                code_switching_config=settings.get("code_switching_config", {}),
             )
 
         # Run diarization
