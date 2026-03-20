@@ -82,9 +82,9 @@ async def test():
     obj1 = await task_repo.delete(1)
     return obj1
 
+asyncio.run(test())
 
 # asyncio.run(test2())
-proj = asyncio.run(test())
 
 # for p in proj:
 #     print(p.project_name)
