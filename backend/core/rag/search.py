@@ -20,6 +20,7 @@ from core.database.postgresDatabase import PostgresDatabase
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _chunk_to_document(
     chunk: MeetingChunk,
     meeting: Meeting,
@@ -76,6 +77,7 @@ def _unique_key(doc: Document) -> str:
 # Vector similarity search
 # ---------------------------------------------------------------------------
 
+
 async def retrieve_by_vector(
     query: str,
     project_name: str,
@@ -97,7 +99,9 @@ async def retrieve_by_vector(
             select(
                 MeetingChunk,
                 Meeting,
-                MeetingChunk.embedding.cosine_distance(query_embedding).label("distance"),
+                MeetingChunk.embedding.cosine_distance(query_embedding).label(
+                    "distance"
+                ),
             )
             .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
             .where(Meeting.project_name == project_name)
@@ -121,7 +125,9 @@ async def retrieve_by_vector(
     docs: List[Document] = []
 
     for chunk, meeting, distance in chunk_rows:
-        docs.append(_chunk_to_document(chunk, meeting, project_name, score=1 - distance))
+        docs.append(
+            _chunk_to_document(chunk, meeting, project_name, score=1 - distance)
+        )
 
     for note, distance in note_rows:
         docs.append(_note_to_document(note, project_name, score=1 - distance))
@@ -133,6 +139,7 @@ async def retrieve_by_vector(
 # ---------------------------------------------------------------------------
 # Keyword (full-text) search
 # ---------------------------------------------------------------------------
+
 
 async def retrieve_by_keyword(
     query: str,
@@ -161,7 +168,9 @@ async def retrieve_by_keyword(
             .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
             .where(Meeting.project_name == project_name)
             .where(
-                func.to_tsvector("english", MeetingChunk.text_content).op("@@")(ts_query)
+                func.to_tsvector("english", MeetingChunk.text_content).op("@@")(
+                    ts_query
+                )
             )
             .order_by(chunk_rank.desc())
             .limit(limit)
@@ -177,9 +186,7 @@ async def retrieve_by_keyword(
         note_stmt = (
             select(Note, note_rank)
             .where(Note.project_name == project_name)
-            .where(
-                func.to_tsvector("english", Note.note_text).op("@@")(ts_query)
-            )
+            .where(func.to_tsvector("english", Note.note_text).op("@@")(ts_query))
             .order_by(note_rank.desc())
             .limit(limit)
         )
@@ -200,6 +207,7 @@ async def retrieve_by_keyword(
 # ---------------------------------------------------------------------------
 # Hybrid search – Reciprocal Rank Fusion (RRF)
 # ---------------------------------------------------------------------------
+
 
 def _reciprocal_rank_fusion(
     result_lists: List[List[Document]],
