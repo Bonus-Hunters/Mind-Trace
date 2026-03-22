@@ -28,8 +28,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftConfig, PeftModel
 
 
-
-
 DEFAULT_WHISPER_MODEL = "ahmedheakl/arazn-whisper-small-v2"
 DEFAULT_TRANSLATION_MODEL = "ahmedheakl/arazn-llama3-english"
 TARGET_SAMPLE_RATE = 16_000
@@ -127,11 +125,7 @@ class CodeSwitchingHandler:
 
         self._model_loaded = True
 
-    def transcribe(
-        self,
-        audio_path: str,
-        beam_size: int = 5
-    ) -> Dict[str, Any]:
+    def transcribe(self, audio_path: str, beam_size: int = 5) -> Dict[str, Any]:
         """
         Transcribe a code-switching audio file and translate to English.
 
@@ -150,7 +144,7 @@ class CodeSwitchingHandler:
         # Load + normalise audio
         audio_array, sample_rate = sf.read(audio_path, dtype="float32")
         if audio_array.ndim > 1:
-            audio_array = audio_array.mean(axis=1)          # stereo → mono
+            audio_array = audio_array.mean(axis=1)  # stereo → mono
         if sample_rate != TARGET_SAMPLE_RATE:
             audio_array = self._resample(audio_array, sample_rate, TARGET_SAMPLE_RATE)
         duration = len(audio_array) / TARGET_SAMPLE_RATE
@@ -173,12 +167,14 @@ class CodeSwitchingHandler:
             translated = self._translate(raw_text)
             raw_texts.append(raw_text)
 
-            segments.append({
-                "id": idx,
-                "start": float(chunk_start),
-                "end": float(chunk_end),
-                "text": translated,
-            })
+            segments.append(
+                {
+                    "id": idx,
+                    "start": float(chunk_start),
+                    "end": float(chunk_end),
+                    "text": translated,
+                }
+            )
 
         full_translated = self._translate(" ".join(raw_texts))
 
@@ -192,7 +188,12 @@ class CodeSwitchingHandler:
 
     def unload_model(self) -> None:
         """Free all model memory."""
-        for attr in ("_asr_model", "_asr_processor", "_translation_model", "_tokenizer"):
+        for attr in (
+            "_asr_model",
+            "_asr_processor",
+            "_translation_model",
+            "_tokenizer",
+        ):
             obj = getattr(self, attr, None)
             if obj is not None:
                 del obj
@@ -223,7 +224,9 @@ class CodeSwitchingHandler:
                 input_features,
                 num_beams=beam_size,
             )
-        result = self._asr_processor.batch_decode(predicted_ids, skip_special_tokens=True)
+        result = self._asr_processor.batch_decode(
+            predicted_ids, skip_special_tokens=True
+        )
         return result[0].strip() if result else ""
 
     def _translate(self, text: str) -> str:

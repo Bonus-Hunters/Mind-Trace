@@ -1,28 +1,35 @@
 const TabButton = ({
   icon,
   label,
-  active,
+  active = true,
   onClick,
+  type,
+  className = "",
+  ...props
 }: {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label: string;
-  active: boolean;
+  active?: boolean;
   onClick: () => void;
+  className?: string;
+  type: string;
 }) => {
   return (
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-colors
+        flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-colors ${className}
         ${
-          active
-            ? "bg-[#1e1e1e] text-[#ffffff]"
-            : "text-[#cccccc] hover:bg-[#2a2d2e]"
+          type === "black"
+            ? active
+              ? "bg-[#1e1e1e] text-[#ffffff]"
+              : "text-[#cccccc] hover:bg-[#2a2d2e]"
+            : "bg-[#0e639c] hover:bg-[#1177bb] "
         }
       `}
     >
       {icon}
-      <span>{label}</span>
+      {label}
     </button>
   );
 };

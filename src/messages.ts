@@ -109,6 +109,8 @@ async function _valid_user(
   });
 }
 
+async function _save_note(panel: vscode.Webview, data?: any) {}
+
 // Send OTP to user email
 async function _sendOTP(panel: vscode.Webview, data?: any) {
   try {
@@ -251,8 +253,17 @@ async function _resendOTP(panel: vscode.Webview, data?: any) {
     vscode.window.showErrorMessage(`Resend failed: ${serverMessage}`);
   }
 }
+async function _get_LLMs(panel: vscode.Webview, data?: any) {}
 
-export function handleReceivedMessage(
+async function _change_LLM(panel: vscode.Webview, data?: any) {
+  const { llm } = data;
+  try {
+  } catch (error: any) {
+    vscode.window.showErrorMessage(`Couldn't Change LLM: $errorMsg`);
+  }
+}
+
+export function handleReceivedMessages(
   panel: vscode.Webview,
   context: vscode.ExtensionContext,
 ) {
@@ -261,11 +272,9 @@ export function handleReceivedMessage(
       switch (message.command) {
         case "saveNote":
           switch (message.data.noteType) {
-            case "function":
-              return;
-            case "file":
-              return;
-            case "feature":
+            case "note":
+              // TODO: handle saving a note
+              _save_note(panel, message.data);
               return;
             case "meeting":
               _process_meeting(panel, message.data);
@@ -289,6 +298,12 @@ export function handleReceivedMessage(
           return;
         case "resendOTP":
           _resendOTP(panel, message.data);
+          return;
+        case "pickLLM":
+          _get_LLMs(panel, message.data);
+          return;
+        case "changeLLM":
+          _change_LLM(panel, message.data);
           return;
       }
     },

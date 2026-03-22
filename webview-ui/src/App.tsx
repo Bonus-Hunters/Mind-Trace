@@ -6,7 +6,7 @@ import { OTPVerificationModal } from "./components/OTPVerificationModal.tsx";
 import { vscode } from "./utilities/vscodeApi.ts";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [name, setName] = useState("");

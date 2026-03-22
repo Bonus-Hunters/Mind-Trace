@@ -1,5 +1,3 @@
-import React from "react";
-
 const TagsInput = ({ tags, setTags }: any) => {
   return (
     <div>

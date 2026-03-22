@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { Uri, Webview } from "vscode";
 import * as path from "path";
-import { handleReceivedMessage } from "./messages";
+import { handleReceivedMessages } from "./messages";
 
 function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
   return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
@@ -32,7 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
           ],
         },
       );
-      handleReceivedMessage(panel.webview, context);
+      handleReceivedMessages(panel.webview, context);
       // 2. Generate the path to your React JS file
       const scriptUri = getUri(panel.webview, context.extensionUri, [
         "webview-ui",

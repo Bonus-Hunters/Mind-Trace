@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Send,
-  Bot,
-  User,
-  ChevronDown,
-  ChevronRight,
-  FileText,
-} from "lucide-react";
+import { Send, Bot, User } from "lucide-react";
 
 interface Message {
   id: string;
@@ -95,15 +88,10 @@ export function AISummaryPanel() {
       <div className="h-10 bg-[#252526] border-b border-[#3e3e42] flex items-center px-3">
         <Bot className="w-3.5 h-3.5 text-[#4ec9b0] mr-2" />
         <h2 className="text-xs text-[#ffffff]">AI Summary</h2>
-        {/*
-            TODO:
-              add selection for llm 
-              check how to get models download by ollama 
-              + hugging face 
-        */}
       </div>
 
-      {/* Messages */}
+      {/* ------- Messages ------- */}
+      {/* TODO: connect to llm  */}
       <div className="flex-1 overflow-auto p-3 space-y-3">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-[#6a6a6a] px-3">
@@ -160,9 +148,10 @@ export function AISummaryPanel() {
         )}
       </div>
 
-      {/* Input */}
+      {/* ------- Query Input -------  */}
       <div className="border-t border-[#3e3e42] bg-[#252526] p-4">
         <div className="flex gap-2">
+          {/*TODO: A multiline input field*/}
           <input
             type="text"
             value={input}

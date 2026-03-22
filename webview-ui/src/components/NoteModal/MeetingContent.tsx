@@ -66,116 +66,114 @@ const MeetingContent = ({
   }, []);
   setProjectName(projectOptions[0].value); // Set default project name on component mount
   return (
-    <div>
-      <>
-        <div>
-          <label className="block text-xs text-[#cccccc] mb-2 font-mono">
-            Meeting Title *
-          </label>
+    <>
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Meeting Title *
+        </label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter meeting title..."
+          className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
+        />
+      </div>
+
+      {/* Meeting Date */}
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Meeting Date *
+        </label>
+        <div className="relative">
           <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter meeting title..."
-            className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
+            type="date"
+            value={meetingDate}
+            onChange={(e) => setMeetingDate(e.target.value)}
+            className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
           />
+          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6a6a6a] pointer-events-none" />
         </div>
+      </div>
 
-        {/* Meeting Date */}
-        <div>
-          <label className="block text-xs text-[#cccccc] mb-2 font-mono">
-            Meeting Date *
-          </label>
-          <div className="relative">
-            <input
-              type="date"
-              value={meetingDate}
-              onChange={(e) => setMeetingDate(e.target.value)}
-              className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
-            />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6a6a6a] pointer-events-none" />
-          </div>
-        </div>
+      {/* Language Selection */}
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Language *
+        </label>
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono appearance-none cursor-pointer"
+        >
+          {languageOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {/* Project Name */}
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Project Name *
+        </label>
+        <select
+          value={projectName}
+          onChange={(e) => setProjectName(e.target.value)}
+          className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono appearance-none cursor-pointer"
+        >
+          {projectOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {/* Tags */}
+      <TagsInput tags={tags} setTags={setTags} />
 
-        {/* Language Selection */}
-        <div>
-          <label className="block text-xs text-[#cccccc] mb-2 font-mono">
-            Language *
-          </label>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono appearance-none cursor-pointer"
+      {/* Audio File Upload */}
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Audio File *
+        </label>
+        <div className="space-y-2" onClick={handleUpload}>
+          <label
+            htmlFor="audio-upload"
+            className="flex items-center justify-center gap-2 w-full px-3 py-3 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] hover:bg-[#4a4a4a] transition-colors cursor-pointer"
           >
-            {languageOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Project Name */}
-        <div>
-          <label className="block text-xs text-[#cccccc] mb-2 font-mono">
-            Project Name *
+            <Upload className="w-4 h-4" />
+            <span className="font-mono">Browse Audio File</span>
           </label>
-          <select
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono appearance-none cursor-pointer"
-          >
-            {projectOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Tags */}
-        <TagsInput tags={tags} setTags={setTags} />
 
-        {/* Audio File Upload */}
-        <div>
-          <label className="block text-xs text-[#cccccc] mb-2 font-mono">
-            Audio File *
-          </label>
-          <div className="space-y-2" onClick={handleUpload}>
-            <label
-              htmlFor="audio-upload"
-              className="flex items-center justify-center gap-2 w-full px-3 py-3 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] hover:bg-[#4a4a4a] transition-colors cursor-pointer"
-            >
-              <Upload className="w-4 h-4" />
-              <span className="font-mono">Browse Audio File</span>
-            </label>
-
-            {!audioFile && (
-              <p className="text-xs text-[#6a6a6a] font-mono">
-                Supported formats: WAV, MP3, MP4, M4A
-              </p>
-            )}
-          </div>
-          {audioFile && (
-            <div className="flex items-center justify-between px-3 py-2 bg-[#252526] border border-[#3e3e42] rounded">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-xs text-[#4ec9b0] font-mono">📁</span>
-                <span className="text-xs text-[#cccccc] font-mono truncate">
-                  {audioFile.filename}
-                </span>
-                <span className="text-xs text-[#6a6a6a] font-mono flex-shrink-0">
-                  ({(audioFile.size / 1024 / 1024).toFixed(2)} MB)
-                </span>
-              </div>
-              <button
-                onClick={() => setAudioFile(null)}
-                className="ml-2 p-1 hover:bg-[#3c3c3c] rounded transition-colors flex-shrink-0"
-              >
-                <X className="w-3 h-3 text-[#cccccc]" />
-              </button>
-            </div>
+          {!audioFile && (
+            <p className="text-xs text-[#6a6a6a] font-mono">
+              Supported formats: WAV, MP3, MP4, M4A
+            </p>
           )}
         </div>
-      </>
-    </div>
+        {audioFile && (
+          <div className="flex items-center justify-between px-3 py-2 bg-[#252526] border border-[#3e3e42] rounded">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs text-[#4ec9b0] font-mono">📁</span>
+              <span className="text-xs text-[#cccccc] font-mono truncate">
+                {audioFile.filename}
+              </span>
+              <span className="text-xs text-[#6a6a6a] font-mono flex-shrink-0">
+                ({(audioFile.size / 1024 / 1024).toFixed(2)} MB)
+              </span>
+            </div>
+            <button
+              onClick={() => setAudioFile(null)}
+              className="ml-2 p-1 hover:bg-[#3c3c3c] rounded transition-colors flex-shrink-0"
+            >
+              <X className="w-3 h-3 text-[#cccccc]" />
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

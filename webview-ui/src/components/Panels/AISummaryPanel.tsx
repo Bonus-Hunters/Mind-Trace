@@ -1,12 +1,6 @@
 import { useState } from "react";
-import {
-  Send,
-  Bot,
-  User,
-  ChevronDown,
-  ChevronRight,
-  FileText,
-} from "lucide-react";
+import { Send, Bot, User, Plus } from "lucide-react";
+import TabButton from "../TabButton";
 
 interface Message {
   id: string;
@@ -91,12 +85,6 @@ export function AISummaryPanel() {
 
   return (
     <div className="h-full flex flex-col bg-[#1e1e1e]">
-      {/* Header */}
-      <div className="h-10 bg-[#252526] border-b border-[#3e3e42] flex items-center px-3">
-        <Bot className="w-3.5 h-3.5 text-[#4ec9b0] mr-2" />
-        <h2 className="text-xs text-[#ffffff]">AI Summary</h2>
-      </div>
-
       {/* Messages */}
       <div className="flex-1 overflow-auto p-3 space-y-3">
         {messages.length === 0 && (
