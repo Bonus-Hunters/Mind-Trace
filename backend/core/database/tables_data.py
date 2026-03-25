@@ -118,21 +118,32 @@ class MeetingUpdate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class Note(BaseModel):
-    project_name: str = Field(..., max_length=255)
-    author: str = Field(..., max_length=255)
+class NoteBase(BaseModel):
     note_text: str
+    project_name: str = Field(..., max_length=255)
+    type: str = Field(..., max_length=50)
+    tags: Optional[str] = Field(None, max_length=255)
+    function: Optional[str] = Field(None, max_length=50)
+    file_name: Optional[str] = Field(None, max_length=50)
+    module: Optional[str] = Field(None, max_length=50)
+    line_number: Optional[int] = Field(None)
+    title: Optional[str] = Field(None, max_length=50)
+
+
+# data passed by the user [retrived via UI]
+class NoteCreate(NoteBase):
+    pass
+
+
+# data for reading/creating [db related]
+class Note(NoteBase):
+    # metadata from processing the note not passed by the user
     embedding: List[float] = Field(
         ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
     )
-    type: str = Field(..., max_length=50)
-    tags: Optional[str] = Field(None, max_length=255)
-    function: Optional[str] = None
-    file_name: Optional[str] = Field(None, max_length=50)
-    module: Optional[str] = Field(None, max_length=50)
-
+    meta: Optional[Dict[str, Any]] = {}
+    author: str = Field(..., max_length=50)
     date: datetime = Field(default_factory=datetime.utcnow)
-    meta: Optional[Dict[str, Any]]
     company_id: int
     model_config = ConfigDict(from_attributes=True)
 
@@ -140,9 +151,7 @@ class Note(BaseModel):
 class NoteUpdate(BaseModel):
     type: Optional[str] = Field(None, max_length=50)
     tags: Optional[str] = Field(None, max_length=255)
-    function: Optional[str] = None
     file_name: Optional[str] = Field(None, max_length=50)
-    module: Optional[str] = Field(None, max_length=50)
     meta: Optional[Dict[str, Any]] = None
     model_config = ConfigDict(from_attributes=True)
 

@@ -4,6 +4,8 @@ import ssl
 from email.message import EmailMessage
 from core.config_loader import ConfigLoader
 import bcrypt
+from core.database.repos import EmployeesRepository
+from core.database.postgresDatabase import PostgresDatabase
 
 
 def get_email_domain(email: str) -> str:
@@ -187,3 +189,19 @@ def hash_password(password: str):
     password = password.encode("utf-8")
     hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
     return hashed_password.decode("utf-8")
+
+
+def get_current_author(email: str) -> str:
+    try:
+        db = PostgresDatabase()
+        employeeRepo = EmployeesRepository(db.get_session_maker())
+        employee = employeeRepo.get_by_email(email)
+        if employee:
+            return employee
+        return False
+    except Exception as e:
+        print
+        return False
+    finally:
+        del db
+        del employeeRepo

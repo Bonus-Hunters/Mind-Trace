@@ -1,6 +1,6 @@
 from abc import ABC
 from contextlib import asynccontextmanager
-from sqlalchemy import select
+from sqlalchemy import select, update
 from typing import Any, Type, TypeVar, Generic, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from core.database.models import Base
@@ -305,6 +305,13 @@ class EmployeesRepository(BaseRepository):
             res = await self._get_obj(name)
             return res if res else None
 
+    async def get_by_email(self, email: str) -> Optional[tables_data.Employees]:
+        async with self._get_session() as session:
+            stmt = select(models.Employee).where(models.Employee.email == email)
+            result = await session.execute(stmt)
+            obj = result.scalars().first()
+            return obj if obj else None
+
     async def get_by_role(self, role: str) -> Optional[List[tables_data.Employees]]:
         async with self._get_session() as session:
             stmt = select(models.Employee).where(models.Employee.role == role)
@@ -536,7 +543,7 @@ class NoteRepository(BaseRepository):
                         f"--- Error creating note: Project {data.project_name} does not exist ---"
                     )
                 dev_repo = EmployeesRepository(self._session_maker)
-                developer = await dev_repo.get_by_name(data.author)
+                developer = await dev_repo.get_by_email(data.author)
                 if developer is None:
                     print(
                         f"--- Error creating note: Developer {data.author} does not exist ---"
@@ -554,10 +561,13 @@ class NoteRepository(BaseRepository):
                 await session.rollback()
                 return False
                 # working
+
     async def update(self, note_id: int, data: dict) -> bool:
         async with self._get_session() as session:
             try:
-                stmt = update(models.Note).where(models.Note.id == note_id).values(**data)
+                stmt = (
+                    update(models.Note).where(models.Note.id == note_id).values(**data)
+                )
                 await session.execute(stmt)
                 await session.commit()
                 return True
@@ -611,18 +621,18 @@ class NoteRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().all()
 
-    async def update(self, note_id: int, data: tables_data.NoteUpdate) -> bool:
-        async with self._get_session() as session:
-            note = await session.scalar(
-                select(models.Note).where(models.Note.id == note_id)
-            )
-            if not note:
-                print(f"--- Error updating note: Note ID {note_id} does not exist ---")
-                return False
-            for key, value in data.model_dump(exclude_unset=True).items():
-                setattr(note, key, value)
-            await session.commit()
-            return True
+    # async def update(self, note_id: int, data: tables_data.NoteUpdate) -> bool:
+    #     async with self._get_session() as session:
+    #         note = await session.scalar(
+    #             select(models.Note).where(models.Note.id == note_id)
+    #         )
+    #         if not note:
+    #             print(f"--- Error updating note: Note ID {note_id} does not exist ---")
+    #             return False
+    #         for key, value in data.model_dump(exclude_unset=True).items():
+    #             setattr(note, key, value)
+    #         await session.commit()
+    #         return True
 
     async def delete(self, note_id: int) -> bool:
         async with self._get_session() as session:

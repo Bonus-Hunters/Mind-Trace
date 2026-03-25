@@ -20,6 +20,8 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
   const [functionName, setFunctionName] = useState("");
   const [lineNumber, setLineNumber] = useState("");
   const [tags, setTags] = useState("");
+  const [noteCategory, setNoteCategory] = useState("");
+  const [moduleName, setModuleName] = useState("");
 
   // Meeting-specific fields
   const [meetingDate, setMeetingDate] = useState("");
@@ -47,6 +49,8 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
       language: language,
       audioFile: audioFile,
       projectName: projectName,
+      noteCategory: noteCategory,
+      moduleName: moduleName,
     });
     onClose();
   };
@@ -121,6 +125,12 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
               setTags={setTags}
               filePath={filePath}
               setFilePath={setFilePath}
+              noteCategory={noteCategory}
+              setNoteCategory={setNoteCategory}
+              projectName={projectName}
+              setProjectName={setProjectName}
+              moduleName={moduleName}
+              setModuleName={setModuleName}
             />
           )}
         </div>

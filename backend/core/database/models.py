@@ -203,6 +203,7 @@ class MeetingChunk(Base):
     meeting: Mapped["Meeting"] = relationship(back_populates="chunks")
 
 
+# filename or filepath???
 class Note(Base):
     __tablename__ = "notes"
 
@@ -215,10 +216,12 @@ class Note(Base):
     embedding: Mapped[List[float]] = mapped_column(Vector(dim=EMBEDDING_SIZE))
     date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     type: Mapped[str] = mapped_column(String(50))
-    tags: Mapped[str] = mapped_column(String(255), nullable=True)
-    function: Mapped[str] = mapped_column(Text, nullable=True)
-    file_name: Mapped[str] = mapped_column(String(50), nullable=True)
-    module: Mapped[str] = mapped_column(String(50), nullable=True)
+    tags: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    function: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    file_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    module: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    line_number: Mapped[Optional[int]] = mapped_column(None, nullable=True)
     meta: Mapped[Optional[Dict[str, Any]]] = mapped_column(
         JSONB, default=dict, server_default="{}", nullable=True
     )

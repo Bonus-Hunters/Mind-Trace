@@ -109,7 +109,40 @@ async function _valid_user(
   });
 }
 
-async function _save_note(panel: vscode.Webview, data?: any) {}
+async function _save_note(
+  panel: vscode.Webview,
+  context: vscode.ExtensionContext,
+  data?: any,
+) {
+  // if data is string -> "" === null values for now [should change later when states are handled]
+  const note_data = {
+    note_text: data.description,
+    project_name: data.projectName,
+    type: data.noteCategory,
+    tags: data.tags,
+    function: data.functionName,
+    file_name: data.filePath,
+    module: data.moduleName,
+    line_number: parseInt(data.lineNumber, 10),
+    title: data.title,
+  };
+  try {
+    const email = context.globalState.get<string>("userEmail");
+    console.log(`IN::: ${email}`);
+
+    const response = await axios.post(
+      `http://127.0.0.1:8000/notes/save_note`,
+      note_data,
+      {
+        headers: { email },
+      },
+    );
+    vscode.window.showInformationMessage(`passed`);
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error || error.message;
+    vscode.window.showErrorMessage(`Backend Error: ${serverMessage}`);
+  }
+}
 
 // Send OTP to user email
 async function _sendOTP(panel: vscode.Webview, data?: any) {
@@ -274,7 +307,7 @@ export function handleReceivedMessages(
           switch (message.data.noteType) {
             case "note":
               // TODO: handle saving a note
-              _save_note(panel, message.data);
+              _save_note(panel, context, message.data);
               return;
             case "meeting":
               _process_meeting(panel, message.data);

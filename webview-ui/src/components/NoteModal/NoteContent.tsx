@@ -1,6 +1,17 @@
 import React from "react";
 import TagsInput from "./TagsInput";
 
+const noteTypesOptions = [
+  { value: "general", label: "General" },
+  { value: "optimization", label: "Optimization" },
+  { value: "todo", label: "TODO" },
+  { value: "bug", label: "Bug" },
+  { value: "omit", label: "Ommit Task" },
+  { value: "suggestion", label: "Suggestion" },
+];
+// TODO: retrieve projects from db -- done in meeting part?
+const projectOptions = [{ value: "Test Project2", label: "Test Project2" }];
+
 const NoteContent = ({
   description,
   setDescription,
@@ -14,9 +25,18 @@ const NoteContent = ({
   setTags,
   filePath,
   setFilePath,
+  noteCategory,
+  setNoteCategory,
+  projectName,
+  setProjectName,
+  moduleName,
+  setModuleName,
 }: any) => {
+  setProjectName(projectOptions[0].value);
+  setNoteCategory(noteTypesOptions[0].value);
   return (
     <>
+      {/* Mandatory Fields */}
       {/* Description */}
       <div>
         <label className="block text-xs text-[#cccccc] mb-2 font-mono">
@@ -29,6 +49,42 @@ const NoteContent = ({
           rows={6}
           className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors resize-none font-mono"
         />
+      </div>
+      {/* Note Type Selection */}
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Note Type *
+        </label>
+        <select
+          value={noteCategory}
+          onChange={(e) => setNoteCategory(e.target.value)}
+          className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono appearance-none cursor-pointer"
+        >
+          {/*TODO: change styling for the title*/}
+          {noteTypesOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {/* Project Name Selection */}
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Project Name *
+        </label>
+        <select
+          value={projectName}
+          onChange={(e) => setProjectName(e.target.value)}
+          className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] focus:outline-none focus:border-[#007acc] transition-colors font-mono appearance-none cursor-pointer"
+        >
+          {/*TODO: change styling for the title*/}
+          {projectOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
       {/* --- Optional Fields --- */}
       {/* Title */}
@@ -44,8 +100,8 @@ const NoteContent = ({
           className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
         />
       </div>
-      {/* Function Name  */}
 
+      {/* Function Name  */}
       <div>
         <label className="block text-xs text-[#cccccc] mb-2 font-mono">
           Function Name
@@ -58,8 +114,22 @@ const NoteContent = ({
           className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
         />
       </div>
-      {/* Line Number  */}
 
+      {/* Module Name  */}
+      <div>
+        <label className="block text-xs text-[#cccccc] mb-2 font-mono">
+          Module Name
+        </label>
+        <input
+          type="text"
+          value={moduleName}
+          onChange={(e) => setModuleName(e.target.value)}
+          placeholder="AI"
+          className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
+        />
+      </div>
+
+      {/* Line Number  */}
       <div>
         <label className="block text-xs text-[#cccccc] mb-2 font-mono">
           Line Number

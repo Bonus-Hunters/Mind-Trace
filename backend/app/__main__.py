@@ -1,5 +1,5 @@
+from app.apis import authentication_apis, meeting_apis, notes_apis
 from fastapi import FastAPI
-from app.apis import meeting, auth
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from core.database.postgresDatabase import PostgresDatabase
@@ -12,14 +12,15 @@ db_config_loader = DatabaseConfigLoader()
 config_loader = ConfigLoader()
 
 
-def include_router(app: FastAPI):
-    app.include_router(meeting.router)
-    app.include_router(auth.router, prefix="/auth")
+def include_routers(app: FastAPI):
+    app.include_router(meeting_apis.router)
+    app.include_router(authentication_apis.router, prefix="/auth")
+    app.include_router(notes_apis.router, prefix="/notes")
 
 
 def create_server():
     app = FastAPI()
-    include_router(app)
+    include_routers(app)
     return app
 
 
