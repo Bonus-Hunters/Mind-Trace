@@ -1,0 +1,67 @@
+# Core
+numpy==2.3.4
+pandas==2.3.3
+scipy==1.16.3
+scikit-learn==1.7.2
+
+# Deep Learning
+torch==2.10.0
+torchvision==0.25.0
+tensorflow==2.20.0
+keras==3.12.0
+
+# Computer Vision
+opencv-python==4.12.0.88
+opencv-python-headless==4.12.0.88
+pillow==12.0.0
+albumentations==2.0.8
+segmentation-models==1.0.1
+
+# NLP / Transformers / RAG
+transformers==4.57.3
+sentence-transformers==5.1.2
+huggingface-hub==0.35.3
+tokenizers==0.22.1
+langchain==1.1.2
+langchain-community==0.4.1
+langchain-core==1.2.7
+langchain-chroma==1.1.0
+langgraph==1.0.4
+chromadb==1.4.1
+
+# Vector & similarity
+faiss-cpu; platform_system != "Windows"
+rapidfuzz==3.14.3
+
+# Backend / API
+fastapi
+uvicorn==0.38.0
+pydantic==2.12.2
+pydantic-settings==2.12.0
+sqlalchemy==2.0.44
+alembic==1.18.3
+
+# Async / Networking
+aiohttp==3.13.2
+aiobotocore
+aioitertools
+asyncpg==0.31.0
+httpx
+requests==2.32.5
+
+# Utilities
+python-dotenv==1.1.1
+tqdm
+rich==14.2.0
+orjson==3.11.3
+regex==2025.11.3
+
+# Visualization
+matplotlib==3.10.7
+seaborn
+plotly
+
+# Jupyter (optional but safe)
+ipython==9.9.0
+ipykernel==7.1.0
+jupyterlab
