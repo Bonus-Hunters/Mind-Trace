@@ -24,7 +24,7 @@ export function AISummaryPanel() {
           {
             id: Date.now().toString(),
             role: "assistant",
-            content: data?.answer ?? "",
+            content: data?.response ?? "",
             timestamp: new Date().toISOString(),
             sources: data?.sources ?? [],
           },

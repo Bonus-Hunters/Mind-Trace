@@ -52,15 +52,13 @@ const MainScreen = () => {
           <StickyNote className="w-4 h-4 text-[#4ec9b0]" />
           <span className="text-sm">Code Notes</span>
         </div>
-        <div className="flex items-center gap-1">
-          {/* Plus button for adding notes */}
-          <TabButton
-            icon={<Plus className="w-3 h-3" />}
-            label=""
-            onClick={() => setShowAddNote(true)}
-            type="blue"
-          />
-        </div>
+        {/* Plus button for adding notes */}
+        <TabButton
+          icon={<Plus className="w-3 h-3" />}
+          label=""
+          onClick={() => setShowAddNote(true)}
+          type="blue"
+        />
       </div>
 
       {/* Tab Bar */}

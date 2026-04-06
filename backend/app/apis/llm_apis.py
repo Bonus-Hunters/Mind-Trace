@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from core.rag.models import EMBED_MODEL, LLM_MODEL
-from core.rag.pipeline import mind_trace_query
 from fastapi import APIRouter, Header
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -49,15 +48,14 @@ async def send_query(request: QueryRequest):
         )
 
         response_chunks = []
-        async for chunk in mind_trace_query(
+        full_response = await mind_trace_query(
             request.query,
             request.projectName,
             llm_cfg,
             embed_cfg,
-        ):
-            response_chunks.append(chunk)
-
-        full_response = "".join(response_chunks)
+        )
+        # full_response = "".join(response_chunks)
+        print(f"---   output:: {full_response}")
         return {"response": full_response}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

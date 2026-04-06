@@ -22,7 +22,7 @@ async def mind_trace_query(
     project: str,
     llm_config: LLMConfig,
     embed_config: LLMConfig,
-) -> AsyncGenerator[str, None]:
+):
     """Run the full Mind-Trace RAG pipeline for a user query.
 
     Steps
@@ -51,7 +51,7 @@ async def mind_trace_query(
         limit=8,
         embed_query_fn=embed_query_fn,
     )
-
+    print(" ----- retrieval passed -")
     # docs = await retrieve_by_vector(
     #     query,
     #     project,
@@ -63,9 +63,7 @@ async def mind_trace_query(
     # 3. Generate
     final_context = build_context(docs)
     print(final_context)
-
-    async for chunk in rag_chain.astream({"context": final_context, "question": query}):
-        yield chunk
+    return rag_chain.invoke({"context": final_context, "question": query})
 
 
 # ---------------------------------------------------------------------------

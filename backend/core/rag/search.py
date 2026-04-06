@@ -111,6 +111,7 @@ async def retrieve_by_vector(
         chunk_rows = (await session.execute(chunk_stmt)).all()
 
         # -- Notes ------------------------------------------------------------
+        print(" ---- meetings retrival passed -")
         note_stmt = (
             select(
                 Note,
@@ -121,6 +122,7 @@ async def retrieve_by_vector(
             .limit(limit)
         )
         note_rows = (await session.execute(note_stmt)).all()
+        print(" ---- notes retrival passed -")
 
     docs: List[Document] = []
 
@@ -128,7 +130,7 @@ async def retrieve_by_vector(
         docs.append(
             _chunk_to_document(chunk, meeting, project_name, score=1 - distance)
         )
-
+    print(f"----- chunks returned {len(chunk_rows)} \n ----- {chunk_rows}")
     for note, distance in note_rows:
         docs.append(_note_to_document(note, project_name, score=1 - distance))
 
@@ -275,7 +277,9 @@ async def retrieve_hybrid(
         Smoothing constant for RRF (default 60).
     """
     vector_docs = await retrieve_by_vector(query, project_name, limit, embed_query_fn)
+
     keyword_docs = await retrieve_by_keyword(query, project_name, limit)
 
     fused = _reciprocal_rank_fusion([vector_docs, keyword_docs], k=rrf_k)
+
     return fused[:limit]

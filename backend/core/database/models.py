@@ -105,7 +105,9 @@ class EmployeeProject(Base):
 
 class Project(Base):
     __tablename__ = "projects"
-    id: Mapped[int] = mapped_column(primary_key=True, server_default=Identity())
+    id: Mapped[int] = mapped_column(
+        primary_key=True, server_default=Identity(), autoincrement=True
+    )
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[Optional[datetime]] = mapped_column(

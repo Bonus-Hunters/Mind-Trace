@@ -147,7 +147,8 @@ class ProjectRepository(BaseRepository):
                 new_project = models.Project(**data.model_dump())
                 session.add(new_project)
                 await session.commit()
-                return True
+                await session.refresh(new_project)
+                return new_project.id
             except SQLAlchemyError as e:
                 await session.rollback()
                 print(f"--- Error creating project: {e} ---")
@@ -212,7 +213,8 @@ class CategoryMapRepository(BaseRepository):
                 new_category_map = models.CategoryMap(**data.model_dump())
                 session.add(new_category_map)
                 await session.commit()
-                return True
+                await session.refresh(new_category_map)
+                return new_category_map.id
             except SQLAlchemyError as e:
                 print(f"--- Error creating category map: {e} ---")
                 await session.rollback()
@@ -537,11 +539,11 @@ class NoteRepository(BaseRepository):
                     )
                 proj_repo = ProjectRepository(self._session_maker)
                 project = await proj_repo.get_by_name(data.project_name)
-                del proj_repo
                 if project is None:
                     print(
                         f"--- Error creating note: Project {data.project_name} does not exist ---"
                     )
+                del proj_repo
                 dev_repo = EmployeesRepository(self._session_maker)
                 developer = await dev_repo.get_by_email(data.author)
                 if developer is None:

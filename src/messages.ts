@@ -338,7 +338,7 @@ async function _send_query_to_llm(panel: vscode.Webview, data: any) {
       command: "llm_response",
       data: response.data,
     });
-    vscode.window.showErrorMessage(`good`);
+    vscode.window.showInformationMessage(`good`);
   } catch (error: any) {
     const serverMessage = error.response?.data?.error || error.message;
     panel.postMessage({
