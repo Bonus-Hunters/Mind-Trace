@@ -7,6 +7,7 @@ from core.audio_pipelines import db_handling
 from core.database.tables_data import NoteCreate
 from core.notes.note_manager import DatabaseNoteManager
 from core.database.authentication import get_current_author
+from utils.enums import NoteType
 
 router = APIRouter()
 

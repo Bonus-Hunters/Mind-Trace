@@ -1,4 +1,4 @@
-from app.apis import authentication_apis, meeting_apis, notes_apis
+from app.apis import authentication_apis, meeting_apis, notes_apis, llm_apis
 from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +16,7 @@ def include_routers(app: FastAPI):
     app.include_router(meeting_apis.router)
     app.include_router(authentication_apis.router, prefix="/auth")
     app.include_router(notes_apis.router, prefix="/notes")
+    app.include_router(llm_apis.router, prefix="/llms")
 
 
 def create_server():

@@ -3,9 +3,11 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+./calude.md
+backend/dataset/*
 # C extensions
 *.so
-./env 
+./env   
 **/node_modules
 Temp/Audio/*
 backend/app/temp/audio/*

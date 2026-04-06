@@ -11,8 +11,8 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from Models.audio.FasterWhisper import FasterWhisperTranscriber
-from core.audio_pipelines.MeetingPipeline import MeetingPipeline
+from backend.models.audio.FasterWhisper import FasterWhisperTranscriber
+from backend.core.audio_pipelines.MeetingPipeline import MeetingPipeline
 
 
 # =============================================================================

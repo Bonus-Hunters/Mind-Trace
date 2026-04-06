@@ -29,7 +29,7 @@ def _chunk_to_document(
 ) -> Document:
     """Convert a MeetingChunk row into a LangChain Document."""
     return Document(
-        page_content=chunk.text_content,
+        page_content=chunk.raw_text,
         metadata={
             "source": "meeting",
             "type": "meeting_chunk",
@@ -159,7 +159,7 @@ async def retrieve_by_keyword(
     async with session_maker() as session:
         # -- Meeting chunks --------------------------------------------------
         chunk_rank = func.ts_rank(
-            func.to_tsvector("english", MeetingChunk.text_content),
+            func.to_tsvector("english", MeetingChunk.raw_text),
             ts_query,
         ).label("rank")
 
@@ -168,9 +168,7 @@ async def retrieve_by_keyword(
             .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
             .where(Meeting.project_name == project_name)
             .where(
-                func.to_tsvector("english", MeetingChunk.text_content).op("@@")(
-                    ts_query
-                )
+                func.to_tsvector("english", MeetingChunk.raw_text).op("@@")(ts_query)
             )
             .order_by(chunk_rank.desc())
             .limit(limit)

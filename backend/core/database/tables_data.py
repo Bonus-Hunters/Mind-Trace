@@ -13,8 +13,8 @@ class Company(BaseModel):
 class Project(BaseModel):
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
-    delivered: bool = False
-    created_at: datetime
+    delivered: Optional[bool] = False
+    created_at: Optional[datetime] = None
     company_id: int
     model_config = ConfigDict(from_attributes=True)
 
@@ -80,7 +80,9 @@ class MeetingChunk(BaseModel):
     summary_text: str
     start_time_sec: float
     end_time_sec: float
-    embedding: List[float] = Field(..., min_items=384, max_items=384)
+    embedding: List[float] = Field(
+        ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
+    )
     speaker_names: List[str] = []
     meeting_id: int
     meta: Optional[Dict[str, Any]]

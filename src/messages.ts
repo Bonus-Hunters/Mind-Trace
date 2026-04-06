@@ -286,13 +286,66 @@ async function _resendOTP(panel: vscode.Webview, data?: any) {
     vscode.window.showErrorMessage(`Resend failed: ${serverMessage}`);
   }
 }
-async function _get_LLMs(panel: vscode.Webview, data?: any) {}
 
+// get ollama local llms
+async function _get_local_LLMs(panel: vscode.Webview, data?: any) {
+  try {
+    const response = await axios.get(
+      `http://127.0.0.1:8000/llms/get_local_llms`,
+    );
+    panel.postMessage({
+      command: "local_llms",
+      data: {},
+    });
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error || error.message;
+    vscode.window.showErrorMessage(
+      `Couldn't Retrieve Local LLMs: ${serverMessage}`,
+    );
+  }
+}
+
+// set seleted llm
 async function _change_LLM(panel: vscode.Webview, data?: any) {
   const { llm } = data;
   try {
   } catch (error: any) {
     vscode.window.showErrorMessage(`Couldn't Change LLM: $errorMsg`);
+  }
+}
+
+function _get_folder_curr_name(): string | null {
+  const activeEditor = vscode.window.activeTextEditor;
+  if (activeEditor) {
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(
+      activeEditor.document.uri,
+    );
+    if (workspaceFolder) {
+      return workspaceFolder.name;
+    }
+  }
+  return null;
+}
+
+// send query msg to llm and get response
+async function _send_query_to_llm(panel: vscode.Webview, data: any) {
+  try {
+    const response = await axios.post(`http://127.0.0.1:8000/llms/send_query`, {
+      query: data?.query ?? "",
+      projectName: _get_folder_curr_name(),
+    });
+    panel.postMessage({
+      command: "llm_response",
+      data: response.data,
+    });
+    vscode.window.showErrorMessage(`good`);
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error || error.message;
+    panel.postMessage({
+      command: "llm_error",
+      data: { error: serverMessage },
+    });
+    vscode.window.showErrorMessage(`LLM Query Error: ${serverMessage}`);
   }
 }
 
@@ -333,10 +386,16 @@ export function handleReceivedMessages(
           _resendOTP(panel, message.data);
           return;
         case "pickLLM":
-          _get_LLMs(panel, message.data);
+          _get_local_LLMs(panel, message.data);
           return;
         case "changeLLM":
           _change_LLM(panel, message.data);
+          return;
+        case "send_query_to_llm":
+          _send_query_to_llm(panel, message.data);
+          return;
+        case "close_panel":
+          vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
           return;
       }
     },

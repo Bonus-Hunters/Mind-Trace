@@ -1,9 +1,5 @@
-import secrets
-import smtplib
-import ssl
+import secrets, smtplib, ssl, bcrypt
 from email.message import EmailMessage
-from core.config_loader import ConfigLoader
-import bcrypt
 from core.database.repos import EmployeesRepository
 from core.database.postgresDatabase import PostgresDatabase
 

@@ -108,9 +108,11 @@ class Project(Base):
     id: Mapped[int] = mapped_column(primary_key=True, server_default=Identity())
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    delivered: Mapped[bool] = mapped_column(default=False)
-    tags: Mapped[str] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, default=datetime.utcnow
+    )
+    delivered: Mapped[Optional[bool]] = mapped_column(default=False)
+    tags: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     company_id: Mapped[int] = mapped_column(
         ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
     )
@@ -195,7 +197,7 @@ class MeetingChunk(Base):
     )
 
     # Using pgvector for embeddings (requires 'pip install pgvector')
-    embedding: Mapped[Optional[List[float]]] = mapped_column(Vector(dim=384))
+    embedding: Mapped[Optional[List[float]]] = mapped_column(Vector(dim=EMBEDDING_SIZE))
 
     # FKs to Employees (Speakers)
     speaker_names: Mapped[List[str]] = mapped_column(ARRAY(String))
@@ -203,7 +205,7 @@ class MeetingChunk(Base):
     meeting: Mapped["Meeting"] = relationship(back_populates="chunks")
 
 
-# filename or filepath???
+# CHECK: filename or filepath???
 class Note(Base):
     __tablename__ = "notes"
 

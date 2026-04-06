@@ -13,6 +13,23 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+        "viewsContainers": {
+        "secondarySidebar": [
+          {
+            "id": "my-extension-sidebar",
+            "title": "Mind Trace",
+            "icon": "./media/extension-icon.svg"
+          }
+        ]
+      },"views": {
+        "my-extension-sidebar": [
+          {
+            "type": "webview",
+            "id": "my-sidebar-view",
+            "name": ""
+          }
+        ]
+      },
     "commands": [
       {
         "command": "Mind-Trace.runextension",

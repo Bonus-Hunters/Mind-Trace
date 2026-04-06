@@ -16,6 +16,7 @@ from core.rag.search import retrieve_by_vector, retrieve_hybrid
 
 from typing import AsyncGenerator
 
+
 async def mind_trace_query(
     query: str,
     project: str,
@@ -62,7 +63,7 @@ async def mind_trace_query(
     # 3. Generate
     final_context = build_context(docs)
     print(final_context)
-    
+
     async for chunk in rag_chain.astream({"context": final_context, "question": query}):
         yield chunk
 

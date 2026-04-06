@@ -9,6 +9,7 @@ import {
   Calendar,
   StickyNote,
   Plus,
+  X,
 } from "lucide-react";
 import { AISummaryPanel } from "../Panels/AISummaryPanel.tsx";
 import { MeetingMinutesView } from "../Panels/MeetingMinutesView.tsx";
@@ -22,7 +23,7 @@ const MainScreen = () => {
   const [selectedLLM, setSelectedLLM] = useState("GPT-4");
   const [isLLMDropdownOpen, setIsLLMDropdownOpen] = useState(false);
 
-  const llmOptions = ["GPT-4", "GPT-4o", "Llama 3", "Mistral", "Custom"];
+  const llmOptions = ["GPT-4", "gemini", "ollama", "gemini"];
 
   const toggleLLMDropdown = () => {
     setIsLLMDropdownOpen((prev) => !prev);
@@ -39,26 +40,32 @@ const MainScreen = () => {
     setIsLLMDropdownOpen(false);
   };
 
+  const handleClose = () => {
+    vscode.postMessage("close_panel");
+  };
+
   return (
     <div className="h-screen shrink-0 min-w-xs overflow-x-hidden flex flex-col bg-[#1e1e1e] text-[#cccccc]">
-      {/* Header */}
+      {/* Header — topmost row: icon + title + close button */}
       <div className="h-9 bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between px-3">
         <div className="flex items-center gap-3">
           <StickyNote className="w-4 h-4 text-[#4ec9b0]" />
           <span className="text-sm">Code Notes</span>
         </div>
-        {/* Plus butnton for adding notes */}
-        <TabButton
-          icon={<Plus className="w-3 h-3" />}
-          label=""
-          onClick={() => setShowAddNote(true)}
-          type="blue"
-        />
+        <div className="flex items-center gap-1">
+          {/* Plus button for adding notes */}
+          <TabButton
+            icon={<Plus className="w-3 h-3" />}
+            label=""
+            onClick={() => setShowAddNote(true)}
+            type="blue"
+          />
+        </div>
       </div>
 
       {/* Tab Bar */}
       <div className="h-9 bg-[#252526] justify-between border-b border-[#3e3e42] flex items-center px-2 gap-1 relative">
-        <div className="flex">
+        <div className="flex min-w-0">
           <TabButton
             icon={<Search className="w-4 h-4" />}
             label="Search"
@@ -89,9 +96,9 @@ const MainScreen = () => {
               + hugging face 
         */}
         {currentView == "ai" && (
-          <div className="relative">
+          <div className="relative shrink min-w-0">
             <TabButton
-              className="mr-1"
+              className="mr-1 max-w-full"
               label={`Pick LLM (${selectedLLM})`}
               onClick={toggleLLMDropdown}
               type="blue"

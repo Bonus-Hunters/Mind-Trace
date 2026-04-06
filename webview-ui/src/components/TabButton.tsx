@@ -18,7 +18,7 @@ const TabButton = ({
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-colors ${className}
+        flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-colors min-w-0 ${className}
         ${
           type === "black"
             ? active
@@ -28,8 +28,8 @@ const TabButton = ({
         }
       `}
     >
-      {icon}
-      {label}
+      {icon && <span className="shrink-0">{icon}</span>}
+      <span className="truncate">{label}</span>
     </button>
   );
 };
