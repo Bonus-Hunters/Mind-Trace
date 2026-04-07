@@ -30,6 +30,9 @@ const LoginScreen = ({
       const message = event.data;
       if (message.command === "otp-error") {
         setLoginLoading(false);
+      } else if (message.command === "wrong password") {
+        setLoginLoading(false);
+        setError("Wrong password. Please try again.");
       }
     };
     window.addEventListener("message", handler);

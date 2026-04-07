@@ -6,6 +6,19 @@ import { handleReceivedMessages } from "./messages";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+function _get_folder_curr_name(): string | null {
+  const activeEditor = vscode.window.activeTextEditor;
+  if (activeEditor) {
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(
+      activeEditor.document.uri,
+    );
+    if (workspaceFolder) {
+      return workspaceFolder.name;
+    }
+  }
+  return null;
+}
+
 function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
   return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
 }
@@ -97,6 +110,10 @@ class MindTraceSidebarProvider implements vscode.WebviewViewProvider {
 export function activate(context: vscode.ExtensionContext) {
   // Register the sidebar WebviewView provider
   const provider = new MindTraceSidebarProvider(context.extensionUri, context);
+  const folderName = _get_folder_curr_name();
+  vscode.window.showInformationMessage(
+    folderName ? `Current folder: ${folderName}` : "No folder open",
+  );
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(

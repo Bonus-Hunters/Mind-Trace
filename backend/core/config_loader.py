@@ -39,7 +39,6 @@ class ConfigLoader:
     # load variables from .env file only once
     def _load_config(self):
         env_file = self.current_dir / ".env"
-
         if os.path.exists(env_file):
             load_dotenv(dotenv_path=env_file)
         else:

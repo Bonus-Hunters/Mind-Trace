@@ -77,6 +77,12 @@ class CompanyRepository(BaseRepository):
             result = await session.execute(stmt)
             return result.scalars().first()
 
+    async def get_by_domain(self, domain: str) -> Optional[tables_data.Company]:
+        async with self._get_session() as session:
+            stmt = select(models.Company).where(models.Company.domain == domain)
+            result = await session.execute(stmt)
+            return result.scalars().first()
+
     async def get_by_name(self, name: str) -> Optional[tables_data.Company]:
         async with self._get_session() as session:
             stmt = select(models.Company).where(models.Company.name == name)

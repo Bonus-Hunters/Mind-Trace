@@ -157,6 +157,8 @@ def send_email(sender_email: str, reciever_email: str, sender_password: str) -> 
         "icloud.com": ("smtp.mail.me.com", 587, "starttls"),
     }
 
+    print(f" --- Sending email using {sender_email} and {sender_password} --- ")
+
     host, port, mode = provider_map.get(domain, (f"smtp.{domain}", 465, "ssl"))
 
     try:
@@ -178,13 +180,19 @@ def send_email(sender_email: str, reciever_email: str, sender_password: str) -> 
         return True, otp
     except Exception as e:
         print(f" --- Error: Couldn't send email: {e}")
-        return False
+        return False, None
 
 
 def hash_password(password: str):
     password = password.encode("utf-8")
     hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
     return hashed_password.decode("utf-8")
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    password = password.encode("utf-8")
+    hashed_password = hashed_password.encode("utf-8")
+    return bcrypt.checkpw(password, hashed_password)
 
 
 def get_current_author(email: str) -> str:

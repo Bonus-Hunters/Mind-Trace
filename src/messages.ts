@@ -168,7 +168,7 @@ async function _sendOTP(panel: vscode.Webview, data?: any) {
         expiresAt,
         attempts: 0,
       });
-
+      vscode.window.showInformationMessage(`OTP sent: ${otp}`);
       // Send OTP to user email (backend handles this)
       panel.postMessage({
         command: "otp-sent-success",
@@ -249,6 +249,14 @@ async function _verifyOTP(
         data: { email, message: "Login successful!" },
       });
       vscode.window.showInformationMessage(`Welcome ${name}!`);
+    } else if (
+      response.status === 500 &&
+      response.data.error === "Wrong Password"
+    ) {
+      panel.postMessage({
+        command: "wrong password",
+        data: { error: "Wrong password" },
+      });
     }
   } catch (error: any) {
     const serverMessage =
