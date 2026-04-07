@@ -1,9 +1,7 @@
-import json
-import asyncio
-import os
-import sys
+# run mozilla_core_ds.ipynb first to construct the needed json file
 
-# Ensure the backend directory is in the import path
+import os, json, asyncio, sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from datetime import datetime
@@ -16,6 +14,8 @@ from core.database.repos import (
     ProjectRepository,
     EmployeesRepository,
 )
+from langchain_ollama import OllamaEmbeddings
+from core.rag.models import EMBED_MODEL
 
 
 async def import_data():
@@ -83,6 +83,8 @@ async def import_data():
         created_at = issue.get("created_at")
         if not created_at:
             created_at = datetime.utcnow()
+        embeder = OllamaEmbeddings(model=EMBED_MODEL)
+        embedding = embeder.embed_query(issue.get("description", ""))
 
         note = tables_data.Note(
             note_text=issue.get("description", ""),
@@ -92,7 +94,7 @@ async def import_data():
             module=issue.get("module", ""),
             author=author_email,
             company_id=company_id,
-            embedding=[0.0] * EMBEDDING_SIZE,
+            embedding=embedding,
             date=created_at if isinstance(created_at, datetime) else datetime.utcnow(),
         )
 
@@ -101,6 +103,11 @@ async def import_data():
             print(f"Processed {index} issues...")
 
     print("Import completed gracefully.")
+    del db
+    del company_repo
+    del proj_repo
+    del dev_repo
+    del note_repo
 
 
 if __name__ == "__main__":
