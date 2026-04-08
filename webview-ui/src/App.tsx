@@ -1,74 +1,105 @@
 import "./App.css";
-import { useState } from "react";
-import TabButton from "./components/TabButton.tsx";
-import { SearchPanel } from "./components/SearchPanel.tsx";
-import { AddNoteModal } from "./components/AddNoteModal.tsx";
-import {
-  Search,
-  MessageSquare,
-  Calendar,
-  StickyNote,
-  Plus,
-} from "lucide-react";
-import { AISummaryPanel } from "./components/Panels/AISummaryPanel.tsx";
-import { MeetingMinutesView } from "./components/Panels/MeetingMinutesView.tsx";
-
-type View = "search" | "ai" | "meetings";
+import MainScreen from "./components/Views/MainScreen.tsx";
+import LoginScreen from "./components/Views/LoginScreen.tsx";
+import { useState, useEffect } from "react";
+import { OTPVerificationModal } from "./components/OTPVerificationModal.tsx";
+import { vscode } from "./utilities/vscodeApi.ts";
 
 function App() {
-  const [currentView, setCurrentView] = useState<View>("search");
-  const [showAddNote, setShowAddNote] = useState(false);
-
-  return (
-    <div className="h-screen shrink-0 min-w-xs overflow-x-hidden flex flex-col bg-[#1e1e1e] text-[#cccccc]">
-      {/* Header */}
-      <div className="h-9 bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between px-3">
-        <div className="flex items-center gap-3">
-          <StickyNote className="w-4 h-4 text-[#4ec9b0]" />
-          <span className="text-sm">Code Notes</span>
-        </div>
-        <button
-          onClick={() => setShowAddNote(true)}
-          className="flex items-center gap-1 px-2 py-1 text-xs bg-[#0e639c] hover:bg-[#1177bb] rounded transition-colors"
-        >
-          <Plus className="w-3 h-3" />
-          New Note
-        </button>
-      </div>
-
-      {/* Tab Bar */}
-      <div className="h-9 bg-[#252526] border-b border-[#3e3e42] flex items-center px-2 gap-1">
-        <TabButton
-          icon={<Search className="w-4 h-4" />}
-          label="Search"
-          active={currentView === "search"}
-          onClick={() => setCurrentView("search")}
-        />
-        <TabButton
-          icon={<MessageSquare className="w-4 h-4" />}
-          label="AI Summary"
-          active={currentView === "ai"}
-          onClick={() => setCurrentView("ai")}
-        />
-        <TabButton
-          icon={<Calendar className="w-4 h-4" />}
-          label="Meetings"
-          active={currentView === "meetings"}
-          onClick={() => setCurrentView("meetings")}
-        />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-hidden">
-        {currentView === "search" && <SearchPanel />}
-        {currentView === "ai" && <AISummaryPanel />}
-        {currentView === "meetings" && <MeetingMinutesView />}
-      </div>
-
-      {/* Add Note Modal */}
-      {showAddNote && <AddNoteModal onClose={() => setShowAddNote(false)} />}
-    </div>
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [otpVerificationId, setOtpVerificationId] = useState<string | null>(
+    null,
   );
+  const [isLoginLoading, setLoginLoading] = useState(false);
+
+  useEffect(() => {
+    // 1. Tell the extension we are ready to receive data
+    vscode.postMessage("react_ready");
+
+    // 2. Listen for messages from the extension
+    const handler = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.command === "auth-status") {
+        setIsLoggedIn(message.data.isLoggedIn);
+        if (message.data.email) setPendingEmail(message.data.email);
+      } else if (message.command === "otp-sent-success") {
+        // OTP was sent successfully, show verification modal
+        setPendingEmail(message.data.email);
+        setOtpVerificationId(message.data.verificationId);
+        setShowOTPModal(true);
+      } else if (message.command === "otp-error") {
+      } else if (message.command === "login-success") {
+        // User successfully logged in
+        setShowOTPModal(false);
+        setIsLoggedIn(true);
+        setPendingEmail("");
+        setOtpVerificationId(null);
+      } else if (message.command === "otp-error") {
+        console.error("OTP Error:", message.data.error);
+      }
+    };
+    console.log("REACT: isLoggedIn= ", isLoggedIn);
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  const handleLogin = (name: string, email: string, password: string) => {
+    // Send login request with OTP to the extension
+    console.log("REACT: Login attempt:", { email, password });
+    vscode.postMessage("sendOTP", {
+      email: email,
+      password: password,
+      name: name,
+    });
+  };
+
+  const handleOTPVerify = (otp: string) => {
+    // Send OTP verification to the extension
+    console.log("OTP verification attempt:", otp);
+    vscode.postMessage("verifyOTP", {
+      email: pendingEmail,
+      name: name,
+      password: password,
+      otp: otp,
+      verificationId: otpVerificationId,
+    });
+  };
+
+  const handleOTPClose = () => {
+    // Close OTP modal and return to login
+    setLoginLoading(false);
+    setShowOTPModal(false);
+    setPendingEmail("");
+    setOtpVerificationId(null);
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <>
+        <LoginScreen
+          name={name}
+          setName={setName}
+          password={password}
+          setPassword={setPassword}
+          onLogin={handleLogin}
+          setLoginLoading={setLoginLoading}
+          isLoginLoading={isLoginLoading}
+        />
+        {showOTPModal && pendingEmail && (
+          <OTPVerificationModal
+            email={pendingEmail}
+            onVerify={handleOTPVerify}
+            onClose={handleOTPClose}
+          />
+        )}
+      </>
+    );
+  }
+  return <MainScreen />;
 }
 
 export default App;

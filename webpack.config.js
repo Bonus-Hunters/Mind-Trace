@@ -36,9 +36,6 @@ const extensionConfig = {
           {
             loader: "ts-loader",
           },
-          "style-loader",
-          "css-loader",
-          "postcss-loader",
         ],
       },
     ],

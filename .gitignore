@@ -3,11 +3,14 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+./calude.md
+backend/dataset/*
 # C extensions
 *.so
-./env 
+./env   
 **/node_modules
-
+Temp/Audio/*
+backend/app/temp/audio/*
 # Distribution / packaging
 .Python
 build/
@@ -33,7 +36,7 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-
+.agent/*
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
