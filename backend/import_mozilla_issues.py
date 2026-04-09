@@ -35,7 +35,7 @@ async def import_data():
     note_repo = NoteRepository(session_maker)
 
     # ensure company exists
-    company_id = 9
+    company_id = 1
     company = await company_repo.get_by_id(company_id)
     if not company:
         created_id = await company_repo.create(
