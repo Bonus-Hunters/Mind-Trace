@@ -11,8 +11,9 @@ class PostgresDatabase:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._init()
+            instance = super().__new__(cls)
+            instance._init()
+            cls._instance = instance
         return cls._instance
 
     def _init(self):
