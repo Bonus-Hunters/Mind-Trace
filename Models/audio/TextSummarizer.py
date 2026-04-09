@@ -5,7 +5,7 @@ Chunks meeting dialogue, generates summaries, and creates embeddings for semanti
 
 import torch
 from typing import Optional, List, Dict, Any
-from transformers import AutoModel, AutoTokenizer, pipeline
+from transformers import AutoModel, AutoTokenizer
 
 
 class TextSummarizer:
