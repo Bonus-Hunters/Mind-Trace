@@ -1,791 +1,796 @@
 query,relevant_doc_id
-Find user agent string in bug report,170060
-Extract browser information from Mozilla/5.0 string,170060
-layers acceleration geolocation bug report,157698
-black strip on doorhanger with layers acceleration enabled,157698
-"""msg queues"" AND ""non-unique identifier"" AND ""sipcc""",174483
-"""ftok"" AND ""IPC filenames""",174483
-"""rollovers"" in m18",30847
-win98 issue with rollovers,30847
-attachment 592809 patch v1,171044
-patch v1 for attachment 592809,171044
-site:mozilla.org 'Flash ads' AND 'security risks',77199
-site:mozilla.org 'add disable flash button' OR 'plug-in chicken-switch',77199
-What are the security implications of IFrame content being transparent?,67473
-Why does Mozilla allow IFrame content to be transparent by default?,67473
-attachment 289352,119746
-update public-failures.txt and spidermonkey-n.tests,119746
-site:mozcrash.org 'position: absolute' AND 'position: fixed',57045
-build 2002020603 AND talkback AND (position: absolute OR position: fixed),57045
-bug report: stack buffer overrun html arena text firefox thunderbird,95710
-stack overflow bug description arbitrary code exploitation,95710
-How to fix duplicated frame issue,9904
-Fixing incorrect rendering of page elements,9904
-site:bugzilla.mozilla.org 'Silverlight plugin' AND 'Win7 blue screen' AND '3.7a5pre',145396
-site:bugzilla.mozilla.org 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.3a5pre) Gecko/20100502 Minefield/3.7a5pre' AND 'bp-b4a760a6-3eb2-4860-8549-e39ce2100503',145396
-Sputnik test S13_A11_T1 fails in SpiderMonkey,143320
-compile delete arguments to false in front end,143320
-What are the functions in the codebase that still return NS_ENSURE_TRUE after new WSFragment() is called?,176700
-How many methods in the codebase return NS_OK unconditionally and what are their names?,176700
-jsnum.h line 98 finite prototype,137205
-jsnum.h line 109 isinf prototype,137205
-Get crash stats report for attachment 413336 and include stacktrace,139909
-Find nsHtml5HtmlAttributes::getLocalName function call in xul.dll,139909
-jsapi closes stdin,179931
-auto-closes stdin in jsapi,179931
-onLoad function in viewabout.js causing memory leaks,159629
-viewabout.js newChannel() method causing performance issues,159629
-firefox 3.5b4 .net clr 3.5.30729 concurrent download limit,133552
-mozilla firefox max concurrent downloads issue,133552
-"XPCWrappedNative GetNative already has mIdentity pointer to vtable, why QI to nsISupports?",56005
-nsISupports QI in XPCWrappedNative::GetNative when native pointer already has correct vtable,56005
-js-compute-this function crashes with EXC_BAD_ACCESS on 32-bit Mac and 64-bit Linux,142889
-eval() usage in JaegerMonkey repo causes EXC_BAD_ACCESS on Mozilla builds,142889
-Find all .dtd files in the chrome/addressbook/locale/en-US directory that contain the character 名,12079
-"Search for occurrences of the characters 名, 変, and 丈 in .dtd files across the entire project",12079
-site:mozilla.org leaky --enable-leaky --enable-debug,91048
-site:mozilla.org c++filt sed & > leak.html,91048
-What is the difference between strict HTML 4.01 and Transitional in font size inheritance?,22459
-Why does font size not inherit in HTML 4.01 Transitional but in strict HTML 4.01?,22459
-site:guha hyatt is-a information,1999
-MailFolder is-a container,1999
-site:bugzilla.mozilla.org 'cookies rejected' AND 'browser refuses to sign in',47619
-site:bugzilla.mozilla.org 'browser version' AND 'cookies not accepted',47619
-Firefox 1.6a1 memory leak js menu system,104324
-Mozilla Firefox 1.9a1 Linux memory leak js issue,104324
-ionmonkey revision e96d5b1f47b8 ARM only testcase,173277
-unsupported relocation in ionmonkey js on arm,173277
-Firefox 4.0b8pre rounded corners issue,154713
-border-image corner radius not working in Firefox,154713
-site:bugzilla.mozilla.org 'network outage' AND 'Mozilla' AND 'TCPdump shows no activity',85729
-site:bugzilla.mozilla.org 'Mozilla' AND 'TCPdump shows activity' AND 'network recovery',85729
-flash ads blocking feature enhancement,79698
-user agent Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130,79698
-site:peekshows.com 'java update' AND (install OR install fails),117292
-site:peekshows.com 'jre-1_5_0_12-windows-i586-p-iftw.exe' AND login issue,117292
-Firefox 4.0.1 build id 20110413 crash,167063
-Mozilla/5.0 (Windows NT 6.1; WOW64) Firefox 4.0.1 crash,167063
-js opt shell m-c changeset 63bff373cb94 invalid read,169218
-jsexn.cpp 1148 jSErrorReport*,169218
-site:bugs.html - (alternate stylesheet) - (document.write(document.styleSheets.length)),52636
-site:bugs.html - (scriptable style sheet) - (document.styleSheets[0].disabled),52636
-site:mozilla.org 'display:none' option select,94329
-code 'style=display:none' in select tag,94329
-chrome browser not updating issue with cold fusion studio 5,67122
-repainting issue with ATI 3D Rage Pro and Matrox Millennium PCI on W2K server,67122
-cursor moves to beginning of URL text field after update,5737
-URL text field cursor relocation issue in Apprunner,5737
-Firefox 1.0.7 Build Identifier: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.12) Gecko/20050915,104576
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.12) Gecko/20050915 Firefox/1.0.7,104576
-NPP_ClearSiteData plugin finalized spec,155787
-client code needed for NPP_ClearSiteData,155787
-Remove JSLL_* macros from js/src/jslong.h,130253
-Replace JSLL_* macros with int64_t and uint64_t in js/src/jslong.h,130253
-site:mozilla.org 'height of INNER TABLE' AND 'Firefox 1.5' AND 'Windows NT 5.1',104400
-site:bugzilla.mozilla.org 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.8) Gecko/20051111 Firefox/1.5' AND 'INNER TABLE height' AND 'last row of main table',104400
-attachment 576502,168470
-facebook testcase,168470
-compiler warning linux fix,111610
-trivial fix for compiler warnings on linux,111610
-Firefox 1.0.6 user agent string contains 'rv:1.7.10' and has a build identifier with 'Hello' in the comment,101317
-"HTML attachment has div.item:hover > div.help CSS rule applied, but div.item and div.help2 overlap causing flickering",101317
-site:mozilla.org 'stylesheet unavailable' AND crash,24612
-Netscape 4.7 'not found message from server' OR IE 'page displayed without error',24612
-site:dmgdirect.com 'drop down list' width,35971
-site:dmgdirect.com 'stop button' width,35971
-What is the third argument to FormData.append() in W3C tests?,200857
-Why does FormData.append() throw an error with a 3rd argument?,200857
-gecko codebase bug report,98655
-firefox plugin architecture discussion,98655
-find keyword 'position' in bug report and suggest alternative name,128743
-extract suggested alternative name for 'position' parameter from bug report,128743
-site:mozilla.org 'bidi.characterset' OR 'charset' AND Win98,112535
-site:mozilla.org 'bidi.characterset' OR 'charset' AND SeaMonkey/1.0.7,112535
-mozregistry.dat file location,10039
-profile directory required for mozregistry.dat,10039
-site:bugzilla.mozilla.org bug 639754,160413
-site:bugzilla.mozilla.org (bug 638755 OR bug 639754) AND 'wont build on weird platforms',160413
-embedding control standalone browser,19616
-pure embedding example without debug knowledge,19616
-M18 authentication issue with Netscape proxy,29846
-Mozilla browser not prompting for credentials with Netscape proxy,29846
-mozila firefox 3.5 nsIMIMEService getFromTypeAndExtension,145312
-firefox 3.5 mime service platformization,145312
-Find all entities related to character sets and their corresponding access keys,62719
-Extract all ISO code references from the document,62719
-crashes firefox with testcase,188971
-firefox crash testcase requires Jesses Quitter extensions,188971
-bugzilla bug report table cell width calculation incorrect,53210
-bugzilla user agent mozilla windows nt 5.0 en-us rv 0.9.6+ buildid 2001120303,53210
-netgrocer login issue 0.9.1 vs 0.8.1,43527
-bugzilla search 'login page doesnt work' netgrocer,43527
-site:bugzilla.mozilla.org bug 692474 firefox 18 and current nightly,188775
-site:mozilladaily.com firefox 18 and current nightly,188775
-site:bugzilla.mozilla.org 'transparent gif animations' AND (not mozilla 0.8.1 OR not transparent),37744
-site:bugzilla.mozilla.org 'gif transparency issues' AND 'nightly builds',37744
-"site:bugzilla.mozilla.org 'javascript window missing' AND (""controls"" OR ""icon"")",41328
-"site:bugzilla.mozilla.org 'javascript window' AND (""minimize"" OR ""restore"")",41328
-How to access DOM classes properties within a sandbox context,155562
-Why are NodeFilter class properties inaccessible when accessed through a sandbox,155562
-firefox bug tab key issue max length,92101
-firefox form input maxlength tab key press,92101
-Find all occurrences of 'Truncate' followed by 'Append' in the bug report,105365
-Identify the line numbers where 'nsAngle bitfields' are mentioned in the bug report,105365
-Find all occurrences of 'dotted lines' and 'twisty' in the bug report,46196
-Extract the issue number (73865) from the bug report,46196
-js function barrier,169277
-generational gc jsobject,169277
-"""pixman.lib"" AND ""VC7.1"" AND ""win32-msvc""",99991
-compile pixman.lib for VC7.1 on win32-msvc,99991
-UsingEffectsForFrame() always returns false for svg content,162878
-svg content in UsingEffectsForFrame() always returns false,162878
-plugin tag code cleanup,140450
-separate plugin host and plugin tag code,140450
-"How to fix the issue where document.write returns false for checkbox.checked in HTML, but button click returns the correct value?",14286
-Why does document.write not return true for checkbox.checked when the CHECKED attribute is present in the HTML of the checkbox?,14286
-How to make name() and local-name() in XSLT case-insensitive?,73153
-Why was Node::getLocalName renamed to Node::getXPathLocalName or Node::getNormalizedLocalName?,73153
-"site:bugzilla.mozilla.org search ""Adjacent TDs overlap in an RTL table"" -BiDi",98412
-"site:bugzilla.mozilla.org search ""TDs overlap in an RTL table when the second TD begins with parentheses""",98412
-SetDefaultCharacterSet() function in charsetOverlay.js,12196
-charsetMenu submenu position issue,12196
-site:mozilla.org 'undefined symbol GetY__18nsHTMLImageElementPi' AND build=2001090308,47771
-site:ftp.mozilla.org 'libgkcontent.so undefined symbol GetY__18nsHTMLImageElementPi',47771
-conservative stack scanner linux64 debug issue,174311
-linux64 debug stack scanner bug,174311
-site:mozilla.org 'Get_UnclippedSubstringBounds' offset too far right,99693
-bugzilla.mozilla.org bug 1234567 Get_UnclippedSubstringBounds returns an X that is offset too far right,99693
-site:bugzilla.mozilla.org 'radio button' AND (layout OR design),60924
-site:bugzilla.mozilla.org 'input type=hidden' AND (reproducible OR bugzilla),60924
-Services-Central log 1304357601.1304360828.14317.gz,161156
-(Services-Central AND log) 1304357601.1304360828.14317.gz,161156
-tighten delay in idle service for telemetry reporting,182433
-adjust daily significant idle service sec value based on device type,182433
-site:bugzilla.mozilla.org 'script' AND 'commented-out sections' AND 'XHTML 1.0 specification',41146
-site:bugzilla.mozilla.org 'permitted' AND 'silently remove' AND 'text/xml',41146
-site:groups.google.com 'with all of the words' AND 'remembered after clicking on Back',69996
-site:groups.google.com 'The with all of the words values' AND 'disappeared' NOT 'reproduced',69996
-Find all occurrences of 'MOZ_INSTALLER' assignment in the code and check if it's correctly indented,162222
-Search for the line with the 'case $target_os' statement and verify that the correct indentation is used,162222
-parseInt() hex string issue,140649
-firefox parseInt function returns incorrect result,140649
-site:mozilla.org 'XSLT template' AND 'hash links' AND 'Click' AND 'window doesn't scroll',84534
-site:mozilla.org 'Firebird/0.6.1' AND 'hash links' AND 'Click' AND 'window doesn't scroll',84534
-Find GKHTML.DLL module in Mozilla codebase,28397
-Analyze stack dump for invalid page fault in GKHTML.DLL at 015f:60278dd2,28397
-site:rarcoa.com 'border' and 'extra vertical line',29124
-site:rarcoa.com 'mozilla M17' and 'horizontal line on top margin',29124
-Find all occurrences of 'overwrapping' and 'first byte range' in the code,37146
-Search for the line numbers where the array g_BIG5HKSCSRanges is defined,37146
-Find definition for LEUint16 in OpusParser.cpp,204168
-"Resolve undefined identifiers mTags, nsTArray, and nsCString in OpusParser.cpp",204168
-is there a way to remove the 'shouldnt' keyword from search results,136695
-can we improve the filtering logic to exclude words like 'shouldnt' and ' shouldn't',136695
-Components.utils.Sandbox(),153969
-evalInSandbox(),153969
-site:bugzilla.mozilla.org 'transparent color' AND (GIF OR animated GIF) AND severity=Major,41556
-site:bugzilla.mozilla.org 'transparency issue in GIFs' OR 'black color after redraw' AND product='Mozilla Project',41556
-GetOwnPropertyDescriptor,188160
-attachment 699894,188160
-debug dump intrinsic state,107856
-show intrinsic state in debug dumps,107856
-Find all occurrences of 'nsGenericHTMLElement' in the codebase,164962
-What is the context of attachment 553585 and patch v1?,164962
-"site:mxr.mozilla.org search ""7zstub""",161432
-"site:mxr.mozilla.org search ""7zLib""",161432
-Find all occurrences of 'nsLineLayout.cpp' in the bug report,114348
-Extract the line number and column where the assertion error occurs,114348
-"IME support moved out of DOM, what are the implications on original files?",7962
-What is the status on moving IME support out of DOM and how can we handle obsolete files?,7962
-site:mozilla.org 'Iframes' AND 'banner advertisement',5637
-site:mozilla.org 'IFrames' AND '(banner advertisement NOT displayed)',5637
-site:mozilla.org bug 745030 'permanent test failures on Thunderbird',180317
-filetype:txt 'test_3paneWindowDenied' AND (bug 745030 OR 'regression point first changeset of that bug'),180317
-js_Interpret crashes in Firefox 10 with build id 2005021,96897
-Aviary branch builds causing huge spikes in js_Interpret crashes,96897
-Firefox about:blank view source and then quit to see memory leaks,118289
-Leak detection in Firefox when viewing source code,118289
-SELECT * FROM crash_stats WHERE signature = 'HASH_Update' AND timestamp BETWEEN '20100821' AND '20100904',151339
-SELECT * FROM crash_stats WHERE url LIKE '%omni.jar%' OR url LIKE '%extensions.xul%',151339
-Find all CSS classes used in the HTML table styles and check if they are used consistently throughout the page.,109727
-Extract the user agent string from the bug report and compare it with known values to identify potential issues with Firefox rendering.,109727
-site:hpl.hp.com boehm gc,112138
-inurl:gc/boehm/README,112138
-Firefox 24.0 Beta/Release inner SVG gradient fill issue,201788
- Mozilla/5.0 (X11; Linux x86_64) SVG fill attribute not implemented,201788
-How can we improve the reliability of RegExp.test() in email validation?,47654
-Why does RegExp.test() return inconsistent results in some browsers?,47654
-site:mozilla.org 'user agent' AND (button OR top) NOT above,28356
-site:seamonkey.org 'user agent' AND button,28356
-Find all instances of CalcVectorAngle in SVGPathData.cpp and suggest replacing it with AngleOfVector;;,171962
-Replace CalcVectorAngle references with AngleOfVector;; in SVGPathData.cpp,171962
-What is the current status of the document::doctype implementation in our codebase?,3656
-How can we fix the 'document.doctype has no properties' error in our script?,3656
-firebird crash on linux,83928
-nsgetmodule null pointer crash,83928
-site:mozilla.org bug 1.1 WinNT4.0 stylesheet change event handling,74341
-site:mozilla.org 'stylesheet' AND 'Event handling' AND 'not completely applied',74341
-"site:bug report "" Printing regression runs""",39337
-"site:bug report ""verbose errors general regression""",39337
-find 'menu not selectable' in bug report,111023
-search for 'hold mouse button down' in Mozilla Minefield bug report,111023
-firefox windowsize issue with multiple monitors,99684
-firefox horizontal scrollbar not appearing on wide screens,99684
-What is the distinguished header syntax for generators in Harmony?,162928
-How does Harmony handle generator headers in different modes?,162928
-What is the behavior of Blackconnect regarding IID string case sensitivity?,29873
-How does Blackconnect differ from XPCOM in treating IID strings?,29873
-mozilla profile directory path nt4 vs w2k,71971
-mozilla profile export and import functionality,71971
-Firefox/0.9.1+ Build Identifier: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8a5) Gecko/20041003,93911
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8a5) Gecko/20041003 Firefox/0.9.1+,93911
-init mPermitSubpixelAA,175934
-mPermitSubpixelAA initialization,175934
-Bugzilla bug #1234: Floating images causing text overlap,34506
-Search for 'floating images' in Red Hat Bugzilla,34506
-site:mozilla.org 'lxlite' AND (icon OR image) NOT Windows,128591
-site:sourceforge.net 'seamonkey.exe' AND decompress AND icon,128591
-Android pandaboard test failure return code 9,200979
-pandaboard android test failing with return code 9,200979
-What is the behavior of a 'let' declaration inside an if statement without curly brackets?,109824
-How does the scope of a 'let' variable work in JavaScript when used inside an if statement?,109824
-Change severity of bug report 2002011408,55675
-Open Web Location dialog dropdown list issue,55675
-select boxes with empty space getting images drawn,48477
-bugzilla cc list box issue,48477
-attachment 274846 stack of deadlock warning,117323
-mochitest debug mode reliability issue,117323
-moz-central debug build 1270891739 - Mxr doesn't find RtlCaptureStackBackTrace,144453
-mozilla-central-win32-debug build issue with RtlCaptureStackBackTrace,144453
-debug shell output for 1.9.1 on linux 64bit,127923
-bug 454039 regression in debug shell,127923
-font loading time android startup,156626
-cache font data android performance optimization,156626
-find all ns4xPlugin.cpp files modified after 1889 in mozilla/modules/plugin/base,122859
-find all calls to free function in jemalloc.c file,122859
-bugzilla.mozilla.org Bug 309120 and Bug 317549 crash fixes,105349
-Firefox 15 nsCSSFrameConstructor::WipeContainingBlock stack signature,105349
-"Find the log entry for Firefox/1270526567.1270527585.1270.gz and include the timestamp, test results, and session ID in the search results",144245
-Retrieve the log entries for Mozilla Central on WINNT 5.2 with a test result of TEST-UNEXPECTED-FAIL and include the test case name in the output,144245
-site:bugzilla.mozilla.org 'large number of points' AND 'SVG rendering performance degrades',106266
-site:bugzilla.mozilla.org 'performance comparison' AND 'ASV' AND 'difficult problem to report',106266
-remove help button functionality from UI,43422
-hook up help button feature to existing system,43422
-Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2.1) Gecko/20021130,75944
-Build Identifier Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2.1) Gecko/20021130,75944
-site:bugzilla.mozilla.org 'crash into MacsBug' AND PowerPC unmapped memory exception,62277
-site:bugzilla.mozilla.org 'view todays bugs' OR 'Bugs Filed Today' AND crash,62277
-mozilla background image issue,36854
-bugzilla helper user agent issues,36854
-"""MAX_HEIGHT"" and ""Shapes allocated""",157711
-"""Speed"" and ""Shapes allocated""",157711
-crash while formatting a table of data in align right,44668
-formatting issue with align right command,44668
-site:bugzilla.mozilla.org 'psm install begins downloading',24613
-site:bugzilla.mozilla.org 'Mozilla fails SSL smoke test after PSM installation',24613
-site:bugzilla.mozilla.org bug 1234567 session history listener not added,41996
-site:bugzilla.mozilla.org bug 1234567 mfcEmbed session history events disabled,41996
-Find all occurrences of 'nsSaveAsCharset::Convert' in the bug report,42992
-Extract all font-related keywords from the bug report,42992
-title attribute usage in html 4.0 dtd,1976
-tooltip display issue in win 98,1976
-"""PR3"" AND ""WinNT 4.0 SP4"" AND ""print above page""",29170
-"""2000093008"" AND ""WinNT 4.0 SP4"" AND ""reproduce""",29170
-site:wikipedia.org 'form elements re-filled' AND 'reload page' NOT 'reset button',83535
-site:bugzilla.org 'form elements re-filled' AND 'reload page' NOT 'reset button',83535
-js_ReportOutOfMemory signature crash-stats.mozilla.com,168604
-mac only issue with fullscreen slideshow and putting Mac to sleep,168604
-"site:bugzilla.mozilla.org search ""attachment 828824""",202956
-firefox 25 macos Movericks 10.9 bug report,202956
-Find all occurrences of 'nullptr' in PluginInstanceParent.cpp,179483
-Check for C4244 and C2440 warnings in gfxFont.h,179483
-What are the recommended log levels for Mediapipeline and MediaTransport facilities?,197025
-How do we define a 'Notice' level in our logging policy?,197025
-find bug report for attachment 326301 and keyword 'pow overload',125328
-search for issue related to compiler determining pow function in bug report,125328
-site:www.alanwood.net 'mathematical_alphanumeric_symbols' OR 'arrows' OR 'geometric_shapes',104439
-site:www.alanwood.net 'Cairo build' AND 'display characters normally',104439
-site:bugzilla.mozilla.org 'submit-button' AND (linux OR x11) AND (gecko/20030323 OR rv:1.3),79982
-site:bugzilla.mozilla.org 'Ni har angivit felaktigt; anv ndarid eller l senord.',79982
-site:mozilla.org 'Components.utils.import' and 'resource://',132008
-site:firefox.org 'Components.utils.import' and 'import_me.js',132008
-RecursiveCopy platform differences,13655
-CopyToDir behavior across Windows and Linux,13655
-Find all crashes in 15.0a1/20120427 related to mozilla::layers::TiledLayerBufferOGL::ValidateTile,175055
-Search for SIGSEGV crash reports on Mozilla Crash Stats with the signature mozilla::layers::TiledLayerBufferOGL::ValidateTile,175055
-"""bug 475441"" AND attachment 367017",132238
-nsLocalFileWin AND CreateFile,132238
-d2d fps comparison,167521
-broadway demo performance,167521
-asmjs jit-tests arm abi hard float standard,193137
-arm abi hard float standard asmjs compilation issues,193137
-site:www.playscratchandwin.com gif images not loading,39658
-bugzilla bug 12345 gif images not loading properly,39658
-nsRange::IsIncreasing assertion not reached,106952
-nsRange::IsIncreasing() not reached in nsRange.cpp at line 769,106952
-align table elements in center,22127
-table alignment issues with div and span,22127
-cursor change issue treecell resize,23459
-mouse cursor behavior treecell dragging,23459
-site:mozilla.org 'Duplicated bookmark folder creation' AND (build identifier OR version) AND (Mac OS X 10.5.2 OR Minefield build 2008030111),122568
-site:mozilla.org ' Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10.5; en-US; rv:1.9b4pre)',122568
-site:bugzilla.mozilla.org 'Simplified Chinese IME' AND (build identifier OR user agent) AND NOT 'Traditional Chinese',71010
-site:bugzilla.mozilla.org 'Universal Auto-detect feature under Character Coding' AND (build identifier OR user agent),71010
-site:mozilla.org bug 678037 script compilation optimization,196133
-lazy script caching implementation,196133
-site:mozilla.org 'Java form Back works with IE but I have not tested with Mozilla' AND 'The form is very simple:',74555
-site:java.sun.com 'Java console shows Syntax error' AND 'Reproducible: Always',74555
-layers refactoring branch issues Linux xrender,187756
-CompositorOGL gl calls texture handles API,187756
-sidebar splitter not collapsing,20595
-grippy issue with sidebar splitter,20595
-site:bugzilla.mozilla.org 'slow computer' AND 'location bar typing issue',80340
-site:bugzilla.mozilla.org 'Modern theme' AND 'URL highlighting problem',80340
-Find all occurrences of 'automationutils.pyc' in the bug report and include the context around it,149780
-Search for the phrase 'make clean' and its relation to 'build/automationutils.pyc' in the bug report,149780
-What changes were made to shape hierarchies in TI merge?,163492
-How do type barriers affect script access in NAME ICs?,163492
-site:bugzilla.mozilla.org keyword:vanish in blink of eye,34799
-site:bugzilla.mozilla.org keyword:image disappearance problem,34799
-Firefox 2.0 branch builds crash with iExploder test 243244,109329
-Bon Echo (Firefox 2.0) branch builds crash,109329
-apprunner build 6/23 target not launching,5526
-anchor button launch issue apprunner all platforms,5526
-tab key press no action display,26563
-no action pressed tab key,26563
-Firefox 0.8 browser width issue,89342
-Mozilla/5.0 user agent width greedy box expansion,89342
-grep 'warnings' in shell build logs,142919
-find attachment 429652 with comment '/be',142919
-site:wikileaks.ch 'Translations box' iso-8859-1,155694
-site:wikileaks.ch 'Translations box' utf-8,155694
-What is the purpose of creating an attachment with ID 639754?,178546
-How does attaching a file to a bug report work?,178546
-site:stackoverflow.com 'Firefox' AND (crash OR crash on links) AND (Mac OS X 10.5 OR Intel Mac OS X 10.5),131715
-site:stackoverflow.com 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.0.6)' AND (Firefox crash OR Firefox crash on links),131715
-"site:github.com bug report ""bareword""",187312
-"site:github.com bug report ""qualified get""",187312
-is there a bug in firefox 3.6 that causes crashes with signature isPromoteInt?,140580
-how many crashes per day has firefox experienced for the 'isPromoteInt' signature?,140580
-Find all instances where 'Out of room' is mentioned in bug summaries,187128
-"Search for bug #822036 and its clone, including the link to the parsed log",187128
-javascript cache invalidation issue with etags in firefox,177295
-ajax image caching with etag validation in dom manipulation,177295
-site:mozilla.org font rendering issue with external sources,88966
-site:mozilla.org 'font' keyword in bug reports,88966
-"site:github.com bug report ""| slots"" AND ""FrameRegs"" AND ""VM"" AND ""interpreter""",161101
-"site:github.com bug report ""ASCII art diagram"" AND ""typos"" AND ""cosmetic comment updates""",161101
-site:bugzilla.mozilla.org 'crash' AND 'Linux i686',46350
-site:bugzilla.mozilla.org 'Browser crashes' AND 'Netscape 4.77',46350
-create xul popup issue,7884
-popup not appearing after folder click,7884
-css counter display issue,15188
-marker box content alignment bug,15188
-mozilla debug composer not showing in launch options,12347
-composer test page missing from mozilla launch menu,12347
-nsFrameList::DestroyFrames vulnerability in Thunderbird and Firefox,164967
-Use-after-free bug in Mozilla Products,164967
-kerning problem QU,202434
-advent pro google fonts kerning issue,202434
-attachment 483066,153247
-patch created,153247
-"""XPCSafeJSObjectWrapper"" crashes",114160
-"""crashes when loaded""",114160
-site:mozilla.org 'bug' AND (user agent: Mozilla/4.0 OR user agent: Mozilla/5.0),78500
-filetype:html resource:///res/samples/test6.html,78500
-findRegFor repeated call,138958
-Adobe merge bug duplicate reg,138958
-"site:bugzilla.mozilla.org search ""Build Identifier: Mozilla/5.0 (Macintosh; U; PPC; en-US; rv:1.3a) Gecko/20021212""",76746
-"site:bugzilla.mozilla.org search ""flash plugin installation issue on Mac OS 9""",76746
-css background color regression,32245
-mozillazine bugzilla table cell issue,32245
-site:bugzilla.mozilla.org 'Permission denied to set property Window.Defaultstatus' AND 'scripts on pages that use window.status stop working',60832
-site:bugzilla.mozilla.org 'uncaught exception' AND 'script stops working after changing statusbar text',60832
-"""Build 2000092508"" AND ""US Win95"" AND ""Auto-Detect All""",28487
-"""View|Character Coding"" AND ""KOI-8"" AND ""Windows-1252""",28487
-Find all occurrences of 'js_AllocStack' in the Mozilla source code,103655
-Extract the stack trace from the Firefox build ID 2005120103,103655
-find usage of unused flags in code,201215
-unused flag detection in patch notes,201215
-"""autocomplete popup"" and ""scroll arrows""",30777
-"""autocomplete popup"" and ""always present but not needed""",30777
-print preview js execution issues,104701
-race conditions in xbl print preview,104701
-site:mozilla.org bug 532795 Firefox cache location vulnerability,127484
-Firefox 3.0.1 Windows XP SP3 English cache information disclosure,127484
-paste text at end of textarea,58461
-middle pasted text issue,58461
-Find the exact location of the bug report in the code,101042
-Search for the empty string in the bug report to identify the issue,101042
-site:mozilla.org 'npswf32.dll' AND 'application/x-shockwave-flash' AND Windows XP,93463
-site:mozillazine.org 'npswf32.dll' AND 'Macromedia Flash movie' AND 'Windows XP',93463
-form email field click alert box OK button loop,100189
-alert box popping repeatedly on form submission,100189
-"Find all instances of 'function declaration' in the bug report, including attachments.",148864
-Return all records where the action is 'attachment created' and the attachment ID is 460739.,148864
-Find all comments with ID > 63 in bug 333126,122478
-Get information about bug 419962,122478
-site:github.com 'attachment 556475' AND 'jig.com' AND 'Aurora' AND 'rendering issue',165424
-site:github.com 'screenshot jig.com' AND 'Aurora' AND 'odd rendering issue' NOT site:firefox OR site:chrome,165424
-"site:github.com bug report ""some"" AND ""need it""",171080
-"site:stackoverflow.com bug report ""some"" AND ""need it""",171080
-site:mozilla.org bug 1234567 assignee=assignee htmlImageElement.src assignment issue,78959
-site:mozilla.org 'HTMLImageElement.src' assignment issue,78959
-left-justified text issue,39197
-button click jump to center,39197
-site:kaie%kuix.de bug 327181,118752
-sea monkey certificate error sec_error_ca_cert_invalid,118752
-ctypes.FunctionType default_abi ctypes.void_t,143803
-ctypes.varargs_abi,143803
-site:mozilla.org debug Environment-callee-01.js,199259
-site:mozilla.org timeout /builds/slave/m-cen_l64-d_sm-ggc-00000000000/src/js/src/jit-test/tests/debug/Environment-callee-01.js,199259
-Find implementation details for branch support in 1.7 and 1.8.0,104399
-Clarify window and watcher caller name search issue for specific branches,104399
-What is the purpose of application/x-x509-user-cert MIME type?,76244
-Why does the private key missing error dialog not trigger as expected?,76244
-attachment 318851,124353
-certificate error modal,124353
-Firefox browser issue with input box viewport not scrolling down,159764
-Mozilla Firefox build identifier causing text editing issues,159764
-MediaStreamGraphImpl WillUnderrun bugzilla.mozilla.org,186379
-getUserMedia audio+video stream underruns,186379
-Find the expected and actual values for the test 'jit should not slow down short loop with let' in the jsreftest.html file,140184
-Search for the TM: jit line in the Firefox-Unittest log to understand why the test failed,140184
-FragmentOrElement.cpp nsNodeWeakReference::~nsNodeWeakReference,192895
-libxul.so!nsINode::Slots() libxul.so!PL_DHashTableFinish,192895
-Bugzilla attachment id 296398 crash stack,120976
-Firefox debug build crash report,120976
-memory allocation failure diagnostic log messages,190955
-out of memory error logging with allocation size,190955
-attachment 652402,180788
--moz-columns,180788
-Find all attachments with ID 432012,143329
-Testcase with dynamic test case ID,143329
-"CSP violations currently treated as errors, how to change to warnings",194613
-add UI guidance for warning vs error in dev console,194613
-site:bugzilla.mozilla.org 'font' AND 'wide' AND 'overwritten',34647
-site:bugzilla.mozilla.org 'HTML-code' AND 'Additional Information',34647
-Firefox 1.0+ Linux i686 en-US Build Identifier Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b4) Gecko/20050721,100415
-external linking attribute for <xf:hint> tag in Firefox,100415
-site:github.com keyword:tab modal,150034
-bug 562258,150034
-site:bugzilla.mozilla.org 'PR_SetThreadPrivate' limit 128,112251
-site:bugzilla.mozilla.org 'PR_SetThreadPrivate' always fails with thread destruction,112251
-soccorro interface bug report bp-ae7b73a2-3e22-43f1-9e32-869a82111125,168665
-bp-ae7b73a2-3e22-43f1-9e32-869a82111125 Socorro interface,168665
-Find 'f' in User-Agent field,74116
-Search for 'Build Identifier' in bug report,74116
-site:netscape.com 'throbber' AND site:aol.com,36062
-load my.netscape.com AND throbber AND www.aol.com,36062
-site:mozilla.org bug 125469,76128
-inurl:/modules/plugin/tools/sdk/samples/basic/unix NPP_GetValue,76128
-Firefox 4.0b9 User-Agent string,157089
-Mozilla/5.0 (Windows NT 6.1; WOW64) Build Identifier,157089
-Find the line number where pref(print.print_headerleft; &T) was changed from -pref(print.print_footerleft; &P) to pref(print.print_footerleft; &PT) in all.js,50982
-What changes were made between revision 3.288 and 3.289 of all.js,50982
-Firefox 2.0.0.9 Linux issue with rgba color opacity,120091
-Mozilla/5.0 (X11; U; Linux i686) canvas fill color transparency bug,120091
-Firefox 4.0b9pre slow rotating and video playing,156097
-Slow rotating and video playback in Firefox 4.0b9pre,156097
-find all occurrences of 'Minefield' in the bug report,123622
-extract user agent string from the build identifier in the bug report,123622
-attachment 633820 created,177533
-fix for attachment 633820,177533
-Find all occurrences of 'nsHTMLDocument::RegisterNamedItems' in the bug report,25984
-Extract the number of leaked strings mentioned in the bug report,25984
-js thread id assertion failure,107924
-cx->thread->id == js_CurrentThreadId() crash,107924
-export macro usage in Qt part of new embedding APIs,129587
-copyright headers in incubator patch,129587
-test_304_responses.js undefined == 304,178173
-/Users/cltbld/talos-slave/test/build/xpcshell/tests/netwerk/test/unit/test_304_responses.js consume304,178173
-cache preference issue with bugzilla bug reports,37237
-bugzilla comment history not updating after reload,37237
-site search 'using getElementById locks whole system' AND 'buildid' AND 'msie 5.5',57645
-site search 'lock whole system' AND 'elementById' AND 'bugzilla buildid',57645
-site:bugzilla.sun.com patchId 106787 rev 17,58383
-site:sunsolve.sun.com 'patchDownload.pl' file type tar.Z,58383
-What is the difference in behavior between Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826 and IE 5.5 for a form with hidden fields?,71446
-"Why does X always get passed as 0, but Y gets passed as its expected value in Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826",71446
-clang jspropertytree.cpp expected class name after ~ to name a destructor,156657
-jspropertytree.cpp Clang error expected destructor name,156657
-"site:bugzilla.mozilla.org search ""User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0b9) Gecko/20100101 Firefox/4.0b9""",157378
-"site:bugzilla.mozilla.org search ""build identifier: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0b9) Gecko/20100101 Firefox/4.0b9""",157378
-parser span object bug,8627
-allow span inside object parser issue,8627
-site:freewebs.com 'background body color' AND (NavBar OR Navigation OR Affiliates) AND (Macintosh OR Intel Mac OS X 10.4),125187
-filetype:js 'background bg' AND (NavBar OR Navigation OR Affiliates),125187
-"build id: 1999042608, debug viewer demos menu issue on Windows NT or Linux",3299
-debug viewer demos menu appears twice in apprunner build id 1999042608,3299
-deCOMify nsIFrame::IsPercentageBase signature,89260
-rename nsIFrame::IsPercentageBase to less cryptic name,89260
-What is the exact error message in JavaScript console when using window.history.go(-1)?,37809
-How to fix the issue with button click event not working after using window.history.go(-1)?,37809
-bug 888109 sqrt optimization,200375
-inlining sqrt with float32 input,200375
-Chrome 16.0.912.77 User Agent,179394
-Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.7 Safari/535.7 User Agent,179394
-site:bug report 'Dan' AND 'standalone',5131
-site:bug report 'Samir' AND (talk OR discussion) NOT 'work on',5131
-Suppress warning C4355 in HttpChannelChild and FTPChannelChild,174137
-bug 736895 attachment 612742,174137
-font selection issue firefox,115159
-cairo gfx fonts panel regression,115159
-site:mozilla.org bug Firefox 3.6.13 SeaMonkey 2.0.11 Windows Vista 64-bit Linux Ubuntu 10.10 freeze,158415
-site:bugzilla.mozilla.org keyword:(freeze|hang) AND product:Firefox AND version:3.6.13 AND platform:Windows Vista,158415
-What is the expected behavior for pages in Zope's cache when accessing resources that require authorization?,46977
-How to handle cached pages with authentication credentials in Zope?,46977
-site:mozilla.org 'Firefox' AND 'DOM2 TR' AND PaLeg,123131
-site:ie.microsoft.com 'IE' AND 'TBODY element' AND 'uppercase tag names',123131
-Find all mentions of 'font' in the bug report,161195
-Extract revision numbers from the build identifiers,161195
-site:hixie.ch 'float size' AND NOT 'contains elements',42433
-site:monopoly.damowmow.com 'float size' AND NOT 'contains text',42433
-mathml parsing issue in mozilla browser,74128
-mozilla browser fails to render mathml equations,74128
-Viewer + File + XP Toolkit Tests + Tree Test 1,10767
-SEGFAULT + Solaris 2.6,10767
-site:bugzilla.mozilla.org bug 1234567 nsJSProtocolHandler::EvaluateString,22976
-site:bugzilla.mozilla.org bug 7890129 js URLs security fix,22976
-Find the line of code that sets the dialog title in the Composer new page feature,15943
-Identify the specific line of code added to fix the issue with the garbage dialog title,15943
-TypeObjectFlags saturating counter implementation,196989
-saturating counter for TypeObjectFlags,196989
-site:bug report 'plugins disabled in editor' AND (java OR applet) AND NOT 'bug on this issue',68877
-site:bug report 'applet run when editing java page in composer' AND 'plugins disabled in editor',68877
-nsZipArchive::Test ExtractFile assertion failure,106945
-seamonkey installer crash with nsZipArchive::Test ExtractFile,106945
-site:gnome.org 'invalid cast from GtkSuperWin to GtkWidget' && (download || crash),88064
-site:gnome.org 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6)' && (rpm download crash),88064
-Find all occurrences of 'nsAutoConfig' in the bug report,42785
-Get the context of the sentence where it says 'it is not a weak reference',42785
-site:bugzilla.mozilla.org 'has multiple monitor apis' AND 'GKGFXWIN.DLL',20471
-site:bugzilla.mozilla.org 'Mozilla/4.72' AND 'win98' AND 'crash on startup',20471
-mozconfig.linux build/unix --enable-stdcxx-compat,197678
-gcc build/unix mozconfig.linux,197678
-site:github.com dehydra class __attribute__((NS_stack_object)),120468
-dehydra class struct __attribute__((NS_stack_object)),120468
-Linux seamonkey build issue back forward buttons not working,1575
-seamonkey linux seamonkey build problem with back and forward buttons,1575
-uls nesting issue,5989
-nested uls and ols not allowed,5989
-crash report mozilla-central revision 06445f55f009,166246
-mozilla-aurora test crash with near-null deref/pointer magic,166246
-Find all occurrences of 'hack' in the bug report,174131
-Extract the name 'Luke' from the bug report,174131
-site:bugzilla.mozilla.org 'application/smil' AND 'Mozilla wants to launch an external viewer',38672
-site:bugzilla.mozilla.org 'mozilla wants to launch an external viewer' AND 'rendered in Mozilla',38672
-site:mozilla.org bug a32ee014c0e8,168343
-try: a32ee014c0e8,168343
-getusermedia api documentation,170713
-webrtc editor bug report http://dev.w3.org/2011/webrtc/editor/getusermedia.html,170713
-Find all occurrences of 'nsCollationOS2::CompareString' in the codebase and search for 'UniFreeLocaleObject' in the same scope.,88866
-"Search for 'UniStrcoll' and 'UniFreeLocaleObject' in the nsCollationOS2.cpp file, and also find any mentions of 'error handling' or 'crash' in the context of locale object management.",88866
-Mozilla Preferences dialog Privacy category Help button issue,38688
-Certificate Manager window Help button display bug,38688
-site:mozilla.org Port blocking code and proxy servers,102474
-nsIIOService AllowPort hardcoded scheme,102474
-site:oaa-accessibility.org example,168239
-file:example*10*.html,168239
-mac xp toolkit issue view use stylesheets,16485
-xul file disable mac menu items,16485
-site:github.com 'reassign' AND 'Profiles' AND 'steps to reproduce',59623
-site:github.com 'hangs using task manager' AND '6.2.1' OR '6.2.2',59623
-style code bug tree widget selection performance,7851
-tree reflow issue with computed style hint VISUAL,7851
-User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0),90296
-Build Identifier: ; test,90296
-Remove tag check,109750
-Replace main tags with QI,109750
-site:bug tracker 'agree license' AND (userid/password OR developper connection),15004
-site:bug tracker 'download link not working after agreeing to license',15004
-Firefox 3.0 Linux build identifier,125817
-WYSIWYG editing and file size display in download dialog,125817
-"""raw video decoder"" AND ""doesn't build"" AND ""bug 592833""",163748
-"""refactorings"" AND ""bug 592833""",163748
-What assertions are triggered in nsImageMac::GetBits and nsImageMac::GetAlphaBits?,86604
-Why does imgContainerGIF::CopyFrameImage call gfxImageFrame::GetImageData and gfxImageFrame::GetAlphaData without locking the data?,86604
-site:bugzilla.mozilla.org bug 1234564,97154
-site:dev.neomyz.com url_test.html,97154
-Change font encoding in Ken.htm and verify that Mozilla doesn't crash,37690
-"Mozilla crashes with an illegal operation when changing font encoding, investigate",37690
-Search for 'MathML content' and 'presentation first' in bug reports,67465
-Find all bugs related to MathML rendering issues with 'garbage semantics',67465
-gfxPlatformGtk.cpp:108,105284
-RENDER required in gfxPlatformGtk.cpp,105284
-site:bugzilla.mozilla.org 'A4 printing' AND 'fix for bug 7201' AND 'Print dialog',38258
-site:bugzilla.mozilla.org 'print to file' AND 'tmp/mozilla.ps' AND 'Mozilla/5.0 (X11; U; Linux',38258
-custom linker android linker error,154258
-dlopen system libraries mozilla-central,154258
-site:home.sol.no/~apejakov/amilink.html 'counter' AND NOT Moz,14348
-site:home.sol.no/~apejakov/amilink.html 'counter' AND Moz,14348
-Find changes made by user associated with bug 317334,111535
-Check nsDocumentViewer.cpp line 1197 for changes related to bug 317334,111535
-Find all instances of 'undefined reference' in the build error log,160165
-Search for 'mozJSComponentLoader.cpp' and 'NS_NewObjectOutputWrappedStorageStream' in the codebase,160165
-indentation issue with left indent button,49921
-cursor jumping behavior on hitting return while indented,49921
-site:mozilla.org 'NS_ERROR_FAILURE' && (rdf:msgnotifications || rdf:xpinstall-update-notifier),9848
-linux 'Component returned failure code: 0x80004005 (NS_ERROR_FAILURE)',9848
-initially empty h3 element does not display margin bottom,113719
-h3 element without initial text does not inherit margin bottom,113719
-site:github 'Composer Debug menu item' -build date:2000-02-09,15435
-site:github 'Debug menu item removal in Composer' -build date:2000-02-09,15435
-css parser canonicalization bug 821859,188029
-selector text formatting cssrule interface,188029
-Find all interface changes to nsIDOMWindowUtils.idl since the 2.0b7 branch,153783
-Identify the specific commits that were added to the b7 branch after compartments landed,153783
-mozilla-0.9.5 freezes when mouse enters map link,51845
-galeon freezes when mouse enters meteo.fr page,51845
-site:github.com mrosenberg patches/fixMA-r0.patch,171182
-site:github.com 'boundsCheck' indep,171182
-site:bugzilla.mozilla.org bug 36691,108131
-"code search ""Mozilla/5.0 (Windows; U; Windows NT 5.0; en-GB; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4""",108131
-site:bugzilla.mozilla.org 'file input onFocus' AND 'text input onFocus',72964
-site:bugzilla.mozilla.org 'onFocus event file input' OR 'onFocus event text input',72964
-What is the status on adding a readonly boolean hasAudio property to the media element API?,131818
-Can the media backend determine if a video has an audio track?,131818
-mozregistry documents folder removal,9989
-mozilla installer profile migration issue,9989
-bug report garbled hebrew text status line,56090
-hebrew script issue with worldscript disabled,56090
-What issues are related to nsCanvasRenderingContext2D.cpp and line 2885?,158806
-How does the assertion 'Default canvas font is invalid: res == NS_OK' relate to file content/canvas/src/nsCanvasRenderingContext2D.cpp?,158806
-mozconfig2configure ash.exe syntax error,110360
-build/autoconf/mozconfig2configure ash.exe version compatibility,110360
-history window open in new window bug,36168
-context menu 'open' option changed to current window,36168
-mozilla hosts file ad blocking issue,80069
-doubleclick net block images in ie,80069
-Enable raw video feature for Android by default,167474
-Android build configuration issue with video capture,167474
-remove JSCLASS_FIXED_BINDING,121846
-expose core classes on global object,121846
-Load http://my.netscape.com and click on links in the Tech News box,31032
-Check connection to e40-backup.zdnet.com:8887 when loading specific URLs,31032
-SanityFilter ins3 stacktrace Windows XP,140785
-nanojit::SanityFilter ins3 assertion failed Mac OS X,140785
-site:mozilla.org 'applet' AND 'DOM core identifies' AND 'browser registers',82122
-fileid:netscape/7.02 'JavaScript-to-Java scripting' AND 'Java applet' AND 'DOM core',82122
-"site:bugzilla.mozilla.org search ""Build Identifier: Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6""",118012
-"site:bugzilla.mozilla.org search ""access of memory address 0""",118012
-body tag overflow hidden issue still appears with scrollbars,45642
-overflow hidden on body tag causing content to overflow,45642
-bug 766880 bug 766881,177744
-mozilla-aurora pgo test reftest on 2012-06-20,177744
-js heap dumping mechanism cycle collector implementation,165077
-new js heap dumping method for finding object roots,165077
-pdf file opens with previous tab content always,152758
-firefox pdf viewer freezes and becomes transparent,152758
-"site:bug tracker ""INS element tooltip"" AND title attribute",24180
-"site:bug tracker ""HTML INS element display issue""",24180
-OpenC/C++ console emulator Symbian js.exe,135630
-js.exe Symbian Nokias OpenC/C++,135630
-site:bugzilla.mozilla.org keyword:winME build date:2001-05-25,41174
-site:bugzilla.mozilla.org keyword:PSM master password,41174
-createContextualFragment html parsing issue firefox,142644
-Firefox 3.6 .NET CLR 3.5.30729 contextual fragment parsing bug,142644
-Find all occurrences of 'attachment' and 'Patch v1' in the bug report,168564
-Search for the string 'Patch v1' within the text of the bug report,168564
-What is the issue with the width of a table header column in Firefox 3.0?,125788
-How to fix the dark blue edge appearing on the right side of a table with 181 columns?,125788
-google maps polyline issue firefox android tablet,193923
-google maps scale control polylines extend beyond map edge,193923
-DeviceContextImpl error handling issues,55456
-Incorrect error checking in DeviceContextImpl,55456
-site:mozilla.org 'IPv6 connectity' AND 'connection refused',86135
-"site:bugzilla.mozilla.org search ~""ipv6 connectity"" AND ""connection refused""",86135
-site:tapdev.co.uk 'Firefox' AND 'browser crash' AND 'drop-down list',152808
-site:tapdev.co.uk 'Uniform' jquery AND 'browser crash' AND 'Mac OS X',152808
-conneting vs connecting,95699
-people-ftp.freenet.de vs ftp.freenet.de,95699
-site:bugzilla.mozilla.org 'the mayor or equal' AND Linux i686,89508
-inurl:buildidentifier Mozilla/5.0 (X11; U; Linux i686; rv:1.7b) Gecko/20040225 Epiphany/1.3.0,89508
-reset master password button in preferences window,46656
-warning for resetting master password with impact on saved data,46656
-bitwise and operation for wParam in WM_SYSCOMMAND messages,154859
-msdn documentation on wParam parameter,154859
-form element resizing slow,37295
-native scrollbar replication issue,37295
-css background issue in mozilla vs ns4.7,29060
-background color css override on screen edges,29060
-Firefox 18.0 cut/paste issue,181662
-Chrome browser Linux x86_64 left click text selection failure,181662
-simplify checked unwrapping logic,183903
-refactor proxy hierarchy for static safety analysis,183903
-How to make table width work correctly in Firefox for HTML pages with Japanese characters encoded using mbstring?,96003
-"Why does IE and NS browsers render table width correctly, but Firefox ignores it for Western characters encoded with ISO-8859-1?",96003
-flash animation issue with npswf32.dll,56959
-flash plugin installation not working with mozilla.org plugins,56959
-site:mozilla.org bug 783989 GfxInfo implementation for Gonk,198333
-site:mozilla.org 'GfxInfo' and 'gonk' in mochitest errors,198333
-"title contains ""all"" and is not empty",197329
-"title = ""A title is all.""",197329
-site:mozilla.org js_AddRootRT,73437
-site:mozilla.org nsXPITriggerInfo::SendStatus,73437
-filepicker crash when opening without filters,93071
-bug 256927 filepicker stacktrace,93071
-find keyword 'TM merge' in attachment 466048,149859
-search for 'bug 585824' and 'crash' in Firefox debug build on x86-64 Linux,149859
-Find all occurrences of 'nsIClipView' in the codebase to determine if it's still being used.,93163
-Check if there are any remaining references to 'nsIClipView' that would prevent its removal from the project.,93163
-site:github.com jorendorff coverity error,135034
-filecontent:1196-1208 'caller->regs && js_GetOpcode(cx; caller->script; pc) == JSOP_EVAL',135034
-site:bugzilla.mozilla.org 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.2a1pre) Gecko/20110405 Firefox/4.2a1pre' AND 'leaves ugly artifacts when zoomed',160284
-site:bugzilla.mozilla.org 'HW acceleration ON or OFF' AND 'ugly artifacts on top of screen',160284
-find bug report with id 13140793 and mention of 'push' in the output,178247
-search for keyword 'image comparison' in the full log output,178247
-site:mcs.vuw.ac.nz 'Mozilla/5.0' AND 'Build Identifier: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3;',87461
-inurl:?BooksIHaveRead site:mcs.vuw.ac.nz 'Mozilla/5.0' AND 'Build Identifier: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3;',87461
-build-id:2000030709 debian potato crash,17226
-linux nightly build-id 2000030709 news.de visit crashes,17226
-site:bugzilla.mozilla.org bug 704520 comment 6 flash plugin honeycomb,171480
-site:bugzilla.mozilla.org bug 687267 flash plugin honeycomb,171480
-Find all webapi webrtc iframe pages in qa-testcase-data,200767
-Check if iframegithubgum.html contains a permission prompt,200767
-cache map not depleted after clearing disk cache,54641
-bugzilla cache files not deleted on clear,54641
-site:mozilla.org 'form elements' AND 'DOM manipulation',113814
-site:mozilla.org 'JavaScript' AND 'form element rearrangement',113814
-mac os x 10.6 sdk xulrunner compilation error,163030
-xcode nsstringapi.h compilation issues,163030
-site:bugzilla.mozilla.org bug 676910 'function flags' AND 'jsapi.h',184874
-site:bugzilla.mozilla.org bug 676910 'JSFunctionSpec' AND 'JSFUN_FLAGS_MASK',184874
-print dialogue error message mozilla firefox,101373
-paper size issue with print dialogue in firefox,101373
-site:bugzilla.org 'User-Agent' Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1b) Gecko/20020804,69696
-site:bugzilla.org 'buildid' 2002080419,69696
-widget/ unsoundness,47738
-rewrite X Remote architecture,47738
-"""mozilla build"" AND ""throbber""",58820
-"""mozilla page load issue""",58820
-"site:bugzilla.mozilla.org search ""Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030507""",83031
-"search for ""Extend Desktop"" and ""Display Properties/Settings"" in Mozilla bug reports",83031
-site:bugzilla.mozilla.org 'tab tag' AND 'DOCTYPE HTML PUBLIC -//W3C//DTD HTML 4.0 Frameset//ENhttp://www.w3.org/TR/REC-html40/frameset.dtd',69390
-site:bugzilla.mozilla.org 'indentation per the previously mentioned W3C reference',69390
-undefined return value bug report,106400
-undefined return value in query result,106400
-bug 780341 transform-only changes display list layerbuilder machinery,182147
-nsDisplayList.cpp nsFrameLayerBuilder.cpp optimization corner case scaling applied,182147
-bug report contains 'Windows NT 5.1' search for this,85093
-search for 'red vaportrail' in bug report,85093
-site:github.com bug report yellow heading alignment issue,6705
-bug report yellow heading colspan issue,6705
-incremental reflow issue in Firefox,71354
-testcase freezing with Mozilla build,71354
-Firefox OS client implementation details,196251
-PiCl contacts sync implementation,196251
-Find the line numbers where #ifdef DEBUG is used in the code,160150
-Identify the function call for Bar() in the given debugged code,160150
-bug report 19855647,190359
-(leak|bloot) statistics,190359
-NS4 document info comments embedded in JPEG,64901
-Mozilla media long description field,64901
-site:bugzilla.mozilla.org 'escape key' AND (keypress OR keydown) NOT XHR,148737
-site:bugzilla.mozilla.org 'escape key' AND (keyup OR keydown),148737
-Find the JavaScript code responsible for redirecting users with old Netscape browsers to a 'bad browser' page,12855
-Identify the HTML structure and script tags used in the bug report's source code,12855
- cairo _cairo_d2d_try_fastblit extend mode ignored,152460
-cairo reftests ignoring extend mode in _cairo_d2d_try_fastblit,152460
-Find the location of the bug report's file,116365
-What is the exact line number where the bug was reported in the code?,116365
+till krech + javascript for in statement + linux,0
+javascript for in statement issue + till krech + linux,0
+Darrell Kindred bugs table layout,1
+WIDTH=300 on outer table,1
+site:mozilla.org 'table' search,2
+filetype:txt 'foobar baz qux' site:cs.cmu.edu,2
+"msuencks@marcant.de April 7, 1998",3
+"nisheeth@netscape.com April 22, 1998",3
+"Find the file ugendata.c in mozilla-orig/ns/lib/libi18n/ and check for changes made on April 1, 1998",4
+Look for mentions of 'KOI8' in the ugendata.c file and identify the specific line numbers affected by the change,4
+site:mozilla.org 'seg fault' AND 'default value of TEXTAREA field',5
+site:cs.cmu.edu 'javascript code' AND 'reproducible seg fault' AND 'TEXTAREA field',5
+Find all occurrences of 'JSSavedState' and 'JSString' in the jsstubs.c file,6
+"Search for all lines containing '#ifdef JAVA' or '#endif' after April 12, 1998",6
+Dan McGuirk mcguirk@indirect.com April 13 1998 net_CleanupMailtoStub,7
+mcguirk@indirect.com April 13 1998 XP_ASSERT(0) unimplemented function,7
+site:uni.de Holger Hippenstiel 'javascript doesnt work anymore',8
+site:uni.de 'AppletContext is there' AND 'java.awt.*' OR 'java.applet.*',8
+"site:cfar.umd.edu ""windows-1250""",9
+"site:cfar.umd.edu ""Mozilla"" AND ""Latin 1 fonts""",9
+site:wwwkoi.nsk.su 'Navigator opens a lot of message boxes',10
+site:wwwkoi.nsk.su '120th' AND 'Fixed in last build',10
+What is the behavior of the back button on the current system regarding hidden fields?,11
+Why are hidden fields reset when navigating back in the system?,11
+Find all occurrences of 'iostream.h' in the codebase and mark as outdated,12
+Identify the source file where 'iostream.h' was replaced with 'sys/stream.h',12
+site:netscape.com 'Windows95 registry' AND (menu open time OR submenu delay),13
+site:netscape.com 'OS integration enhancement' AND (submenu delay OR menu performance),13
+site:acorn.co.uk jsapi.c,14
+filetype:txt 'js_MaybeGC',14
+net_GetFilenameInCacheDBT returns incorrect relative pathname,15
+net_cache_recursive_file_finder doesn't work correctly when base_dir doesn't end with '/',15
+"""berkley"" AND ""NULL"" AND ""constructors""",16
+"""#define NULL 0L""",16
+Find all occurrences of 'XFE_PopupMenu' and 'EditorFrame.cpp' in the codebase and return a list of lines where errors are reported,17
+Search for instances of 'new XFE_PopupMenu' and 'new XFE_EditorView' in EditorFrame.cpp and provide the surrounding context,17
+site:cs.wustl.edu berkley@cs.wustl.edu EditorView.cpp diff,18
+mozilla/cmd/xfe/src/EditorView.cpp set_font_size_params[i].data,18
+site:cs.wustl.edu berkley@cs.wustl.edu HistoryView.cpp,19
+filetype:c++ mozilla/cmd/xfe/HistoryView.cpp,19
+site:waider.ie forms.c diff -c -r3.2,20
+site:waider.ie 'text_attr->charset' || 'fe_font',20
+jsmath.c: In function `random_init';,21
+gcc -Wall -Wno-format warning,21
+Find all instances where 'goSubmit' is not defined in the codebase,22
+Identify the duplicate bug report with ID 415 and its associated details,22
+site:hotoffice.com 'goSubmit not defined' AND 'JavaScript Error',23
+site:hotoffice.com 'writeToStatus not defined' AND 'ASP desktop.asp line 213',23
+"""<select> tag"" AND ""background color""",24
+"""<select> tag"" AND ""menu not changing color""",24
+How to handle page faults in Netscape with embedded objects,25
+PowerBuilder dynamic library issues with Netscape embed object,25
+Netscape Communicator GPF KERNEL32.DLL error,26
+Communicator crash on startup with invalid page fault in KERNEL32.DLL,26
+PowerBuilder plugin issue June 1998,27
+Netscape Communicator compatibility problem with PowerBuilder plugin,27
+site:gadgetguru.com 'mod_speling' AND 'MTop.gif' NOT (Apache) AND 'tomorrow's build' NOT (today),28
+site:gadgetguru.com 'mod_speling' AND 'broken image icon' AND 'incorrectly referenced on the page',28
+site:writeme.com 'anonymous FTP login' AND site:mozilla.org,29
+site:netscape.com 'browser pref' AND site:ie.org,29
+site:big.ac.at 'netscape registry LOCAL_MACHINE',30
+site:schiller.big.ac.at 'Netscape profile storage',30
+site:ericsson.se 'OnKeyUp event' AND (Communicator 4.03 OR Communicator 5.0),31
+site:ericsson.se 'javascript code OnKeyUp event' AND (input OR textarea) AND (alert(Link got an event),31
+Find all instances of cp1252_to_iso8859_1 array in mozilla/lib/libi18n/sbconvtb.c,32
+Search for the ? character mapping issue in mozilla/lib/libi18n/sbconvtb.c,32
+netlib issue mkftp.c,33
+unused function call in network/protocol/ftp/mkftp.c,33
+"What is the font stack implementation in Netscape's document display, and how does it affect attribute changes?",34
+How can overlapping font attributes be handled in the Font Stack of Netscape's browser?,34
+Find undefined references in prlink.c,35
+Undefined references in libnspr21.a,35
+site:mozilla.org bug 1234567 'Show' button length issue,36
+site:netscape.com 'length of text field string hello' bug report,36
+torsten@ponton-hamburg.de July 13 1998 floating point exception,37
+jsapi.c line 1184 JSDOUBLE_IS_NaN NaN,37
+"site:knipp.de Klaus.Malorny July 16, 1998 (Composer creates line breaks)",38
+site:knipp.de Klaus.Malorny lib/layout/edtele.cpp lines 6842,38
+site:michiel.trimpe@dse.nl July 17 1998 left table align=left height issue,39
+filetype:bug Michiel Trimpe alignment left table height issue,39
+"site:techempower.com 'unhandled exception in netscape.exe' July 23, 1998",40
+site:techempower.com 'JS3240.DLL' + Netscape Navigator 4.05,40
+suneetha yerneni netscape applet resource usage,41
+netscape browser system resource leak,41
+site:eng.iastate.edu djschaap* bookmark permission issue,42
+NFS Linux directory permissions Mozilla Netscape,42
+win95 machine color graphics residue,43
+win95 machine page load animation issues,43
+site:bug report 'arrows' AND site:bug report 'tab',44
+site:bug report 'page up' OR site:bug report 'page down',44
+Enable redirects in banner ads,45
+Redirects for top sites,45
+site:msdn.microsoft.com 'blank line' AND site:msdn.microsoft.com 'article at' AND site:msdn.microsoft.com 'http://www.microsoft.com/presspass/features/7-23realnet.htm',46
+site:scopus.com bugsplat login issues,47
+scopus bugsplat login failure,47
+site:bug report 'memory dump' webshell,48
+site:bug report 'scrambled cable tv station',48
+net_parse_http_mime_headers function,49
+NET_SetCookieStringFromHttp function,49
+beep on return press in url bar,50
+auditorily endowed machine beeping issue,50
+font variation detection in text,51
+identify specific fonts used in a given paragraph,51
+Crash on mouseover of content elements in release builds,52
+Mouseover crash issue in release builds,52
+site:github.com bug report 'LINK tag',53
+"site:stackoverflow.com search is ""LOADING"" style sheets",53
+site:github.com kipp html parsing whitespace,54
+site:github.com rickg html parsing issues,54
+How to handle STRONG tags in the parser?,55
+Why are STRONG tags being ignored in the current implementation?,55
+What is the CSS code for making a link active,56
+How to change the color of a link on mouse down,56
+css P:first-line color,57
+get first line of paragraph in css,57
+content model api not implemented,58
+style issue similar to bug 311767,58
+css sample html bug report url,59
+test case url bug report,59
+support cursive and fantasy fonts,60
+libfont usage in raptor,60
+font-family serif issue in div class a,61
+monospace font fallback not working,61
+css line-height property,62
+vertical spacing in css content model,62
+site:bug report 'justified text',63
+site:bug report 'whitespace work' OR 'style issue',63
+mixed style list items,64
+list styling issue with ol and li elements,64
+kipp update li element,65
+peterl style hook up,65
+Stack trace:; ; NTDLL! 77f76148(); nsDebug::NotYetImplemented(char * 0x0054c624; char * 0x0054c5f0; int 434) line; 105,66
+nsDebug::NotYetImplemented() function call with parameters,66
+form submission with single text field and Enter key press,67
+single text input form not submitting on Enter key press,67
+BUG report crash nsFrame::DisplaySelection line 487,68
+nsGUIEvent * 0x0012f308; nsEventStatus & nsEventStatus_eIgnore,68
+nsFrame::DisplaySelection failure with target=_top,69
+nsWindow crash on focus event,69
+ReflowFrame nsCSSInlineLayout::ReflowFrame(nsIFrame * 0x0113c8a0; nsReflowMetrics & {...};; const nsReflowState & {...}; int & 2),70
+nsCSSBlockFrame::ReflowAround(nsCSSBlockFrame * const 0x013bf2c0; nsIPresContext; & {...}; nsISpaceManager * 0x013be780; nsReflowMetrics & {...}; const; nsReflowState & {...}; nsRect & {...}; unsigned int & 0),70
+Search for 'joke' in bug report,71
+Find scrolling functionality in bug report,71
+site:www.cbs.com 'hangs immediately',72
+cbs.com hang* (return),72
+site:ftp.netscape.com 'pub' AND site:ftp.netscape.com 'pub' -inurl:ftp,73
+site:ftp.netscape.com 'pub' OR site:ftp.netscape.com 'pub' -inurl:ftp,73
+eTrade login issue with username/password,74
+username/password input field not working in eTrade account,74
+Pass attribute values to individual frames in document rendering,75
+Handle framed documents with custom margin settings,75
+Is there a known issue with the 'putting' keyword in bug reports?,76
+Can you verify if the 'bugsplat' library is being used correctly?,76
+crash on form control focus with document switch,77
+viewer crashes when switching between framesets,77
+site:bugtracker 'quicktime movie' AND 'Alice' RIGHT,78
+site:bugtracker 'Raptor plugin' AND 'Alice' LEFT,78
+"site:github.com bug report ""align=middle"" and not ""vertical alignment""",79
+"site:github.com search ""busted"" in:file",79
+bug report: 'not yet implemented' and (frameborder or border) and not iframe,80
+find all occurrences of 'www.stocksite.com' in bug report,80
+frame resizing issue when dragging border,81
+dragging frame border not resizing,81
+"Find all occurrences of 'if' statements and 'links' in the codebase, specifically within the new selection code",82
+Search for the exact phrase 'stopped working based on an if statement' in the code comments or logs,82
+site:github.com 'hook up' AND (editor mode OR JS console) AND menu item,83
+site:github.com 'move back' AND (debug only code OR editor mode and JS console),83
+find all outdated bug reports with content 'too old to be useful',84
+get recent bug reports containing the phrase 'too old to be useful',84
+site:github.com bug report 'too old to be useful' selection reworked,85
+site:github.com 'completely reworked' selection too old to be useful,85
+nsPresShell.cpp hack event handling,86
+stability release nsPresShell.cpp,86
+"site:github.com bug report ""introduced this"" && site:github.com bug report ""have a fix""",87
+"file modified since yesterday bug report ""i introduced this""",87
+nsWindow.cpp focus event handling,88
+disable focus event notifications,88
+What is the CSS-2 specification on row background inheritance?,89
+How does Nav4 and IE handle row background inheritance?,89
+colspan rule distribution,90
+proportionate column width calculation,90
+"""incremental reflow"" AND ""image width"" AND ""table layout issues""",91
+"""minimum required size"" AND ""cell layout"" AND ""image placement problems""",91
+resize window fix issue with flushing of text on close,92
+document closing flush text reflow not triggered,92
+backward propagation not terminating at gating tags,93
+table behavior issue with nested tables,93
+site:github.com bug report 'maxElementSize' AND 'desiredSize',94
+site:github.com bug report 'maxElementSize' AND 'table cell size reservation',94
+Find all occurrences of 'jpeg' in the HTML body,95
+Extract the URL from the <IMG> tag with src attribute,95
+Find HTML table structure in bug report,96
+Extract CSS styles used in HTML background and text colors,96
+floating tables bug report,97
+primary culprit floating tables issue,97
+What are floating images causing issues with?,98
+Floating image bug report,98
+Find the HTML table structure in Nav4 with missing <tr> and <td> tags,99
+Extract the CSS styles applied to the outer table cell in the Nav4 HTML snippet,99
+find all occurrences of table tags in the HTML string,100
+extract the width and height attributes from the tables within the center element,100
+"""select all"" AND (turn selection on OR document)",101
+"""fix"" AND (small AND easy) AND ""select all""",101
+Shift click on viewer window without first clicking,102
+Viewer window crash issue with initial shift click,102
+Frame attribute specification bug report,103
+cc list attribute specification bug report,103
+display problem navigation,104
+trailing brs ignored in nav4,104
+site:github.com -bug report height=x% on all table tags ignored,105
+site:stackoverflow.com bug report height=x% on all table tags ignored,105
+How to remove align=right from table layout in HTML,106
+Fixing issue with table alignment when using align=right,106
+is there a way to avoid reflow in layout 0 0,107
+can we prevent reflow on initial render at 0 0,107
+find all occurrences of '<img src=' in the HTML code,108
+search for 'Java technology' and 'online banking' together,108
+"Find all occurrences of 'height' and 'width' in the HTML table styles, regardless of case",109
+Search for 'pixel value' and 'Percent value' within the bug report text,109
+text field size validation issue,110
+input type text rendering discrepancy,110
+site:github bug style attributes not working on widgets,111
+site:github 'style attributes' and 'background-color' not supported on widgets,111
+"What happens when clicking on an anchor link in Java Warp, and how can we fix the page reloading issue?",112
+"How does Java Warp handle anchor links, and why is the page reloading instead of scrolling directly?",112
+"""site"" AND ""repeatedly"" AND ""local"" AND ""test case""",113
+"""tip"" AND ""branch""",113
+site:bug tracker 'display document content within <noscript> tag' AND 'javascript enabled',114
+site:bug tracker 'handle <noscript> tag like a comment' AND 'recreate original HTML',114
+How to handle mismatched begin/end tags in inner tables while preserving layout,115
+Edge case for removing outer <center> tag and its impact on table layout,115
+site:slashdot.org 'font' AND NOT '<FONT' AND NOT '</FONT',116
+site:slashdot.org 'html' AND NOT '<FONT color=000000>',116
+"""centering"" AND ""table cell"" AND ""horizontally"" AND ""vertically""",117
+"""aol"" AND ""checkmate"" AND ""vertical centering""",117
+"site:bugzilla.mozilla.org search ""load up www.yahoo.com""",118
+"site:bugzilla.mozilla.org search ""visual debugging""",118
+form buttons at bottom url garbled gt gt gt,119
+bottom form buttons in url formatting issue,119
+"""NGLayout"" and ""image map""",120
+"""Navigator"" and ""image map""",120
+what is the issue with html rendering in the bug report,121
+why does the colon (:) get truncated in the bug report,121
+find all occurrences of 'DT' in the HTML source code,122
+compare two URLs: http://checkmate/nglayout/bugs/client.html and http://checkmate/nglayout/bugs/client-nodt.html,122
+simple bug report,123
+safe fix for simple bug report,123
+cell widths given as a percentage inside an auto-width table,124
+implementation steps for handling tables with colspans and conflicting attributes,124
+win95 pasteboard not recognized by aim,125
+aim not picking up copied content in win98,125
+site:bug report 'javascript on page load' AND 'random image' AND 'called twice',126
+site:bug report 'image loaded on page load' AND 'javascript issue',126
+win95 plugin issues release builds,127
+known issue with non-repainting plugin on win95,127
+site:aol.com 'link' AND NOT 'show up',128
+build:11/30 NT/win98 'link' AND 'not show up' in My News section,128
+site:github.com bug report 'table' AND 'image width height zero',129
+site:github.com bug report 'align=left' AND 'img src=foo.jpg',129
+left and right CSS margins defined in pixel widths memory issues,130
+paragraph with CSS margins causing wackiness on Windows NT,130
+site:bugzilla.mozilla.org 'reopened' AND 'resolved' AND NOT 'resolution',131
+site:bugzilla.mozilla.org 'state' AND 'rsolved' AND 'no resolution',131
+site:nbc.com 'image submit control' && (mouse events || form submission issues),132
+site:sportszone.com 'search image control' && (mouse enter not detected),132
+"""continuing frames"" + ""cell map"" + ""column width""",133
+"""table code"" + ""enforcement"" + ""correctness""",133
+What are the inconsistent handling of colspans in tables with a single row?,134
+How can we ensure that table frame code handles colspans correctly for tables with only one row?,134
+margin issue in viewer vs navigator,135
+inconsistent right margin width in viewer and navigator,135
+long documents and OnDataAvailable() not triggered,136
+status bar notification mismatch in Raptor,136
+window.top crash bug,137
+nsWebShell QueryInterface stack trace,137
+nav4 compatibility issue,138
+not nav4 compatible,138
+leak of the form object in nsForm::new(UINT),139
+memory leak in nsHTMLContentSink::OpenForm(nsIParserNode const&),139
+site:bug report 'headings clipped' AND 'release build',140
+site:bug report 'page layout issue' AND 'left edge clipping',140
+site:bug report 'Object tag tests' AND site:release,141
+site:bug report 'Raptor' AND (Object tag OR Object test),141
+Find all occurrences of the '<' and '>' characters in the HTML body,142
+Extract the URL from the 'A' tag with the HREF attribute,142
+site:esearch.isr.org keyword minwidth,143
+filetype:html keyword minwidth,143
+What does CNavDTD error code 1680 mean?,144
+How to fix null tag issue in CNavDTD version X?,144
+how to programmatically set image size in js,145
+replace child element with new image in js,145
+Find all occurrences of 'IMG' in the HTML code,146
+Identify and extract the image source URL from the HTML code,146
+table caption sizing issue with auto-resizing tables,147
+caption alignment problem when table resizes dynamically,147
+site:github.com 'loop' AND 'URL widget',148
+site:github.com 'http://w3' AND 'return',148
+nsHTMLContainer destructor crash stacktrace,149
+nsHTMLContainer destrucutor crash in nsDocument,149
+What's causing alignment issues with table data when it falls between cell boundaries?,150
+How to improve table alignment when data spills over into adjacent cells?,150
+How does whitespace handling work for long text nodes in LI elements?,151
+Why does whitespace get chopped before links in certain cases?,151
+reflow metrics nsCSSBlockFrame,152
+nsReflowState and ReflowAround,152
+win95 load test scroll down text not showing on buttons,153
+load test win95 scrolling issue with text not appearing on controls,153
+"site:raptor.js error ""<!--"" on line 8",154
+"site:nav4 source ""<!--""",154
+site:bugtracker.com 'quotes' AND (image OR alt) AND NOT example,155
+site:bugtracker.com 'expected behavior' AND (Nav4 OR IE4),155
+How to add bottom and right borders to hr element in raptor,156
+Raptor hr element styling issue with missing bottom and right borders,156
+site:github.com bug report 'empty string' AND 'mytr undefined',157
+site:github.com bug report 'empty string' AND 'returns null',157
+"""build status"" AND ""Raptor"" AND ""displaying incorrectly""",158
+"""build status"" AND ""Raptor"" AND ""obvious difference""",158
+mozilla org index page rendering issues,159
+new box star logo table layout problems,159
+"Find all occurrences of ""ldquo"" and ""rdquo"" in the HTML entities on the page linked from http://members.tripod.com/~mozillabuilds/nglayout.html",160
+"Search for the bug report from David Baron on netscape.public.mozilla.layout newsgroup, containing html entities &ldquo; and &rdquo;",160
+css multiple classes nglayout viewer,161
+nglayout css support,161
+top frame margin issues,162
+center alignment issue in html table,162
+site:bugs.apache.org 'align=center' AND 'level 2',163
+file:css.css 'align=center' AND 'level 2',163
+What is the CSS property to clear floated elements?,164
+How does the 'clear' attribute work in HTML?,164
+site:bug tracker 'align' and not center,165
+"subject: ""align"" and not center",165
+"Find all CSS stylesheets in the project, specifically those that define default settings for the BODY element.",166
+Search for all instances of the line `<STYLE TYPE=text/css>/* First; set attributes of BODY element.;` in the HTML code,166
+site:w3c.org 'float attribute' AND NOT site:slip.com,167
+url:http://www.w3.org/Style/CSS/Test/w3c-l,167
+css texttransform non-ascii,168
+css texttransform single byte charsets,168
+site:mozilla.org 'priority language' AND lang:fr,169
+filetype:c sourcecode 'priority language' AND lang:fr,169
+find bug report for 'older news section extends beyond navigation bar' in 9-2-98 build,170
+"search for issue with P tags not rendering in older news table, fixed in 9-3-98 Mozilla/Communicator 4.5",170
+"""NGLayout"" build 9-2-98",171
+page resizing issue NGLayout,171
+site:bugtracker.com 'file:///c:/directx' AND viewer.exe,172
+site:bugtracker.com 'Program Files' AND directx AND (crash OR crash report),172
+Makefile.in DIRS $(DEPTH)/modules/libreg,173
+libreg.$(DLL_SUFFIX) in EX_LIBS,173
+site:w3.org code:if.cpp line:186,174
+site:w3.org 'urlLoad routine' and 'interrupting/aborting streams',174
+style not applied to paragraphs on page,175
+paragraphs not styled according to top-level styles,175
+find all occurrences of '<a href=' in the code,176
+search for 'item' followed by '<a href=' in the list items,176
+binary search for text element performance optimization,177
+font size impact on text selection speed,177
+"What is the current implementation of SelectionRange and SelectionPoint in nsISelection, and how can they be made visible to nsISelection?",178
+How can the APIs for getting SelectionRange and SelectionPoint be modified to return const references and const& in nsISelection?,178
+Open status set to M4,179
+Normal status changed to M4,179
+What's the issue with ABBR in NGLayout?,180
+Why does NGLayout insert a newline before ABBR content?,180
+width property enforcement issue,181
+browser window width vs div width,181
+NetscapeDispatchWnd Application Error crash zero pointer,182
+Highlighting text viewer mouse click drag crash,182
+site:mozilla.org 'title' AND 'text' NOT,183
+site:mozilla.org html entities AND 'change title' AND 'demo',183
+site:w3.org RDF Implementations SiRPAC,184
+site:mozilla.org Win32 build,184
+"""in_buf"" and ""STRIP_CRLF state""",185
+"""obj->in_buf"" and ""CRLF""",185
+site:mailnote kipp and troy minimized test case,186
+img HSPACE non-zero size info,186
+navigator debug stops loading images on mac,187
+navigator debug issues with image loading on specific websites,187
+What is the purpose of mDocument->ContentAppended() in the framset document handling logic?,188
+Why does DidBuildModel() call mDocument->ContentAppended() even when mBody is NULL?,188
+site:mozilla.org 'ROWSPAN' AND NOT 'mouseover',189
+site:mozilla.org '<A HREF='02.html'>02</A>' AND 'TABLE' AND 'NGLayout',189
+site:mozilla.org 'assert line 7188',190
+file:ht.c 'Mozilla crash site:mozilla.org',190
+site:netscape.com 'button toolbar' AND 'positioning buttons',191
+site:netscape.com ' Communicator button layout' OR 'Gold button positioning',191
+What is the issue with NGLayout and tables?,192
+How does NGLayout affect table rendering?,192
+object element alternate content not displayed primary content issue,193
+rectangle not redrawn when object element has alternate content,193
+site:github.com bug report 'bulleted list items' AND 'column two',194
+site:github.com bug report 'positioned too far left' AND 'column two',194
+floats not resizing on window resize,195
+percentage width property not updating on window change,195
+site:bug report 'September 13th' AND site:bug report 'Windows build',196
+find memory leak warnings in purify,197
+js_malloc and js_alloc_atom memory leak issues,197
+em unit length value issue,198
+nglayout test document issue #1,198
+site:bugzilla.org bug 2 html element styling,199
+padding and margins html body element,199
+How to link a specific test case to an issue in the bug tracker?,200
+What is the process for referencing a specific issue in the bug report?,200
+test case bug report issue #4,201
+bug report with attached url and issue number,201
+What is the recommended margin value for browser default stylesheets?,202
+Can User Agents specify custom CSS stylesheets?,202
+Padding for block-level elements,203
+Horizontal padding issue,203
+site:bug tracker 'constrained' AND 'unconstrained' (50% OR 100%),204
+site:bug tracker 'background rectangle' AND 'textual content',204
+css float overlapping bug,205
+w3c css2 float positioning,205
+netcenter login page noscrypt redirect,206
+fix netcenter nglayout testing issue with noscrypt tags,206
+"How to navigate to My Netscape User, Find My Page in Netcenter sign-in page",207
+Fix for bug #815 parsing content inside NOSCRIPT tags on my.netscape.com,207
+netscape crash debug assertion failed mozilla nightly,208
+mozilla invalid page fault msvcrtd.dll stack dump,208
+Find all occurrences of nsCSSBlockFrame::Reflow in the code,209
+Find all references to nsSpaceManager::GetBandData in the bug report,209
+What is the expected behavior for handling newlines after HTML tags in the parser?,210
+How does the content sink handle leading newlines?,210
+site:github bug 'default file type' AND 'mask',211
+"bug report ""form upload default"" AND ""html files""",211
+legomindstorms frames table issue,213
+legomindstorms bug missing images,213
+"""Windows 98"" AND ""VC 5.0"" AND ""128MB RAM""",214
+"""MOZILLA.EXE"" AND ""invalid page fault"" AND ""binary build 9-17-98""",214
+site:github bug french accents not displaying correctly in bookmarks,215
+site:github issue french accent display issue in bookmarks,215
+style system not clamping border values,216
+css2 spec allowing negative border values,216
+site:mozilla.org 'Type 3 error' AND crash,217
+site:mozilla.org 'visited link color' AND MacOS 8.1 PowerMac G3/300,217
+rendering bug report: probably shouldn't bother rendering it all!,218
+"bug report text: ""Probably shouldn't bother rendering it all!""",218
+site:w3.org REC-CSS1 containment-in-html,219
+site:w3.org CSS style system bug,219
+What iids do nsIEnumConnections and nsIEnumConnectionPoints share,220
+Why are nsIEnumConnections and nsIEnumConnectionPoints unused,220
+css2 universal selector *,221
+specificity rules for css2 selectors,221
+padding left bug,222
+left padding issue,222
+bug report incremental layout,223
+test case stress 500 li items,223
+sowanim.gif memory leak,224
+4.x browser image redraw issue,224
+mozilla crash debug assertion failed file fenet.cpp line 199,225
+mozilla crashes with invalid page fault in msvcrtd.dll at eip=10216120,225
+Find all occurrences of <DEL> and <INS> tags in the HTML body,226
+Search for <table border> elements with incorrect <ins> and <del> tags,226
+libmocha hacks bug,227
+mozilla preference ui implementation,227
+find all occurrences of '<LI>Item X</LI>' and '<TD colspan='3'>...</TD>' in the HTML code,228
+search for 'TD' and 'TR' elements with a 'COLSPAN' attribute in the HTML code,228
+site:github.com parser illegal selector value,229
+parser discards style rule and illegal selector value,229
+Find all occurrences of 'destroyed' and 'crash' in the bug report,230
+Search for HTML tags within the bug report,230
+"find ""and"" and ""we"" in the bug report",231
+"search for ""should"" in the bug report",231
+How to remove leading whitespace from input field value in HTML,232
+Fixing extra space at start of text input field value,232
+bugzilla login form GET vs POST,233
+NGlayout bugzilla login authentication mismatch,233
+site:win95 netscape redirect,234
+netscape webmail redirects,234
+Find all occurrences of 'obj' in the code and search for the line where it's compared to _pce->property,235
+Search for the definition of PROP_NOT_FOUND and find the context where it's used,235
+Find the line containing the bug in the lookup code for the JavaScript property cache,236
+What is the exact location of the incorrect comparison in the PROPERTY_CACHE_TEST macro,236
+site:libpng.org pngconf.h setjmp.h,237
+site:sourceforge.net pngconfig,237
+nsButton.h NS_INIT_REFCNT(),238
+nsBaseWidget NS_DECL_ISUPPORTS initialization,238
+Find the HTML table structure in the bug report,239
+Identify the third cell placement issue in the second table,239
+timer api implementation issue: repeated timers causing temp objects,240
+temporary timer objects creation and destruction in view manager,240
+nsFont memory leak,241
+nsFont stack allocation,241
+"Find all occurrences of 'Selector' and 'SelectorList' in the codebase, specifically in ParseSelectorGroup(), ParseRuleSet(), and ParseSelectorList().",242
+What is the exact number of Selector objects and SelectorList objects created and destroyed during document loading? How does this relate to Purify reports?,242
+temporaries in style system,243
+temporary supports array impl objects,243
+Find all occurrences of 'nsBlockFrame' and 'BulletFrame' in the code,244
+"Search for the line where 'nsBlockFrame::Init' is called, specifically looking for the 'HTMLStyleSheetImpl::ConstructFrameByDisplayType' method",244
+site:github.com bug report pixels nscoord style context,245
+site:github.com bug report pixel values scaling,245
+Find all occurrences of non-ASCII characters in HTML files,246
+How to correctly display ISO-8859-1 characters in HTML files,246
+png parsing issue with rgb separation,247
+bug in png image rendering for specific date range,247
+site:netscape.com bug report 'stacking order plugin windows' AND 'layers' AND 'plugin OLE windows',248
+site:mozilla.org bugs report 'plugin stacking issue' AND 'window layers',248
+what is the current implementation of 'which' in the retrieval system,249
+how do we need to rework the 'which' functionality in the retrieval system,249
+site:heimdallr.u-net.com 'bug' AND (Nav OR navigation) AND NOT (content OR content developer),250
+site:heimdallr.u-net.com 'HTML 4.0' AND bug AND (layout OR tables),250
+Find all occurrences of FONT tags in the table and return results,251
+Search for HTML table formatting issues and report back 0; maxElementSize,251
+site:cdrom.com 'PNG suite' AND (crash OR crash report),252
+site:cdrom.com 'PNG test icons' AND (Mozilla crash OR Mozilla error),252
+find broken links in major head links like Recreation,253
+identify HTML table and form issues in Yahoo search results,253
+textDecoration attribute values not being saved,254
+string value for text decorations not being reflected,254
+ intermittent crash in image group when navigating to http://www.wbmovies.com/main.html,255
+reconnect hack stacktrace analysis for nsIStreamListener and ilINetReader,255
+How to display nested list markers correctly in NGLayout,256
+Fixing unordered list display issue with nested list markers,256
+site:bugreport lower alpha numbering scheme,257
+<code>lower alpha numbering scheme</code>,257
+site:bugreport.com 'lower roman numbering scheme' AND NOT upper Roman,258
+site:bugreport.com '<ol type=i>',258
+Find occurrences of 'ordered lists' and 'nested lists' in the bug report,259
+Search for mentions of 'arabic' and 'alpha' markers in the NGLayout component,259
+Find all occurrences of 'DT' and 'DD' tags without end tags in HTML content,260
+What is the incorrect content tree generated by the parser for the given HTML code?,260
+MacBinary encoding issue with Http uploads on Mac,261
+Netscape error causing file corruption on Mac with Http uploads,261
+site:cyberworks.net 'animation' AND 'discover-frame.html',262
+site:cyberworks.net 'NGL' AND 'product',262
+top images notice,263
+black column on right,263
+fieldset legend implementation in ie5,264
+html based dialog implementation in xpfe,264
+explicit label associations with input element,265
+xpfe html dialog label requirements,265
+site:bugreport.com 'column width' AND 'fixed' NOT,266
+site:bugreport.com 'cell content' AND 'border override',266
+css vertical margins collapse with non-sibling block-level elements,267
+why dont vertical margins collapse between all block-level elements,267
+margin areas transparency issue,268
+nglayout div element size calculation,268
+site:bug report 'input width' AND 'parent element width',269
+site:bug report 'div style width 75%' AND 'body width',269
+HTML 4.0 BUTTON element implementation,270
+IE 4/5 button rendering with embedded HTML,270
+Support for disabled attribute on HTML form elements,271
+Exposing disabled attribute to DOM for JavaScript manipulation,271
+accesskey override focus issue,272
+underline accesskey character,272
+Capture event for XPFE,273
+Window dimensions capture,273
+document width implementation,274
+XPFE width retrieval,274
+Get rid of getElementByTagName() in alert(document.getElementById('foo')),275
+Fix getDOMAttribute() to getAttribute() in element retrieval,275
+back button not working in table,276
+horizontal scrollbar issue with table resizing,276
+mozilla nightly build test error breakpoint,277
+mozilla assertion failure winfe fenet.cpp line 199,277
+Find all occurrences of 'border' and 'style' with a value of 'thin solid red' in the bug report,278
+Identify the HTML elements that have inconsistent width for their border styles,278
+site:html.css border none,279
+find 'border' in style tag,279
+newGlobalObject is null in GlobalWindowImpl::Open,280
+JSContext * 0x013f0e20 and newGlobalObject->SetOpenerWindow(this) in GlobalWindowImpl,280
+What was the module involved in the viewer crash on 9/28 build?,281
+Why did moving the form element start tag outside of the table resolve the viewer crash?,281
+css min-width and max-width properties,282
+css2 spec visudet.html,282
+site:mozilla.org 'bold' AND 'bolder',283
+site:mozilla.org 'bold' AND 'font-weight',283
+site:neodata.com 'floating button' AND (table|form) AND not ad,284
+site:neodata.com 'floating button' AND (table|form) AND 'void where prohibitted',284
+"font weight issues: normal, lighter, 100-400 vs bold, bolder, 500-900",285
+bug report: font weights not rendered correctly for certain values,285
+site:mozilla.org css sec526s font size,286
+css sec526s font size,286
+Find all CSS test cases on Mozilla's new layout page that are related to font size,287
+Check if the 'xxsmall' font size in sec526ex.htm test case is correct,287
+Find the CSS test case sec526in on mozilla.org with a style issue where font size is displayed as nearly an inch high instead of .5in,288
+Check the newlayout testcases/css/sec526in.htm page on mozilla.org for incorrect font size display,288
+css sec526cm test case url: http://www.mozilla.org/newlayout/testcases/css/sec526cm.htm,289
+font size css test case: http://www.mozilla.org/newlayout/testcases/css/sec526cm.htm,289
+Find all test cases in the Mozilla CSS layout test suite where the 'sec527sty' section is not rendering italic text correctly,290
+Check the URL and expected output for the 'css/sec527sty.htm' test case to ensure it's displaying italic text as intended,290
+site:mozilla.org css sec527v.htm 'text' inurl,291
+site:mozilla.org css sec527v.htm 'small-caps' inurl,291
+Find the test case with URL http://www.mozilla.org/newlayout/testcases/css/sec527w.htm and verify that the font is displayed as bold,292
+Check if the font style in sec527w.htm is correctly set to bold,292
+css sec527siz font size,293
+font size issue in new layout testcase Mozilla,293
+css sec527h testcase line height 200%,294
+http://www.mozilla.org/newlayout/testcases/css/sec527h.htm line height,294
+site:mozilla.org css sec527f 'san-serif',295
+site:mozilla.org css sec527f 'serif',295
+Find the test case for CSS sec531 with rgb color and 'aqua' in its expected output,296
+Check if the new layout test case http://www.mozilla.org/newlayout/testcases/css/sec531rgb6aqua.htm is correctly displaying 'aqua' as expected,296
+css sec532 rgb color test case not working,297
+mozilla new layout css test case issue with rgb values,297
+css viewer crashes on listing directory,298
+netscape css viewer hangs on folder listing,298
+css layout issue with scrollbar on mozilla.org/newlayout/testcases/css/index.html,299
+testcase accessibility issue with scrollbar on mozilla.org/newlayout/testcases/css/index.html,299
+site:bug report 'background color' AND 'text fields',300
+site:bug report 'IE' AND 'navigator' AND 'inheritance',300
+"site:github.com bug report ""vertical alignment"" AND dont forget to fix AND frames INTO",301
+"site:github.com bug report ""bullet alignment"" AND vertical alignment AND fix",301
+GetHTMLFormElementProperty,302
+js_GetProperty,302
+site:github.com bug report 'floaters' AND 'overlap',303
+site:stackoverflow.com bug report 'floaters' AND 'overlap',303
+font mismatch in top stories section between ie and navigator,304
+top stories section inconsistent font rendering across browsers,304
+center web-search table superscript layout issue,305
+web search table form elements layout incorrect,305
+jsapi.c line 829 js GC issue,306
+PR_FinishArenaPool function in jsapi.c,306
+What is the HTML 4.0 OPTGROUP element in a SELECT tag?,307
+How does the OPTGROUP element work with mouseover functionality?,307
+cellpadding cellspacing issue,308
+border rendering on tables,308
+in-line frame rendering issue,309
+inline frame display problems,309
+site:w3.org 'float' and CSS,310
+test cases for float property,310
+smartupdate 5.0 documentation progress,311
+progress on smartupdate 5.0 feature support,311
+css2 color aliases,312
+native look and feel html/css,312
+crash Mozilla browser win98,313
+AMD K6 CPU crash with Norton Antivirus and ICQ,313
+fix that bug report,314
+"find and fix the issue mentioned in the bug report ""fix that""",314
+css spec case insensitive rules,315
+html id/class attributes css2 spec,315
+Find all occurrences of 'new(UINT)' in nsCSSDeclaration.cpp and nsCSSDeclarationImpl::new(UINT),316
+Find all calls to NS_NewCSSDeclaration in nsCSSParser.cpp and the allocation locations,316
+How to fix links not working in table with rowspan attribute,317
+Issue with links not being clickable in tables with rowspan attribute,317
+simplify bug report,318
+nasty bug report test case,318
+Open/Normal status set to M4,319
+M4 status for open and normal tickets,319
+cssstyleimpl crash,320
+nsdocument destructor,320
+default background colors for widgets except buttons,321
+widget library color defaults,321
+style textDecoration issue: force reflow to apply,322
+underline text decoration not working as expected,322
+site:bug report 'style.top' AND 'onmousedown=this.style.position=relative',323
+site:bug report 'foo' AND 'mousedown' AND 'this.style.top',323
+Fixed width tables rendering issue,324
+NGLayout table download delay,324
+viewer.exe Last line in in\ viewer.exe:; DocumentViewerImpl::BindToDocument; ; Fatal error:; ; The instruction at 0x00291048 referened memory at 0xdddddded.  Memory could; not be read.; ; \u00a7,325
+"viewer.exe crash report ""The instruction at 0x00291048 referened memory at 0xdddddded.  Memory could; not be read.""",325
+css inset border color,326
+border color properties,326
+fantasy fonts css windows,327
+cursive fonts css windows,327
+What are the CSS 2 fonts spec guidelines regarding negative font size?,328
+How does W3C REC-CSS2 define font size properties?,328
+site:github.com bug report 'vertical-align' and (not 'text-bottom'),329
+site:github.com bug report 'vertical-align' and not '50%',329
+css percentage margins browser window narrowing,330
+w3c css test case sec5501,330
+left margin auto justification,331
+css margin auto justify,331
+What is the behavior of a <div> inside a <p> in HTML?,332
+How do I close a <p> element when it contains a <div>?,332
+table inheritance issue: why doesn't the div's content display correctly inside tables?,333
+div content not inheriting properties to tables: example url needed,333
+css attributes word spacing and letter spacing implementation,334
+support for css1 word spacing and letter spacing,334
+justify keyword text-align property,335
+text-align property justification bug,335
+text-indent property not supported in CSS,336
+commonly used but poorly supported CSS property,336
+css list style position not supported,337
+css1 list style position value,337
+css border-style none display zero,338
+border-width none display extra padding nglayout,338
+css border-width medium vs 0 solid,339
+default css border style none,339
+top border thickness issue,340
+thin top border in url,340
+light from upper left model,341
+inset and outset border usage,341
+"""dashed and dotted borders"" corners issue",342
+Opera border gap adjustment,342
+css border thickness inside vs outside table,343
+w3c css specification thin top and bottom borders,343
+How to fix frame impact not being backed out when pushed to next line,344
+Why is PerFrameData not used in nsInlineReflow,344
+bug report: percentage margins issue with window resize,345
+percentage margins not updating correctly after window resize,345
+site:github.com bug report margins not applying outside table,346
+site:github.com bug report percentage margins issue with non-table elements,346
+What's causing the performance issue with table reflow?,347
+How can we improve the rendering of floating tables?,347
+site:bugtracker.com 'percentage width' AND 'floats' AND 'viewer window' AND 'resize',348
+css2 content attributes implementation status,349
+peter task assignment to kipp,349
+"site:github.com bug report ""drop-down list box"" and ""initial value 10""",350
+"site:bugzilla.org search ""large drop down list box"" and ""page layout issue""",350
+"site:bugzilla.mozilla.org search ""image Lycos acquires"" -text underneath",351
+"search ""there should be more vertical space between image Lycos acquires"" site:bugzilla.mozilla.org",351
+aligning images in table center,352
+table layout issues,352
+edit control width too wide,353
+middle page layout issue,353
+"site:github.com bug report ""floaters"" AND ""returning""",354
+"site:github.com bug report ""image"" AND ""floaters""",354
+Table issue search,355
+Might be table related bug report,355
+RAPTORHTMLPARS.DLL crash stackdump,356
+AMD K6 64MB RAM NGlayout nightly build crash error message,356
+site:bug tracker 'image overlap' AND (code OR text) NOT 'next line',357
+site:bug tracker 'header alignment' AND (h1 OR h2) NOT 'correctly indented',357
+Find all occurrences of signed chars in the codebase,358
+Check for signed char usage in string encoding,358
+site:bugzilla.mozilla.org 'libpref' && site:bugzilla.mozilla.org 'navigator.preference',359
+site:bugzilla.mozilla.org 'libpref' || site:bugzilla.mozilla.org 'navigator.preference',359
+site:bugreport.com 'resize' AND 'frames' AND 'width/height' NOT original,360
+site:bugreport.com 'reize' AND 'window' AND 'frames' AND 'grow/shrink',360
+css border style in ie 4/5,361
+css 3d border issue in ie 4/5,361
+resize issue after load,362
+page jumping on resize,362
+floaters positioning issue with top/bottom margins,363
+floater repositioning after outer block frame applies top/bottom margin,363
+left/right margin css bug,364
+inline frame margin issue,364
+Swing V1.0.3 JTable repaint issue,365
+JTree repaint problem after switching tabs,365
+"site:bug report ""floating tables"" AND Steve",366
+"site:bug report ""tables"" AND Steve thinks",366
+Find all occurrences of 'NSPR' in the bug report,367
+Extract the technical details about URLImpl thread safety and potential performance improvements,367
+"""nsGenericHTMLElement"" + ""CSS parser instance""",368
+"""css scanner"" + ""nsString Unichar input stream""",368
+fragment identifier issue with scrollbar display,369
+scrollbar not appearing when clicking on link with fragment identifier,369
+how to handle child elements outside of their parent in the current system,370
+cursor handling issues with children not contained within a parent element,370
+What's the issue with FORM element in HTML and how can we make it behave like a block-level element?,371
+"Why is FORM treated as an inline element in IE and Navigator, and what's the fix?",371
+site:bugreport 'iframes' layout issues,372
+site:bugreport 'raptor' iframe rendering problems,372
+site:bugzilla.mozilla.org bug 1234567 crypto.signText() issue on Windows 3.1,373
+site:oldsecurityadvice.com Netscape Navigator 4.07 signText() problem on Win 3.1,373
+"site:github.com -bug report ""vertical alignment""",374
+"site:github.com -bug report ""alignment issue""",374
+"site:github.com bug report ""see the test""",375
+site:github.com 'see the test' in:file,375
+textDecoration: 'blink' not reset after setting,376
+unsetting 'blink' text decoration,376
+css om line height modification issue,377
+line height css om bug fix,377
+special case hand never changes,378
+hand never updates to hand,378
+"""dumb"" case down",379
+optimize build results,379
+"""jagged float"" AND ""resize issue""",380
+"""float on right"" AND ""layout problem""",380
+Search functionality not triggered after submitting search query,381
+No search results displayed despite successful submission,381
+content model bug report search,382
+update content model to include specific bug report,382
+"Find all occurrences of ""linux cpu architecture"" in js/src/jscpucfg.h",383
+Search for the line number and file revision where the error is fixed,383
+site:kesoftware.com content-type application/x-javascript version parameter AND (upgrade to next version DOES NOT WORK),384
+site:kesoftware.com 'application/x-javascript' AND 'version parameter' AND perl script attached,384
+css margin-left ul not set to 0,385
+list item indentation issue between 10-8 and 10-15 builds,385
+site:bugreport.com 'H2 top margin' AND site:bugreport.com 'first column' AND site:bugreport.com 'URL',386
+site:bugreport.com 'HTML H2 element' AND site:bugreport.com 'CSS first column layout',386
+BUG report: body left margin increase when viewer not maximized,387
+NGLayout Viewer issue with maximization restore,387
+entities &Xi; and &xi; not displaying in NGLayout,388
+"NGLayout issue with accented characters (&x00e9;, &xi;) on 12/10/98 nightly build",388
+site:snerpa.is net biblia opin.htm font size tags,389
+site:snerpa.is 'font' 'size' crash NGLayout viewer,389
+"site:github.com bug report ""syntax we dont support yet""",390
+"site:github.com search ""syntax we dont support yet"" in:body",390
+Find the exact syntax supported by the retrieval system in the bug report,391
+Identify the unsupported syntax mentioned in the bug report,391
+What is the syntax that is not supported in the test case URL?,392
+How can we handle column width specifications in the test case URL?,392
+site:bug report 'COLs' OR 'COLGROUPs',393
+site:bug report 'styles not applied to COLs' OR 'styles not applied to COLGROUPs',393
+Password input field value not being masked correctly,394
+Input type=password value not being hidden as expected,394
+find duplicate bug report with <input type=text size=3> field,395
+search for issue where expected output is [123] but actual output is [ 1 ],395
+How does textarea handling work in legacy browsers?,396
+Why is whitespace before the first non-whitespace character ignored in textarea rendering?,396
+readonly attribute text input field html 4.0 spec,397
+behavior of readonly controls in ie5,397
+site:bugtracker.com 'disabled attribute not working on OPTION element' AND NOT ie5b1,398
+site:bugtracker.com 'attribute disabled not working on OPTION element' OR 'ie5b1 bug not found',398
+What is the CSS code for HTML 4.0 elements to be visually rendered in a distinctive fashion?,399
+How do we implement the IE 5 style for HTML 4.0 elements in our retrieval system?,399
