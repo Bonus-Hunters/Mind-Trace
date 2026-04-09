@@ -29,7 +29,7 @@ class TextSummarizer:
         self,
         device: str = "auto",
         summarization_model: str = "knkarthick/MEETING_SUMMARY",
-        embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
+        embedding_model: str = "mxbai-embed-large",
         max_tokens: int = 500,
         overlap_tokens: int = 100,
         summary_max_length: int = 150,
@@ -91,6 +91,7 @@ class TextSummarizer:
 
         self.summarizer = summarization_model
 
+        # This Was The Code For The Dummy Embedding Model
         # Load embedding model
         # self.tokenizer_embed = AutoTokenizer.from_pretrained(self.embedding_model_name)
         # self.embedder = AutoModel.from_pretrained(self.embedding_model_name)
