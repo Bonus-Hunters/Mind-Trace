@@ -254,30 +254,86 @@ async def retrieve_hybrid(
     embed_query_fn: Callable[[str], List[float]],
     *,
     rrf_k: int = 60,
+    candidate_multiplier: int = 2,
+    w_vector: float = 0.85,
+    w_keyword: float = 0.15,
+    expand_query_fn: Callable[[str], List[str]] = None,
 ) -> List[Document]:
-    """Hybrid search combining vector similarity and keyword full-text search.
-
-    Both retrieval methods fetch up to *limit* candidates each; the two lists
-    are then merged using Reciprocal Rank Fusion before returning the top
-    *limit* documents.
-
-    Parameters
-    ----------
-    query:
-        The user's natural-language query.
-    project_name:
-        Filter results to this project.
-    limit:
-        Maximum number of documents to return.
-    embed_query_fn:
-        A callable that maps a query string to its embedding vector.
-    rrf_k:
-        Smoothing constant for RRF (default 60).
     """
-    vector_docs = await retrieve_by_vector(query, project_name, limit, embed_query_fn)
+    Hybrid retrieval with external query expansion.
 
-    keyword_docs = await retrieve_by_keyword(query, project_name, limit)
+    - Uses provided expand_query_fn (no LLM inside)
+    - Multi-query retrieval
+    - Weighted RRF fusion
+    """
 
-    fused = _reciprocal_rank_fusion([vector_docs, keyword_docs], k=rrf_k)
+    # ------------------------------------------------------------
+    # 1️⃣ QUERY EXPANSION (EXTERNAL)
+    # ------------------------------------------------------------
+    if expand_query_fn:
+        expanded_queries = expand_query_fn(query)
+    else:
+        expanded_queries = [query]
+
+    # Ensure original query is always included
+    if query not in expanded_queries:
+        expanded_queries = [query] + expanded_queries[:3]
+    else:
+        expanded_queries = expanded_queries[:4]
+
+    # ------------------------------------------------------------
+    # 2️⃣ MULTI-QUERY RETRIEVAL
+    # ------------------------------------------------------------
+    candidate_k = limit * candidate_multiplier
+
+    vector_all: List[Document] = []
+    keyword_all: List[Document] = []
+
+    for q in expanded_queries:
+        vector_docs = await retrieve_by_vector(
+            q,
+            project_name,
+            candidate_k,
+            embed_query_fn,
+        )
+
+        keyword_docs = await retrieve_by_keyword(
+            q,
+            project_name,
+            candidate_k,
+        )
+
+        vector_all.extend(vector_docs)
+        keyword_all.extend(keyword_docs)
+
+    # ------------------------------------------------------------
+    # 3️⃣ WEIGHTED RRF FUSION
+    # ------------------------------------------------------------
+    rrf_scores: Dict[str, float] = {}
+    doc_map: Dict[str, Document] = {}
+
+    for rank, doc in enumerate(vector_all, start=1):
+        key = _unique_key(doc)
+        score = w_vector * (1.0 / (rrf_k + rank))
+        rrf_scores[key] = rrf_scores.get(key, 0.0) + score
+        doc_map[key] = doc
+
+    for rank, doc in enumerate(keyword_all, start=1):
+        key = _unique_key(doc)
+        score = w_keyword * (1.0 / (rrf_k + rank))
+        rrf_scores[key] = rrf_scores.get(key, 0.0) + score
+        doc_map[key] = doc
+
+    # ------------------------------------------------------------
+    # 4️⃣ FINAL SORT
+    # ------------------------------------------------------------
+    for key, doc in doc_map.items():
+        doc.metadata["score"] = rrf_scores[key]
+
+    fused = sorted(
+        doc_map.values(),
+        key=lambda d: d.metadata["score"],
+        reverse=True,
+    )
 
     return fused[:limit]
