@@ -257,7 +257,7 @@ async def retrieve_hybrid(
     candidate_multiplier: int = 2,
     w_vector: float = 0.85,
     w_keyword: float = 0.15,
-    expand_query_fn: Callable[[str], List[str]] = None,
+    expand_query_fn,
 ) -> List[Document]:
     """
     Hybrid retrieval with external query expansion.
@@ -271,7 +271,7 @@ async def retrieve_hybrid(
     # 1️⃣ QUERY EXPANSION (EXTERNAL)
     # ------------------------------------------------------------
     if expand_query_fn:
-        expanded_queries = expand_query_fn(query)
+        expanded_queries = expand_query_fn.invoke({"query": query})
     else:
         expanded_queries = [query]
 
