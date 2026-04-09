@@ -161,14 +161,20 @@ class MeetingPipeline:
         speaker_segments = diarization_result["segments"]
 
         if self.enable_speaker_identification:
-            from Models.audio.SpeakerIdentification import extract_voice_embedding, identify_speaker_by_embedding
-            from Models.audio.tempDB.database_manager import DatabaseManager
+            from Models.audio.SpeakerIdentification import (
+                extract_voice_embedding,
+                identify_speaker_by_embedding,
+            )
+            from core.database.postgresDatabase import PostgresDatabase
+            from core.database.repos import EmployeesRepository
+
             import soundfile as sf
             import math
             import tempfile
 
-            db = DatabaseManager()
-            known_speakers = db.get_embeddings_map()
+            db = PostgresDatabase()
+            employee_repo = EmployeesRepository(db.get_session_maker())
+            known_speakers = employee_repo.get_all_embeddings()
 
             if known_speakers:
                 speaker_mapping = {}
@@ -179,10 +185,14 @@ class MeetingPipeline:
 
                     # Extract up to 3 secs of audio from the longest segment
                     longest_seg = max(spk_segs, key=lambda s: s["end"] - s["start"])
-                    duration_to_extract = min(3.0, longest_seg["end"] - longest_seg["start"])
+                    duration_to_extract = min(
+                        3.0, longest_seg["end"] - longest_seg["start"]
+                    )
                     start_sec = longest_seg["start"]
 
-                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+                    with tempfile.NamedTemporaryFile(
+                        suffix=".wav", delete=False
+                    ) as tmp_file:
                         temp_audio_path = tmp_file.name
 
                     try:
@@ -198,7 +208,9 @@ class MeetingPipeline:
                         sf.write(temp_audio_path, audio_data, sr)
 
                         emb = extract_voice_embedding(temp_audio_path)
-                        identified_name, score = identify_speaker_by_embedding(emb, known_speakers)
+                        identified_name, score = identify_speaker_by_embedding(
+                            emb, known_speakers
+                        )
                         if identified_name != "-1":
                             speaker_mapping[speaker] = identified_name
                     except Exception as e:
@@ -211,8 +223,10 @@ class MeetingPipeline:
                 for seg in speaker_segments:
                     if seg["speaker"] in speaker_mapping:
                         seg["speaker"] = speaker_mapping[seg["speaker"]]
-                
-                diarization_result["speakers"] = [speaker_mapping.get(s, s) for s in diarization_result["speakers"]]
+
+                diarization_result["speakers"] = [
+                    speaker_mapping.get(s, s) for s in diarization_result["speakers"]
+                ]
 
         # Step 2: Transcribe the full audio
         # For Arabic code-switching, detect language first (fast pass) then
@@ -511,10 +525,10 @@ def transcribe_meeting(
         Dialogue result dictionary
     """
     pipeline = MeetingPipeline(
-        whisper_model_size=whisper_model, 
-        device=device, 
+        whisper_model_size=whisper_model,
+        device=device,
         hf_token=hf_token,
-        enable_speaker_identification=enable_speaker_identification
+        enable_speaker_identification=enable_speaker_identification,
     )
 
     try:

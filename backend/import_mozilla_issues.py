@@ -5,7 +5,7 @@ import os, json, asyncio, sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from datetime import datetime
-from utils.constants import EMBEDDING_SIZE
+from utils.constants import EMBEDDING_SIZE, EMBEDDING_SIZE_VOICE
 import core.database.tables_data as tables_data
 from core.database.postgresDatabase import PostgresDatabase
 from core.database.repos import (
@@ -71,7 +71,7 @@ async def import_data():
                     email=author_email,
                     password="password",
                     role="developer",
-                    voice_print=[0.0] * EMBEDDING_SIZE,
+                    voice_print=[0.0] * EMBEDDING_SIZE_VOICE,
                     company_id=company_id,
                 )
             )
