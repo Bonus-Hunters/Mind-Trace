@@ -271,15 +271,27 @@ async def retrieve_hybrid(
     # 1️⃣ QUERY EXPANSION (EXTERNAL)
     # ------------------------------------------------------------
     if expand_query_fn:
-        expanded_queries = expand_query_fn.invoke({"query": query})
+        if hasattr(expand_query_fn, "ainvoke"):
+            expanded = await expand_query_fn.ainvoke({"query": query})
+        elif hasattr(expand_query_fn, "invoke"):
+            expanded = expand_query_fn.invoke({"query": query})
+        elif asyncio.iscoroutinefunction(expand_query_fn):
+            expanded = await expand_query_fn(query)
+        else:
+            expanded = expand_query_fn(query)
+            
+        if isinstance(expanded, str):
+            expanded_queries = [q.strip() for q in expanded.split('\n') if q.strip()]
+        else:
+            expanded_queries = list(expanded)
     else:
         expanded_queries = [query]
 
     # Ensure original query is always included
     if query not in expanded_queries:
-        expanded_queries = [query] + expanded_queries[:3]
-    else:
-        expanded_queries = expanded_queries[:4]
+        expanded_queries = [query] + expanded_queries
+        
+    expanded_queries = expanded_queries[:4]
 
     # ------------------------------------------------------------
     # 2️⃣ MULTI-QUERY RETRIEVAL
