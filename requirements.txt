@@ -2,7 +2,6 @@ aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aiosignal==1.4.0
 alchemy-sdk==0.1.1
-alembic==1.18.0
 altair==6.0.0
 annotated-types==0.7.0
 anyio==4.12.0
@@ -87,7 +86,6 @@ pydantic==2.12.5
 python-dotenv==1.2.2
 soundfile==0.13.1
 SQLAlchemy==2.0.48
-streamlit==1.45.1
 torch==2.10.0
 torchaudio==2.10.0
 torchcodec==0.10.0
@@ -111,4 +109,4 @@ wheel==0.45.1
 yarl==1.22.0
 zipp==3.23.0
 zstandard==0.25.0
-transformers==4.57.3
+
