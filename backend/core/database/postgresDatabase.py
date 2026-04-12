@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     AsyncSession,
 )
-from core.config_loader import DatabaseConfigLoader
+from backend.core.config_loader import DatabaseConfigLoader
 
 
 class PostgresDatabase:

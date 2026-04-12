@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 
-from core.rag.context import build_context
-from core.rag.llm_config import LLMConfig
-from core.rag.llm_factory import get_embeddings, get_llm
-from core.rag.models import EMBED_MODEL, LLM_MODEL
-from core.rag.prompts import IntentOutput, intent_prompt, rag_prompt, rewrite_prompt
-from core.rag.search import retrieve_by_vector, retrieve_hybrid
+from backend.core.rag.context import build_context
+from backend.core.rag.llm_config import LLMConfig
+from backend.core.rag.llm_factory import get_embeddings, get_llm
+from backend.core.rag.models import EMBED_MODEL, LLM_MODEL
+from backend.core.rag.prompts import IntentOutput, intent_prompt, rag_prompt, rewrite_prompt
+from backend.core.rag.search import retrieve_by_vector, retrieve_hybrid
 
 
 from typing import AsyncGenerator
@@ -22,7 +22,7 @@ async def mind_trace_query(
     project: str,
     llm_config: LLMConfig,
     embed_config: LLMConfig,
-):
+) -> AsyncGenerator[str, None]:
     """Run the full Mind-Trace RAG pipeline for a user query.
 
     Steps
@@ -63,7 +63,10 @@ async def mind_trace_query(
     # 3. Generate
     final_context = build_context(docs)
     print(final_context)
-    return rag_chain.invoke({"context": final_context, "question": query})
+    
+    # Stream the response
+    for chunk in rag_chain.stream({"context": final_context, "question": query}):
+        yield chunk
 
 
 # ---------------------------------------------------------------------------
@@ -87,8 +90,8 @@ if __name__ == "__main__":
 
         print("Streaming response:")
         async for chunk in mind_trace_query(
-            "what is the note written by Test Author? can you also comment on the note?",
-            "Test Project",
+            "how is javascript engine holding on",
+            "Mozilla Issues",
             llm_cfg,
             embed_cfg,
         ):

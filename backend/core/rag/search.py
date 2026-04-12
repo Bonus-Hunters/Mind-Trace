@@ -12,8 +12,8 @@ from typing import Callable, Dict, List
 from langchain_core.documents import Document
 from sqlalchemy import func, select
 
-from core.database.models import Meeting, MeetingChunk, Note
-from core.database.postgresDatabase import PostgresDatabase
+from backend.core.database.models import Meeting, MeetingChunk, Note
+from backend.core.database.postgresDatabase import PostgresDatabase
 
 
 # ---------------------------------------------------------------------------
