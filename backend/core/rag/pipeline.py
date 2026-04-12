@@ -31,26 +31,16 @@ async def mind_trace_query(
     2. Embed & retrieve relevant documents via vector search.
     3. Build a context string and invoke the LLM with the RAG prompt.
     """
-    llm = get_llm(llm_config)
-    embeddings = get_embeddings(embed_config)
 
     # Build chains
-    rewrite_chain = rewrite_prompt | llm | StrOutputParser()
-    rag_chain = rag_prompt | llm | StrOutputParser()
+    # rewrite_chain = rewrite_prompt | llm | StrOutputParser()
 
     # 1. Rewrite
     # rewritten = rewrite_chain.invoke({"query": query})
     # print(rewritten)
 
     # 2. Retrieve
-    embed_query_fn = embeddings.embed_query
-
-    docs = await retrieve_hybrid(
-        query,
-        project,
-        limit=8,
-        embed_query_fn=embed_query_fn,
-    )
+    docs = await search(query,project,embed_config)
     print(" ----- retrieval passed -")
     # docs = await retrieve_by_vector(
     #     query,
@@ -60,6 +50,8 @@ async def mind_trace_query(
     # )
     print(docs)
 
+    rag_chain = rag_prompt | llm | StrOutputParser()
+    llm = get_llm(llm_config)
     # 3. Generate
     final_context = build_context(docs)
     print(final_context)
@@ -68,6 +60,19 @@ async def mind_trace_query(
     for chunk in rag_chain.stream({"context": final_context, "question": query}):
         yield chunk
 
+async def search(query:str,project_name:str,embed_config:LLMConfig,search_notes:bool=True,search_meetings:bool=True):
+    embeddings = get_embeddings(embed_config)
+    embed_query_fn = embeddings.embed_query
+
+    docs = await retrieve_hybrid(
+        query,
+        project_name,
+        limit=8,
+        embed_query_fn=embed_query_fn,
+        search_notes= search_notes,
+        search_meetings= search_meetings
+    )
+    return docs
 
 # ---------------------------------------------------------------------------
 # Quick manual test
