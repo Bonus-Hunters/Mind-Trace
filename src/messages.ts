@@ -335,6 +335,29 @@ function _get_folder_curr_name(): string | null {
   return null;
 }
 
+
+
+// send search query to backend and return results
+async function _send_search_query(panel: vscode.Webview, data: any) {
+  try {
+    const response = await axios.post(`http://127.0.0.1:8000/llms/search`, {
+      query: data?.query ?? "",
+      projectName: _get_folder_curr_name(),
+    });
+    panel.postMessage({
+      command: "search_results",
+      data: response.data.results,
+    });
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error || error.message;
+    panel.postMessage({
+      command: "search_error",
+      data: { error: serverMessage },
+    });
+    vscode.window.showErrorMessage(`Search Error: ${serverMessage}`);
+  }
+}
+
 // send query msg to llm and get response
 async function _send_query_to_llm(panel: vscode.Webview, data: any) {
   try {
@@ -404,6 +427,9 @@ export function handleReceivedMessages(
           return;
         case "close_panel":
           vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
+          return;
+        case "send_search_query":
+          _send_search_query(panel,message.data);
           return;
       }
     },

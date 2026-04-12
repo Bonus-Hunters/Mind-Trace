@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   FileText,
@@ -7,6 +7,7 @@ import {
   Calendar,
   TrendingUp,
 } from "lucide-react";
+import { vscode } from "../utilities/vscodeApi";
 
 interface SearchResult {
   id: string;
@@ -60,15 +61,36 @@ export function SearchPanel() {
   const [selectedResult, setSelectedResult] = useState<SearchResult | null>(
     null,
   );
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = () => {
+    if (!query.trim()) return;
+    
     setIsSearching(true);
-    // Simulate search
-    setTimeout(() => {
-      setResults(mockResults);
-      setIsSearching(false);
-    }, 500);
+    setError(null);
+    vscode.postMessage("send_search_query", {
+      query: query,
+    });
   };
+
+  // Handle messages from extension
+  const handleMessage = (event: any) => {
+    const message = event.data;
+    
+    if (message.command === "search_results") {
+      setResults(message.data || []);
+      setIsSearching(false);
+    } else if (message.command === "search_error") {
+      setError(message.data?.error || "Search failed");
+      setIsSearching(false);
+    }
+  };
+
+  // Setup message listener
+  useEffect(() => {
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   return (
     <div className="h-full flex flex-col bg-[#1e1e1e]">
@@ -86,7 +108,12 @@ export function SearchPanel() {
           />
         </div>
 
-        {/* Search Info */}
+      {/* Search Info */}
+        {error && (
+          <div className="mt-2 text-xs text-red-400 font-mono">
+            Error: {error}
+          </div>
+        )}
         {results.length > 0 && (
           <div className="mt-2 text-xs text-[#6a6a6a] font-mono">
             {results.length} results
@@ -96,11 +123,19 @@ export function SearchPanel() {
 
       {/* Results List */}
       <div className="flex-1 overflow-auto">
-        {results.length === 0 && !isSearching && (
+        {results.length === 0 && !isSearching && !error && (
           <div className="flex items-center justify-center h-full text-[#6a6a6a] px-4">
             <div className="text-center">
               <Search className="w-10 h-10 mx-auto mb-2 opacity-30" />
               <p className="text-xs">Enter a query to search</p>
+            </div>
+          </div>
+        )}
+
+        {error && !isSearching && (
+          <div className="flex items-center justify-center h-full text-red-400 px-4">
+            <div className="text-center">
+              <p className="text-xs">{error}</p>
             </div>
           </div>
         )}
