@@ -343,15 +343,16 @@ async def retrieve_hybrid(
     limit: int,
     embed_query_fn: Callable[[str], List[float]],
     *,
-    vector_weight: float = 0.85,
-    keyword_weight: float = 0.15,
+    vector_weight: float = 0.6,
+    keyword_weight: float = 0.4,
+    min_similarity: float = 0.3,
+    min_fused_score: float = 0.0,
     rrf_k: int = 60,
 ) -> List[Document]:
     """Hybrid search combining vector similarity and keyword full-text search.
 
-    Both retrieval methods fetch up to *limit* candidates each; the two lists
-    are then merged using weighted Reciprocal Rank Fusion before returning the top
-    *limit* documents.
+    Both retrieval methods fetch candidates; the two lists are then merged using
+    weighted Reciprocal Rank Fusion before returning the top *limit* documents.
 
     Parameters
     ----------
@@ -364,15 +365,24 @@ async def retrieve_hybrid(
     embed_query_fn:
         A callable that maps a query string to its embedding vector.
     vector_weight:
-        Weight for dense/vector search results (default 1.0). Higher values
+        Weight for dense/vector search results (default 0.6). Higher values
         prioritize semantic similarity.
     keyword_weight:
-        Weight for keyword/full-text search results (default 1.0). Higher values
+        Weight for keyword/full-text search results (default 0.4). Higher values
         prioritize exact term matches.
+    min_similarity:
+        Minimum similarity threshold for vector search results (default 0.3).
+        Filters out vector search hits below this score. Range: 0.0-1.0.
+    min_fused_score:
+        Minimum fused RRF score to include in results (default 0.0).
+        Raises quality floor but may reduce recall. Typical range: 0.0-0.01.
     rrf_k:
-        Smoothing constant for RRF (default 60).
+        Smoothing constant for RRF (default 60). Lower values (20-40) emphasize
+        top ranks; higher values (80-100) treat ranks more equally.
     """
-    vector_docs = await retrieve_by_vector(query, project_name, limit, embed_query_fn)
+    vector_docs = await retrieve_by_vector(
+        query, project_name, limit, embed_query_fn, min_similarity=min_similarity
+    )
 
     keyword_docs = await retrieve_by_keyword(query, project_name, limit)
 
@@ -381,5 +391,9 @@ async def retrieve_hybrid(
         weights=[vector_weight, keyword_weight],
         k=rrf_k,
     )
+
+    # Filter by minimum fused score if threshold is set
+    if min_fused_score > 0.0:
+        fused = [doc for doc in fused if doc.metadata["score"] >= min_fused_score]
 
     return fused[:limit]
