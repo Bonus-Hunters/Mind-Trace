@@ -260,21 +260,26 @@ async def retrieve_by_keyword(
 
 def _reciprocal_rank_fusion(
     result_lists: List[List[Document]],
+    weights: List[float] | None = None,
     k: int = 60,
 ) -> List[Document]:
-    """Fuse multiple ranked document lists using RRF.
+    """Fuse multiple ranked document lists using weighted RRF.
 
     For each document *d* that appears in any list, compute::
 
-        rrf_score(d) = Σ  1 / (k + rank_i(d))
+        rrf_score(d) = Σ  weight_i / (k + rank_i(d))
 
     where *rank_i(d)* is the 1-based rank of *d* in list *i* (skipped when
-    *d* is absent from a list).
+    *d* is absent from a list), and *weight_i* is the weight for list *i*.
 
     Parameters
     ----------
     result_lists:
         Two or more ranked lists of ``Document`` objects.
+    weights:
+        Optional list of weights for each result list. If None, defaults to
+        equal weights (1.0 for each list). Must have the same length as
+        result_lists. Weights are normalized to sum to 1.0.
     k:
         Smoothing constant (default 60 as per the original RRF paper).
 
@@ -282,13 +287,20 @@ def _reciprocal_rank_fusion(
     -------
     A single list sorted by descending RRF score.
     """
+    if weights is None:
+        weights = [1.0] * len(result_lists)
+    
+    # Normalize weights to sum to 1.0
+    total_weight = sum(weights)
+    weights = [w / total_weight for w in weights]
+    
     rrf_scores: Dict[str, float] = {}
     doc_map: Dict[str, Document] = {}
 
-    for results in result_lists:
+    for results, weight in zip(result_lists, weights):
         for rank, doc in enumerate(results, start=1):
             key = _unique_key(doc)
-            rrf_scores[key] = rrf_scores.get(key, 0.0) + 1.0 / (k + rank)
+            rrf_scores[key] = rrf_scores.get(key, 0.0) + weight / (k + rank)
             doc_map[key] = doc  # keep the latest copy
 
     # Attach the fused score to the document metadata
@@ -304,12 +316,14 @@ async def retrieve_hybrid(
     limit: int,
     embed_query_fn: Callable[[str], List[float]],
     *,
+    vector_weight: float = 0.85,
+    keyword_weight: float = 0.15,
     rrf_k: int = 60,
 ) -> List[Document]:
     """Hybrid search combining vector similarity and keyword full-text search.
 
     Both retrieval methods fetch up to *limit* candidates each; the two lists
-    are then merged using Reciprocal Rank Fusion before returning the top
+    are then merged using weighted Reciprocal Rank Fusion before returning the top
     *limit* documents.
 
     Parameters
@@ -322,6 +336,12 @@ async def retrieve_hybrid(
         Maximum number of documents to return.
     embed_query_fn:
         A callable that maps a query string to its embedding vector.
+    vector_weight:
+        Weight for dense/vector search results (default 1.0). Higher values
+        prioritize semantic similarity.
+    keyword_weight:
+        Weight for keyword/full-text search results (default 1.0). Higher values
+        prioritize exact term matches.
     rrf_k:
         Smoothing constant for RRF (default 60).
     """
@@ -329,6 +349,10 @@ async def retrieve_hybrid(
 
     keyword_docs = await retrieve_by_keyword(query, project_name, limit)
 
-    fused = _reciprocal_rank_fusion([vector_docs, keyword_docs], k=rrf_k)
+    fused = _reciprocal_rank_fusion(
+        [vector_docs, keyword_docs],
+        weights=[vector_weight, keyword_weight],
+        k=rrf_k,
+    )
 
     return fused[:limit]
