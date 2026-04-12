@@ -146,21 +146,26 @@ async def retrieve_by_keyword(
     project_name: str,
     limit: int,
 ) -> List[Document]:
-    """Retrieve documents using PostgreSQL full-text search (``ts_rank``).
+    """Retrieve documents using PostgreSQL full-text search with fuzzy matching fallback.
 
-    Uses ``plainto_tsquery`` so the caller can pass natural-language queries
-    without worrying about special tsquery syntax.
+    Uses ``ts_rank_cd`` (cover density ranking) for better score normalization, plus
+    fuzzy trigram matching as a fallback to catch partial/similar matches.
     """
     db = PostgresDatabase()
     session_maker = db.get_session_maker()
 
     ts_query = func.plainto_tsquery("english", query)
+    
+    # Fetch more candidates for better fusion in hybrid search
+    fetch_limit = limit * 2
 
     async with session_maker() as session:
-        # -- Meeting chunks --------------------------------------------------
-        chunk_rank = func.ts_rank(
+        # -- Meeting chunks: Full-text search with cover density ranking ----
+        # ts_rank_cd provides normalized scores (0-1 range) better than raw ts_rank
+        chunk_rank = func.ts_rank_cd(
             func.to_tsvector("english", MeetingChunk.raw_text),
             ts_query,
+            32,  # weights: D=0.1, C=0.2, B=0.4, A=0.8
         ).label("rank")
 
         chunk_stmt = (
@@ -171,14 +176,15 @@ async def retrieve_by_keyword(
                 func.to_tsvector("english", MeetingChunk.raw_text).op("@@")(ts_query)
             )
             .order_by(chunk_rank.desc())
-            .limit(limit)
+            .limit(fetch_limit)
         )
         chunk_rows = (await session.execute(chunk_stmt)).all()
 
-        # -- Notes ------------------------------------------------------------
-        note_rank = func.ts_rank(
+        # -- Notes: Full-text search with cover density ranking ----
+        note_rank = func.ts_rank_cd(
             func.to_tsvector("english", Note.note_text),
             ts_query,
+            32,
         ).label("rank")
 
         note_stmt = (
@@ -186,18 +192,63 @@ async def retrieve_by_keyword(
             .where(Note.project_name == project_name)
             .where(func.to_tsvector("english", Note.note_text).op("@@")(ts_query))
             .order_by(note_rank.desc())
-            .limit(limit)
+            .limit(fetch_limit)
         )
         note_rows = (await session.execute(note_stmt)).all()
 
+        # -- Fallback: Fuzzy/trigram matching for documents missed by full-text ----
+        # Use similarity scores as supplementary retrieval
+        chunk_fuzzy_stmt = (
+            select(
+                MeetingChunk,
+                Meeting,
+                (func.similarity(MeetingChunk.raw_text, query) * 0.5).label("fuzzy_score"),
+            )
+            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+            .where(Meeting.project_name == project_name)
+            .where(func.similarity(MeetingChunk.raw_text, query) > 0.1)  # threshold
+            .order_by(func.similarity(MeetingChunk.raw_text, query).desc())
+            .limit(fetch_limit)
+        )
+        chunk_fuzzy_rows = (await session.execute(chunk_fuzzy_stmt)).all()
+
+        note_fuzzy_stmt = (
+            select(
+                Note,
+                (func.similarity(Note.note_text, query) * 0.5).label("fuzzy_score"),
+            )
+            .where(Note.project_name == project_name)
+            .where(func.similarity(Note.note_text, query) > 0.1)
+            .order_by(func.similarity(Note.note_text, query).desc())
+            .limit(fetch_limit)
+        )
+        note_fuzzy_rows = (await session.execute(note_fuzzy_stmt)).all()
+
     docs: List[Document] = []
 
+    # Add full-text ranked results
     for chunk, meeting, rank in chunk_rows:
-        docs.append(_chunk_to_document(chunk, meeting, project_name, score=float(rank)))
+        docs.append(
+            _chunk_to_document(chunk, meeting, project_name, score=float(rank))
+        )
 
     for note, rank in note_rows:
         docs.append(_note_to_document(note, project_name, score=float(rank)))
 
+    # Add fuzzy matches (with lower scores, scaled to 0-1)
+    for chunk, meeting, fuzzy_score in chunk_fuzzy_rows:
+        # Avoid duplicates
+        if not any(d.metadata["meeting_id"] == meeting.id for d in docs):
+            docs.append(
+                _chunk_to_document(chunk, meeting, project_name, score=float(fuzzy_score))
+            )
+
+    for note, fuzzy_score in note_fuzzy_rows:
+        # Avoid duplicates
+        if not any(d.metadata.get("id") == note.id for d in docs):
+            docs.append(_note_to_document(note, project_name, score=float(fuzzy_score)))
+
+    # Sort by score and return top limit
     docs.sort(key=lambda d: d.metadata["score"], reverse=True)
     return docs[:limit]
 
