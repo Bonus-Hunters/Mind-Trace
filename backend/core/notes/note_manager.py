@@ -29,14 +29,8 @@ class DatabaseNoteManager:
         try:
             embeddings = OllamaEmbeddings(model=EMBED_MODEL)
             # Build enriched text for embedding only (store raw separately)
-            enriched_text = f"""
-            Project: {note_data.project_name}
-            Type: {note_data.type}
-            Tags: {', '.join(note_data.tags or [])}
-            Author: {author}
-            Content: {note_data.note_text}
-            """.strip()
-            embedding = embeddings.embed_query(enriched_text)
+            text = note_data.note_text
+            embedding = embeddings.embed_query(text)
 
             new_note = note_data.model_dump()
             new_note["embedding"] = embedding
@@ -46,7 +40,7 @@ class DatabaseNoteManager:
             note_id = await self.note_repo.create(Note(**new_note))
 
             if note_id:
-                await self._sync_to_rag(note_id, enriched_text, "add")
+                await self._sync_to_rag(note_id, text, "add")
                 print(f"Note Added (ID: {note_id})")
                 return note_id
             else:
