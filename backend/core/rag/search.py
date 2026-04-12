@@ -84,15 +84,34 @@ async def retrieve_by_vector(
     project_name: str,
     limit: int,
     embed_query_fn: Callable[[str], List[float]],
+    *,
+    min_similarity: float = 0.3,
 ) -> List[Document]:
     """Retrieve documents using pgvector cosine-similarity search.
 
     This searches both ``meeting_chunks`` and ``notes`` tables, merges the
     results, and returns the top-*limit* documents sorted by similarity.
+    
+    Parameters
+    ----------
+    query:
+        The user's natural-language query.
+    project_name:
+        Filter results to this project.
+    limit:
+        Maximum number of documents to return.
+    embed_query_fn:
+        A callable that maps a query string to its embedding vector.
+    min_similarity:
+        Minimum similarity score (0-1) to include in results. Default 0.3.
+        Lower values = more results but potentially lower quality.
     """
     db = PostgresDatabase()
     session_maker = db.get_session_maker()
     query_embedding = embed_query_fn(query)
+
+    # Fetch more candidates for better fusion with keyword search
+    fetch_limit = limit * 3
 
     async with session_maker() as session:
         # -- Meeting chunks --------------------------------------------------
@@ -107,7 +126,7 @@ async def retrieve_by_vector(
             .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
             .where(Meeting.project_name == project_name)
             .order_by("distance")
-            .limit(limit)
+            .limit(fetch_limit)
         )
         chunk_rows = (await session.execute(chunk_stmt)).all()
 
@@ -119,19 +138,27 @@ async def retrieve_by_vector(
             )
             .where(Note.project_name == project_name)
             .order_by("distance")
-            .limit(limit)
+            .limit(fetch_limit)
         )
         note_rows = (await session.execute(note_stmt)).all()
 
     docs: List[Document] = []
 
+    # Process meeting chunks with similarity threshold
     for chunk, meeting, distance in chunk_rows:
-        docs.append(
-            _chunk_to_document(chunk, meeting, project_name, score=1 - distance)
-        )
+        similarity = 1 - distance
+        if similarity >= min_similarity:
+            docs.append(
+                _chunk_to_document(chunk, meeting, project_name, score=similarity)
+            )
+    
+    # Process notes with similarity threshold
     for note, distance in note_rows:
-        docs.append(_note_to_document(note, project_name, score=1 - distance))
+        similarity = 1 - distance
+        if similarity >= min_similarity:
+            docs.append(_note_to_document(note, project_name, score=similarity))
 
+    # Sort by score and return top limit
     docs.sort(key=lambda d: d.metadata["score"], reverse=True)
     return docs[:limit]
 
