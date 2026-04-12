@@ -133,7 +133,7 @@ class TextSummarizer:
         """
         if not self._models_loaded:
             self.load_models()
-
+        self.tokenizer_embed = self.embedder
         # Tokenize input
         inputs = self.tokenizer(
             text, return_tensors="pt", max_length=1024, truncation=True
@@ -213,7 +213,7 @@ class TextSummarizer:
         """
         summary_text = None
         embedding_vector = None
-
+        print(f"----- text for summarization: {raw_text}  ")
         # Generate summary
         if generate_summary:
             summary_text = self.summarize_text(raw_text)
