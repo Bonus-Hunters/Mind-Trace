@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 
-from backend.core.rag.context import build_context
-from backend.core.rag.llm_config import LLMConfig
-from backend.core.rag.llm_factory import get_embeddings, get_llm
-from backend.core.rag.models import EMBED_MODEL, LLM_MODEL
-from backend.core.rag.prompts import IntentOutput, intent_prompt, rag_prompt, rewrite_prompt
-from backend.core.rag.search import retrieve_by_vector, retrieve_hybrid
+from core.rag.context import build_context
+from core.rag.llm_config import LLMConfig
+from core.rag.llm_factory import get_embeddings, get_llm
+from core.rag.models import EMBED_MODEL, LLM_MODEL
+from core.rag.prompts import IntentOutput, intent_prompt, rag_prompt, rewrite_prompt
+from core.rag.search import retrieve_by_vector, retrieve_hybrid
 
 
 from typing import AsyncGenerator

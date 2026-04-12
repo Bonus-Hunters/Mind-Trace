@@ -3,7 +3,7 @@ from langchain_ollama import OllamaLLM, OllamaEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
-from backend.core.rag.llm_config import LLMConfig
+from core.rag.llm_config import LLMConfig
 
 
 def get_llm(config: LLMConfig):

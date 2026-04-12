@@ -13,7 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
-from backend.utils.constants import EMBEDDING_SIZE
+from utils.constants import EMBEDDING_SIZE
 from sqlalchemy.dialects.postgresql import JSONB
 
 
