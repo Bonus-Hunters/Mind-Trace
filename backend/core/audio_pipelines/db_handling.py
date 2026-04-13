@@ -20,7 +20,12 @@ def get_language_code(language: str) -> str:
 
 # can add meta data later if needed, for now it is set to None
 async def process_meeting_audio(
-    file_path: str, language: str, project_name: str, title: str, date: str
+    file_path: str,
+    language: str,
+    project_name: str,
+    title: str,
+    date: str,
+    company_id: int,
 ):
     # process meeting audio
     meetingPipeline = MeetingPipeline(
@@ -40,6 +45,7 @@ async def process_meeting_audio(
                 "duration_sec": results.get("duration"),
                 "project_name": project_name,
                 "meta": None,
+                "company_id": company_id,
             }
         )
     except Exception as e:
