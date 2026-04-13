@@ -59,7 +59,6 @@ async def send_query(request: QueryRequest):
             model=EMBED_MODEL,
         )
 
-        response_chunks = []
         full_response = await mind_trace_query(
             request.query,
             request.projectName,
@@ -97,7 +96,7 @@ async def search(request: QueryRequest):
         for idx, doc in enumerate(docs):
             metadata = doc.metadata or {}
             source = metadata.get("source", "unknown")
-            
+
             # Determine result type and title
             if source == "meeting":
                 result_type = "meeting"
@@ -105,24 +104,23 @@ async def search(request: QueryRequest):
             else:  # note
                 result_type = "feature"
                 title = metadata.get("title", "Note")
-            
+
             # Extract relevant fields
             file_path = metadata.get("file_name")
             tags = metadata.get("tags", [])
             if isinstance(tags, str):
                 tags = [t.strip() for t in tags.split(",")]
-            
+
             similarity_score = metadata.get("score", 0.0)
             if isinstance(similarity_score, str):
                 try:
                     similarity_score = float(similarity_score)
                 except (ValueError, TypeError):
                     similarity_score = 0.8
-            
+
             # Normalize similarity to 0-1git range
             similarity_score = max(0.0, min(1.0, similarity_score / 1.0))
-            
-            
+
             # Get timestamp
             timestamp_str = metadata.get("date")
             if timestamp_str:
@@ -132,7 +130,7 @@ async def search(request: QueryRequest):
                     timestamp = datetime.now().isoformat()
             else:
                 timestamp = datetime.now().isoformat()
-            
+
             result = SearchResultItem(
                 id=f"result-{idx}",
                 title=title,

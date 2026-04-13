@@ -159,32 +159,18 @@ class TextSummarizer:
 
     def generate_embedding(self, text: str) -> Any:
         """
-        Generate semantic embedding for the given text.
+        Generate semantic embedding for the given text using Ollama.
 
         Args:
             text: Input text
 
         Returns:
-            Numpy array of embeddings
+            List[float]: Embedding vector
         """
         if not self._models_loaded:
             self.load_models()
 
-        inputs = self.tokenizer_embed(
-            text, return_tensors="pt", truncation=True, padding=True
-        )
-
-        # Move to device
-        if self.device == "cuda":
-            inputs = {k: v.cuda() for k, v in inputs.items()}
-
-        with torch.no_grad():
-            outputs = self.embedder(**inputs)
-
-        # Mean pooling over token embeddings
-        embedding_vector = outputs.last_hidden_state.mean(dim=1)[0].cpu().numpy()
-
-        return embedding_vector
+        return self.embedder.embed_query(text)
 
     def finalize_chunk(
         self,
