@@ -75,14 +75,14 @@ async def process_meeting(data: dict = Body(...)):
     domain = authentication.get_email_domain(data["email"])
     db = PostgresDatabase()
     CompanyRepo = CompanyRepository(db.get_session_maker())
-    company_id = await CompanyRepo.get_by_domain(domain)
+    company = await CompanyRepo.get_by_domain(domain)
     valid_process = await db_handling.process_meeting_audio(
         file_path=str(TEMP_PATH / data["filename"]),
         language=data["language"],
         project_name=data["projectName"],
         title=data["title"],
         date=data["date"],
-        company_id=company_id,
+        company_id=company.id,
     )
     del db
     del CompanyRepo

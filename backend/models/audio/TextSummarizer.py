@@ -199,7 +199,6 @@ class TextSummarizer:
         """
         summary_text = None
         embedding_vector = None
-        print(f"----- text for summarization: {raw_text}  ")
         # Generate summary
         if generate_summary:
             summary_text = self.summarize_text(raw_text)

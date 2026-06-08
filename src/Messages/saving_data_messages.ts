@@ -46,8 +46,14 @@ export async function closeAddNoteModal(panel: vscode.Webview, data?: any) {
   }
 }
 
-export async function process_meeting(panel: vscode.Webview, data?: any) {
+export async function process_meeting(
+  panel: vscode.Webview,
+  context: vscode.ExtensionContext,
+  data?: any,
+) {
   try {
+    const userEmail = context.globalState.get<string>("userEmail");
+
     const meeting_data = {
       filename: data.audioFile.filename,
       tags: data.tags,
@@ -55,6 +61,7 @@ export async function process_meeting(panel: vscode.Webview, data?: any) {
       language: data.language,
       date: data.meetingDate,
       projectName: data.projectName,
+      email: userEmail,
     };
     const response = await axios.post(
       `http://127.0.0.1:8000/process_meeting`,

@@ -65,7 +65,7 @@ export function SearchPanel() {
 
   const handleSearch = () => {
     if (!query.trim()) return;
-    
+
     setIsSearching(true);
     setError(null);
     vscode.postMessage("send_search_query", {
@@ -76,7 +76,7 @@ export function SearchPanel() {
   // Handle messages from extension
   const handleMessage = (event: any) => {
     const message = event.data;
-    
+
     if (message.command === "search_results") {
       setResults(message.data || []);
       setIsSearching(false);
@@ -108,7 +108,7 @@ export function SearchPanel() {
           />
         </div>
 
-      {/* Search Info */}
+        {/* Search Info */}
         {error && (
           <div className="mt-2 text-xs text-red-400 font-mono">
             Error: {error}

@@ -24,3 +24,4 @@ services:
     command: >
       postgres
       -c max_connections=1024
+  

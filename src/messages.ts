@@ -11,7 +11,7 @@ import {
   _sendOTP,
   valid_user,
   _verifyOTP,
-} from "./Messages/authintication_messages";
+} from "./Messages/authentication_messages.ts";
 import {
   closeAddNoteModal,
   handleFileSelection,
@@ -54,7 +54,7 @@ export function handleReceivedMessages(
               save_note(panel, context, message.data);
               return;
             case "meeting":
-              process_meeting(panel, message.data);
+              process_meeting(panel, context, message.data);
               return;
           }
           return;
