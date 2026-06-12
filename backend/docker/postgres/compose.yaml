@@ -5,7 +5,7 @@ volumes:
 services:
   postgres:
     image: pgvector/pgvector:pg18
-    env_file:
+    env_file:  
       - ./postgres.env
     volumes:
       - postgres_data:/var/lib/postgresql

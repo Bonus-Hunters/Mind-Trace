@@ -1,15 +1,9 @@
-import os
-from pathlib import Path
 from datetime import datetime
+
 from core.rag.models import EMBED_MODEL, LLM_MODEL
-from fastapi import APIRouter, Header
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from core.audio_pipelines import db_handling
-from core.database.tables_data import NoteCreate
-from core.notes.note_manager import DatabaseNoteManager
-from core.database.authentication import get_current_author
-from utils.enums import NoteType
 
 router = APIRouter()
 
@@ -34,10 +28,45 @@ class SearchResultItem(BaseModel):
 async def get_llms():
     import ollama
 
+    print("---   fetching local ollama llms ---")
     try:
-
         response = ollama.list()
-        model_names = [model["name"] for model in response["models"]]
+        raw_models = getattr(response, "models", None)
+        if raw_models is None and isinstance(response, dict):
+            raw_models = response.get("models", [])
+        raw_models = raw_models or []
+
+        model_names: list[str] = []
+        for model in raw_models:
+            name = (
+                getattr(model, "model", None)
+                or getattr(model, "name", None)
+                or (model.get("model") if isinstance(model, dict) else None)
+                or (model.get("name") if isinstance(model, dict) else None)
+            )
+            if not name:
+                continue
+
+            is_llm = True
+            try:
+                info = ollama.show(name)
+                capabilities = (
+                    getattr(info, "capabilities", None)
+                    or (info.get("capabilities") if isinstance(info, dict) else None)
+                    or []
+                )
+                capabilities = [str(c).lower() for c in capabilities]
+                if capabilities:
+                    is_llm = "completion" in capabilities or "chat" in capabilities
+                else:
+                    is_llm = "embed" not in name.lower()
+            except Exception:
+                is_llm = "embed" not in name.lower()
+
+            if is_llm:
+                model_names.append(name)
+
+        print(f"---   local ollama llms: {model_names}")
         return model_names
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
@@ -45,8 +74,8 @@ async def get_llms():
 
 @router.post("/send_query")
 async def send_query(request: QueryRequest):
-    from core.rag.pipeline import mind_trace_query
     from core.rag.llm_config import LLMConfig
+    from core.rag.pipeline import mind_trace_query
 
     try:
         llm_cfg = LLMConfig(
@@ -75,8 +104,8 @@ async def send_query(request: QueryRequest):
 @router.post("/search")
 async def search(request: QueryRequest):
     """Search for notes and meetings using RAG pipeline."""
-    from core.rag.pipeline import search
     from core.rag.llm_config import LLMConfig
+    from core.rag.pipeline import search
 
     try:
         embed_cfg = LLMConfig(

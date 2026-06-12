@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import {
   Search,
   FileText,
@@ -6,6 +6,7 @@ import {
   Tag,
   Calendar,
   TrendingUp,
+  X,
 } from "lucide-react";
 import { vscode } from "../utilities/vscodeApi";
 
@@ -54,7 +55,7 @@ const mockResults: SearchResult[] = [
   },
 ];
 
-export function SearchPanel() {
+export const SearchPanel = memo(function SearchPanel() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -71,6 +72,14 @@ export function SearchPanel() {
     vscode.postMessage("send_search_query", {
       query: query,
     });
+  };
+
+  const handleClear = () => {
+    setQuery("");
+    setResults([]);
+    setSelectedResult(null);
+    setError(null);
+    setIsSearching(false);
   };
 
   // Handle messages from extension
@@ -104,8 +113,17 @@ export function SearchPanel() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Search"
-            className="w-full pl-8 pr-2 py-1.5 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
+            className="w-full pl-8 pr-10 py-1.5 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
           />
+
+          {/* Clear button on the right side */}
+          <button
+            onClick={handleClear}
+            aria-label="Clear search"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-[#6a6a6a] hover:text-[#cccccc]"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Search Info */}
@@ -209,7 +227,7 @@ export function SearchPanel() {
       )}
     </div>
   );
-}
+});
 
 function SearchResultCard({
   result,

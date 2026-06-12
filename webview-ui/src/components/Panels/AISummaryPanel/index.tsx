@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { vscode } from "../../../utilities/vscodeApi";
 import type { Message } from "./types";
 import { ChatMessageList } from "./ChatMessageList";
@@ -8,7 +8,7 @@ import { ChatInput } from "./ChatInput";
  * AISummaryPanel — main entry point.
  * Owns all chat state and the VSCode ↔ extension message bridge.
  */
-export function AISummaryPanel() {
+export const AISummaryPanel = memo(function AISummaryPanel() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -82,4 +82,4 @@ export function AISummaryPanel() {
       />
     </div>
   );
-}
+});

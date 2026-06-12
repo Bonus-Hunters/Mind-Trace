@@ -3,15 +3,16 @@ import axios from "axios";
 import { get_folder_curr_name } from "./helpers";
 
 // get ollama local llms
-export async function get_local_LLMs(panel: vscode.Webview, data?: any) {
+export async function get_local_Ollama_LLMs(panel: vscode.Webview, data?: any) {
   try {
     const response = await axios.get(
       `http://127.0.0.1:8000/llms/get_local_llms`,
     );
     panel.postMessage({
-      command: "local_llms",
-      data: {},
+      command: "ollamaModels",
+      data: response.data,
     });
+    console.log("Local LLMs fetched successfully, response: ", response.data);
   } catch (error: any) {
     const serverMessage = error.response?.data?.error || error.message;
     vscode.window.showErrorMessage(

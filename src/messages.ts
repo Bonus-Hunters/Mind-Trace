@@ -3,7 +3,7 @@ import axios from "axios";
 import { get_folder_curr_name } from "./Messages/helpers";
 import {
   change_LLM,
-  get_local_LLMs,
+  get_local_Ollama_LLMs,
   send_query_to_llm,
 } from "./Messages/llm_messages";
 import {
@@ -11,7 +11,7 @@ import {
   _sendOTP,
   valid_user,
   _verifyOTP,
-} from "./Messages/authentication_messages.ts";
+} from "./Messages/authentication_messages";
 import {
   closeAddNoteModal,
   handleFileSelection,
@@ -76,8 +76,8 @@ export function handleReceivedMessages(
         case "resendOTP":
           _resendOTP(panel, message.data);
           return;
-        case "pickLLM":
-          get_local_LLMs(panel, message.data);
+        case "getOllamaModels":
+          get_local_Ollama_LLMs(panel, message.data);
           return;
         case "changeLLM":
           change_LLM(panel, message.data);

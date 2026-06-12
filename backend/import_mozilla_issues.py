@@ -1,21 +1,25 @@
 # run mozilla_core_ds.ipynb first to construct the needed json file
 
-import os, json, asyncio, sys
+import asyncio
+import json
+import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from datetime import datetime
-from utils.constants import EMBEDDING_SIZE
+
 import core.database.tables_data as tables_data
 from core.database.postgresDatabase import PostgresDatabase
 from core.database.repos import (
-    NoteRepository,
     CompanyRepository,
-    ProjectRepository,
     EmployeesRepository,
+    NoteRepository,
+    ProjectRepository,
 )
-from langchain_ollama import OllamaEmbeddings
 from core.rag.models import EMBED_MODEL
+from langchain_ollama import OllamaEmbeddings
+from utils.constants import EMBEDDING_SIZE
 
 
 async def import_data():
