@@ -21,40 +21,6 @@ interface SearchResult {
   timestamp: string;
 }
 
-const mockResults: SearchResult[] = [
-  {
-    id: "1",
-    title: "Authentication Flow Implementation",
-    snippet:
-      "Used JWT tokens with refresh mechanism. The validateToken function checks token expiration, signature validity, and user permissions...",
-    type: "function",
-    filePath: "src/auth/validator.ts",
-    tags: ["auth", "security", "critical"],
-    similarity: 0.94,
-    timestamp: "2025-12-07T10:30:00",
-  },
-  {
-    id: "2",
-    title: "OAuth Integration Notes",
-    snippet:
-      "Implemented OAuth 2.0 flow with PKCE. Supports Google, GitHub, and Microsoft providers. Token validation includes...",
-    type: "feature",
-    tags: ["auth", "oauth", "integration"],
-    similarity: 0.87,
-    timestamp: "2025-12-06T16:45:00",
-  },
-  {
-    id: "3",
-    title: "Security Review Meeting",
-    snippet:
-      "Discussed authentication vulnerabilities and mitigation strategies. Action items include implementing rate limiting and...",
-    type: "meeting",
-    tags: ["security", "meeting", "action-items"],
-    similarity: 0.82,
-    timestamp: "2025-12-05T14:00:00",
-  },
-];
-
 export const SearchPanel = memo(function SearchPanel() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);

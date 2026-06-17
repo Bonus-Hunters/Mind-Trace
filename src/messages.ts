@@ -17,7 +17,13 @@ import {
   handleFileSelection,
   process_meeting,
   save_note,
+  save_quick_note,
 } from "./Messages/saving_data_messages";
+
+// Structural type to avoid a circular import with extension.ts
+interface QuickNoteFlusher {
+  flushPendingQuickNote(): void;
+}
 
 // send search query to backend and return results
 async function _send_search_query(panel: vscode.Webview, data: any) {
@@ -43,6 +49,7 @@ async function _send_search_query(panel: vscode.Webview, data: any) {
 export function handleReceivedMessages(
   panel: vscode.Webview,
   context: vscode.ExtensionContext,
+  provider?: QuickNoteFlusher,
 ) {
   panel.onDidReceiveMessage(
     (message: any) => {
@@ -58,6 +65,9 @@ export function handleReceivedMessages(
               return;
           }
           return;
+        case "saveQuickNote":
+          save_quick_note(panel, context, message.data);
+          return;
         case "selectAudioFile":
           handleFileSelection(panel);
           return;
@@ -66,6 +76,9 @@ export function handleReceivedMessages(
           return;
         case "react_ready":
           valid_user(panel, context);
+          // Cold-start path: deliver any pending "Add Note" context now that
+          // the webview has mounted and is listening for messages.
+          provider?.flushPendingQuickNote();
           return;
         case "sendOTP":
           _sendOTP(panel, message.data);

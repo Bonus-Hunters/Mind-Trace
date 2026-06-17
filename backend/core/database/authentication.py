@@ -1,11 +1,15 @@
-import secrets, smtplib, ssl, bcrypt
+import pprint
+import secrets
+import smtplib
+import ssl
 from email.message import EmailMessage
-from core.database.repos import EmployeesRepository
+
+import bcrypt
 from core.database.postgresDatabase import PostgresDatabase
+from core.database.repos import EmployeesRepository
 
 
 def get_email_domain(email: str) -> str:
-
     if not email or "@" not in email == 0:
         return None
 
@@ -22,7 +26,6 @@ def generate_OTP() -> str:
 
 
 def send_email(sender_email: str, reciever_email: str, sender_password: str) -> bool:
-
     # basic validation
     if not sender_email or "@" not in sender_email:
         return False
@@ -204,7 +207,7 @@ def get_current_author(email: str) -> str:
             return employee
         return False
     except Exception as e:
-        print
+        pprint(f" --- Error: Couldn't retrieve user: {e}")
         return False
     finally:
         del db

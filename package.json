@@ -39,8 +39,21 @@
      {  "command": "Mind-Trace.logout",
         "title": "Logout",
         "category": "Mind Trace"
+      },
+     {  "command": "Mind-Trace.addNote",
+        "title": "Add Note",
+        "category": "Mind Trace"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "Mind-Trace.addNote",
+          "group": "1_modification",
+          "when": "editorHasSelection"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

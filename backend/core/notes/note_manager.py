@@ -1,11 +1,11 @@
-from typing import Optional, List
+from typing import List, Optional
+
+from core.database import tables_data
 from core.database.postgresDatabase import PostgresDatabase
 from core.database.repos import NoteRepository
-from core.database import tables_data
-from langchain_ollama import OllamaEmbeddings
-from core.rag.models import EMBED_MODEL
 from core.database.tables_data import Note, NoteCreate
-from datetime import datetime, timezone
+from core.rag.models import EMBED_MODEL
+from langchain_ollama import OllamaEmbeddings
 
 
 class DatabaseNoteManager:

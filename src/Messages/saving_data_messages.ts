@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import axios from "axios";
+import { get_folder_curr_name } from "./helpers";
 
 export async function handleFileSelection(panel: vscode.Webview) {
   const fileUri = await vscode.window.showOpenDialog({
@@ -105,5 +106,37 @@ export async function save_note(
   } catch (error: any) {
     const serverMessage = error.response?.data?.error || error.message;
     vscode.window.showErrorMessage(`Backend Error: ${serverMessage}`);
+  }
+}
+
+// Save a quick code annotation captured from the editor right-click menu.
+export async function save_quick_note(
+  panel: vscode.Webview,
+  context: vscode.ExtensionContext,
+  data?: any,
+) {
+  const note_data = {
+    note_text: data.noteContent,
+    project_name: get_folder_curr_name(),
+    type: "code-annotation",
+    tags: data.metadata, // comma-separated, optional
+    function: data.functionName,
+    file_name: data.fileName,
+    line_number: data.lineNumber,
+  };
+  try {
+    const email = context.globalState.get<string>("userEmail");
+    await axios.post(`http://127.0.0.1:8000/notes/save_note`, note_data, {
+      headers: { email },
+    });
+    vscode.window.showInformationMessage("Note saved");
+    panel.postMessage({ command: "quickNoteSaved" });
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error || error.message;
+    vscode.window.showErrorMessage(`Backend Error: ${serverMessage}`);
+    panel.postMessage({
+      command: "quickNoteError",
+      data: { error: serverMessage },
+    });
   }
 }
