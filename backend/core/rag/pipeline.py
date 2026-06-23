@@ -107,7 +107,7 @@ if __name__ == "__main__":
             model=EMBED_MODEL,
         )
 
-        docs = search(
+        docs = await search(
             query="What happens to the garbage collection process?",
             project_name="Mozilla Issues",
             embed_config=embed_cfg,

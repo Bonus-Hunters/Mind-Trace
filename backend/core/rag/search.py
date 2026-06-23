@@ -80,6 +80,44 @@ def _unique_key(doc: Document) -> str:
 # ---------------------------------------------------------------------------
 
 
+async def _vector_search_chunks(
+    session_maker, query_embedding: List[float], project_name: str, limit: int
+):
+    """Helper to search meeting chunks with vector similarity."""
+    async with session_maker() as session:
+        chunk_stmt = (
+            select(
+                MeetingChunk,
+                Meeting,
+                MeetingChunk.embedding.cosine_distance(query_embedding).label(
+                    "distance"
+                ),
+            )
+            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+            .where(Meeting.project_name == project_name)
+            .order_by("distance")
+            .limit(limit)
+        )
+        return (await session.execute(chunk_stmt)).all()
+
+
+async def _vector_search_notes(
+    session_maker, query_embedding: List[float], project_name: str, limit: int
+):
+    """Helper to search notes with vector similarity."""
+    async with session_maker() as session:
+        note_stmt = (
+            select(
+                Note,
+                Note.embedding.cosine_distance(query_embedding).label("distance"),
+            )
+            .where(Note.project_name == project_name)
+            .order_by("distance")
+            .limit(limit)
+        )
+        return (await session.execute(note_stmt)).all()
+
+
 async def retrieve_by_vector(
     query: str,
     project_name: str,
@@ -116,50 +154,17 @@ async def retrieve_by_vector(
     # Fetch more candidates for better fusion with keyword search
     fetch_limit = limit * 3
 
-    async with session_maker() as session:
-        # Prepare statements for parallel execution
-        chunk_stmt = None
-        note_stmt = None
+    # Execute both queries in parallel with separate sessions
+    tasks = []
+    if search_meetings:
+        tasks.append(_vector_search_chunks(session_maker, query_embedding, project_name, fetch_limit))
+    if search_notes:
+        tasks.append(_vector_search_notes(session_maker, query_embedding, project_name, fetch_limit))
 
-        # -- Meeting chunks --------------------------------------------------
-        if search_meetings:
-            chunk_stmt = (
-                select(
-                    MeetingChunk,
-                    Meeting,
-                    MeetingChunk.embedding.cosine_distance(query_embedding).label(
-                        "distance"
-                    ),
-                )
-                .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
-                .where(Meeting.project_name == project_name)
-                .order_by("distance")
-                .limit(fetch_limit)
-            )
-
-        # -- Notes ------------------------------------------------------------
-        if search_notes:
-            note_stmt = (
-                select(
-                    Note,
-                    Note.embedding.cosine_distance(query_embedding).label("distance"),
-                )
-                .where(Note.project_name == project_name)
-                .order_by("distance")
-                .limit(fetch_limit)
-            )
-
-        # Execute both queries in parallel
-        tasks = []
-        if chunk_stmt is not None:
-            tasks.append(session.execute(chunk_stmt))
-        if note_stmt is not None:
-            tasks.append(session.execute(note_stmt))
-
-        results = await asyncio.gather(*tasks) if tasks else []
-        
-        chunk_rows = results[0].all() if search_meetings and len(results) > 0 else []
-        note_rows = results[1].all() if search_notes and len(results) > (1 if search_meetings else 0) else []
+    results = await asyncio.gather(*tasks) if tasks else []
+    
+    chunk_rows = results[0] if search_meetings and len(results) > 0 else []
+    note_rows = results[1] if search_notes and len(results) > (1 if search_meetings else 0) else []
 
     docs: List[Document] = []
 
@@ -180,6 +185,94 @@ async def retrieve_by_vector(
     # Sort by score and return top limit
     docs.sort(key=lambda d: d.metadata["score"], reverse=True)
     return docs[:limit]
+
+
+# ---------------------------------------------------------------------------
+# Keyword (full-text) search helpers
+# ---------------------------------------------------------------------------
+
+
+async def _keyword_search_chunks(
+    session_maker, ts_query, project_name: str, limit: int
+):
+    """Helper to search meeting chunks with full-text search."""
+    async with session_maker() as session:
+        chunk_rank = func.ts_rank_cd(
+            func.to_tsvector("english", MeetingChunk.raw_text),
+            ts_query,
+            32,  # weights: D=0.1, C=0.2, B=0.4, A=0.8
+        ).label("rank")
+
+        chunk_stmt = (
+            select(MeetingChunk, Meeting, chunk_rank)
+            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+            .where(Meeting.project_name == project_name)
+            .where(
+                func.to_tsvector("english", MeetingChunk.raw_text).op("@@")(ts_query)
+            )
+            .order_by(chunk_rank.desc())
+            .limit(limit)
+        )
+        return (await session.execute(chunk_stmt)).all()
+
+
+async def _keyword_search_notes(
+    session_maker, ts_query, project_name: str, limit: int
+):
+    """Helper to search notes with full-text search."""
+    async with session_maker() as session:
+        note_rank = func.ts_rank_cd(
+            func.to_tsvector("english", Note.note_text),
+            ts_query,
+            32,
+        ).label("rank")
+
+        note_stmt = (
+            select(Note, note_rank)
+            .where(Note.project_name == project_name)
+            .where(func.to_tsvector("english", Note.note_text).op("@@")(ts_query))
+            .order_by(note_rank.desc())
+            .limit(limit)
+        )
+        return (await session.execute(note_stmt)).all()
+
+
+async def _fuzzy_search_chunks(
+    session_maker, query: str, project_name: str, limit: int
+):
+    """Helper to search meeting chunks with fuzzy/trigram matching."""
+    async with session_maker() as session:
+        chunk_fuzzy_stmt = (
+            select(
+                MeetingChunk,
+                Meeting,
+                (func.similarity(MeetingChunk.raw_text, query) * 0.5).label("fuzzy_score"),
+            )
+            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+            .where(Meeting.project_name == project_name)
+            .where(func.similarity(MeetingChunk.raw_text, query) > 0.1)  # threshold
+            .order_by(func.similarity(MeetingChunk.raw_text, query).desc())
+            .limit(limit)
+        )
+        return (await session.execute(chunk_fuzzy_stmt)).all()
+
+
+async def _fuzzy_search_notes(
+    session_maker, query: str, project_name: str, limit: int
+):
+    """Helper to search notes with fuzzy/trigram matching."""
+    async with session_maker() as session:
+        note_fuzzy_stmt = (
+            select(
+                Note,
+                (func.similarity(Note.note_text, query) * 0.5).label("fuzzy_score"),
+            )
+            .where(Note.project_name == project_name)
+            .where(func.similarity(Note.note_text, query) > 0.1)
+            .order_by(func.similarity(Note.note_text, query).desc())
+            .limit(limit)
+        )
+        return (await session.execute(note_fuzzy_stmt)).all()
 
 
 # ---------------------------------------------------------------------------
@@ -207,109 +300,36 @@ async def retrieve_by_keyword(
     # Fetch more candidates for better fusion in hybrid search
     fetch_limit = limit * 2
 
-    async with session_maker() as session:
-        chunk_rows = []
-        note_rows = []
-        chunk_fuzzy_rows = []
-        note_fuzzy_rows = []
+    # Execute full-text search queries in parallel with separate sessions
+    ft_tasks = []
+    if search_meetings:
+        ft_tasks.append(_keyword_search_chunks(session_maker, ts_query, project_name, fetch_limit))
+    if search_notes:
+        ft_tasks.append(_keyword_search_notes(session_maker, ts_query, project_name, fetch_limit))
 
-        # Prepare full-text search statements
-        chunk_stmt = None
-        note_stmt = None
+    ft_results = await asyncio.gather(*ft_tasks) if ft_tasks else []
+    chunk_rows = ft_results[0] if search_meetings and len(ft_results) > 0 else []
+    note_rows = ft_results[1] if search_notes and len(ft_results) > (1 if search_meetings else 0) else []
 
-        # -- Meeting chunks: Full-text search with cover density ranking ----
-        if search_meetings:
-            # ts_rank_cd provides normalized scores (0-1 range) better than raw ts_rank
-            chunk_rank = func.ts_rank_cd(
-                func.to_tsvector("english", MeetingChunk.raw_text),
-                ts_query,
-                32,  # weights: D=0.1, C=0.2, B=0.4, A=0.8
-            ).label("rank")
+    # -- Fallback: Fuzzy/trigram matching only if full-text found few results ----
+    # Gate fuzzy search to avoid expensive table scans when we have good results
+    fuzzy_threshold = max(fetch_limit // 4, 3)  # Only run fuzzy if fewer than 25% of desired results
+    total_ft_results = len(chunk_rows) + len(note_rows)
+    
+    chunk_fuzzy_rows = []
+    note_fuzzy_rows = []
 
-            chunk_stmt = (
-                select(MeetingChunk, Meeting, chunk_rank)
-                .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
-                .where(Meeting.project_name == project_name)
-                .where(
-                    func.to_tsvector("english", MeetingChunk.raw_text).op("@@")(ts_query)
-                )
-                .order_by(chunk_rank.desc())
-                .limit(fetch_limit)
-            )
+    if total_ft_results < fuzzy_threshold:
+        # Execute fuzzy search queries in parallel with separate sessions
+        fuzzy_tasks = []
+        if search_meetings and total_ft_results < fuzzy_threshold:
+            fuzzy_tasks.append(_fuzzy_search_chunks(session_maker, query, project_name, fetch_limit))
+        if search_notes and total_ft_results < fuzzy_threshold:
+            fuzzy_tasks.append(_fuzzy_search_notes(session_maker, query, project_name, fetch_limit))
 
-        # -- Notes: Full-text search with cover density ranking ----
-        if search_notes:
-            note_rank = func.ts_rank_cd(
-                func.to_tsvector("english", Note.note_text),
-                ts_query,
-                32,
-            ).label("rank")
-
-            note_stmt = (
-                select(Note, note_rank)
-                .where(Note.project_name == project_name)
-                .where(func.to_tsvector("english", Note.note_text).op("@@")(ts_query))
-                .order_by(note_rank.desc())
-                .limit(fetch_limit)
-            )
-
-        # Execute full-text search queries in parallel
-        tasks = []
-        if chunk_stmt is not None:
-            tasks.append(session.execute(chunk_stmt))
-        if note_stmt is not None:
-            tasks.append(session.execute(note_stmt))
-
-        ft_results = await asyncio.gather(*tasks) if tasks else []
-        chunk_rows = ft_results[0].all() if search_meetings and len(ft_results) > 0 else []
-        note_rows = ft_results[1].all() if search_notes and len(ft_results) > (1 if search_meetings else 0) else []
-
-        # -- Fallback: Fuzzy/trigram matching only if full-text found few results ----
-        # Gate fuzzy search to avoid expensive table scans when we have good results
-        fuzzy_threshold = max(fetch_limit // 4, 3)  # Only run fuzzy if fewer than 25% of desired results
-        total_ft_results = len(chunk_rows) + len(note_rows)
-
-        if total_ft_results < fuzzy_threshold:
-            # Prepare fuzzy search statements for parallel execution
-            chunk_fuzzy_stmt = None
-            note_fuzzy_stmt = None
-
-            if search_meetings and total_ft_results < fuzzy_threshold:
-                chunk_fuzzy_stmt = (
-                    select(
-                        MeetingChunk,
-                        Meeting,
-                        (func.similarity(MeetingChunk.raw_text, query) * 0.5).label("fuzzy_score"),
-                    )
-                    .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
-                    .where(Meeting.project_name == project_name)
-                    .where(func.similarity(MeetingChunk.raw_text, query) > 0.1)  # threshold
-                    .order_by(func.similarity(MeetingChunk.raw_text, query).desc())
-                    .limit(fetch_limit)
-                )
-
-            if search_notes and total_ft_results < fuzzy_threshold:
-                note_fuzzy_stmt = (
-                    select(
-                        Note,
-                        (func.similarity(Note.note_text, query) * 0.5).label("fuzzy_score"),
-                    )
-                    .where(Note.project_name == project_name)
-                    .where(func.similarity(Note.note_text, query) > 0.1)
-                    .order_by(func.similarity(Note.note_text, query).desc())
-                    .limit(fetch_limit)
-                )
-
-            # Execute fuzzy search queries in parallel
-            fuzzy_tasks = []
-            if chunk_fuzzy_stmt is not None:
-                fuzzy_tasks.append(session.execute(chunk_fuzzy_stmt))
-            if note_fuzzy_stmt is not None:
-                fuzzy_tasks.append(session.execute(note_fuzzy_stmt))
-
-            fuzzy_results = await asyncio.gather(*fuzzy_tasks) if fuzzy_tasks else []
-            chunk_fuzzy_rows = fuzzy_results[0].all() if search_meetings and total_ft_results < fuzzy_threshold and len(fuzzy_results) > 0 else []
-            note_fuzzy_rows = fuzzy_results[1].all() if search_notes and total_ft_results < fuzzy_threshold and len(fuzzy_results) > (1 if search_meetings else 0) else []
+        fuzzy_results = await asyncio.gather(*fuzzy_tasks) if fuzzy_tasks else []
+        chunk_fuzzy_rows = fuzzy_results[0] if search_meetings and len(fuzzy_results) > 0 else []
+        note_fuzzy_rows = fuzzy_results[1] if search_notes and len(fuzzy_results) > (1 if search_meetings else 0) else []
 
     docs: List[Document] = []
 
