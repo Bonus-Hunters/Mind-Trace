@@ -3,7 +3,14 @@ import MainScreen from "./components/Views/MainScreen.tsx";
 import LoginScreen from "./components/Views/LoginScreen.tsx";
 import { useState, useEffect } from "react";
 import { OTPVerificationModal } from "./components/OTPVerificationModal.tsx";
+import { QuickNoteModal } from "./components/NoteModal/QuickNoteModal.tsx";
 import { vscode } from "./utilities/vscodeApi.ts";
+
+interface QuickNoteCtx {
+  functionName: string;
+  fileName: string;
+  lineNumber: number;
+}
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -15,6 +22,7 @@ function App() {
     null,
   );
   const [isLoginLoading, setLoginLoading] = useState(false);
+  const [quickNoteCtx, setQuickNoteCtx] = useState<QuickNoteCtx | null>(null);
 
   useEffect(() => {
     // 1. Tell the extension we are ready to receive data
@@ -40,6 +48,9 @@ function App() {
         setOtpVerificationId(null);
       } else if (message.command === "otp-error") {
         console.error("OTP Error:", message.data.error);
+      } else if (message.command === "openQuickNote") {
+        // Triggered by the editor right-click "Add Note" command
+        setQuickNoteCtx(message.data);
       }
     };
     console.log("REACT: isLoggedIn= ", isLoggedIn);
@@ -99,7 +110,19 @@ function App() {
       </>
     );
   }
-  return <MainScreen />;
+  return (
+    <>
+      <MainScreen />
+      {quickNoteCtx && (
+        <QuickNoteModal
+          functionName={quickNoteCtx.functionName}
+          fileName={quickNoteCtx.fileName}
+          lineNumber={quickNoteCtx.lineNumber}
+          onClose={() => setQuickNoteCtx(null)}
+        />
+      )}
+    </>
+  );
 }
 
 export default App;

@@ -86,6 +86,8 @@ async def retrieve_by_vector(
     embed_query_fn: Callable[[str], List[float]],
     *,
     min_similarity: float = 0.3,
+    search_notes: bool = True,
+    search_meetings: bool = True
 ) -> List[Document]:
     """Retrieve documents using pgvector cosine-similarity search.
 
@@ -114,33 +116,38 @@ async def retrieve_by_vector(
     fetch_limit = limit * 3
 
     async with session_maker() as session:
+        chunk_rows = []
+        note_rows = []
+
         # -- Meeting chunks --------------------------------------------------
-        chunk_stmt = (
-            select(
-                MeetingChunk,
-                Meeting,
-                MeetingChunk.embedding.cosine_distance(query_embedding).label(
-                    "distance"
-                ),
+        if search_meetings:
+            chunk_stmt = (
+                select(
+                    MeetingChunk,
+                    Meeting,
+                    MeetingChunk.embedding.cosine_distance(query_embedding).label(
+                        "distance"
+                    ),
+                )
+                .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+                .where(Meeting.project_name == project_name)
+                .order_by("distance")
+                .limit(fetch_limit)
             )
-            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
-            .where(Meeting.project_name == project_name)
-            .order_by("distance")
-            .limit(fetch_limit)
-        )
-        chunk_rows = (await session.execute(chunk_stmt)).all()
+            chunk_rows = (await session.execute(chunk_stmt)).all()
 
         # -- Notes ------------------------------------------------------------
-        note_stmt = (
-            select(
-                Note,
-                Note.embedding.cosine_distance(query_embedding).label("distance"),
+        if search_notes:
+            note_stmt = (
+                select(
+                    Note,
+                    Note.embedding.cosine_distance(query_embedding).label("distance"),
+                )
+                .where(Note.project_name == project_name)
+                .order_by("distance")
+                .limit(fetch_limit)
             )
-            .where(Note.project_name == project_name)
-            .order_by("distance")
-            .limit(fetch_limit)
-        )
-        note_rows = (await session.execute(note_stmt)).all()
+            note_rows = (await session.execute(note_stmt)).all()
 
     docs: List[Document] = []
 
@@ -172,6 +179,8 @@ async def retrieve_by_keyword(
     query: str,
     project_name: str,
     limit: int,
+    search_notes: bool = True,
+    search_meetings: bool = True
 ) -> List[Document]:
     """Retrieve documents using PostgreSQL full-text search with fuzzy matching fallback.
 
@@ -187,69 +196,78 @@ async def retrieve_by_keyword(
     fetch_limit = limit * 2
 
     async with session_maker() as session:
-        # -- Meeting chunks: Full-text search with cover density ranking ----
-        # ts_rank_cd provides normalized scores (0-1 range) better than raw ts_rank
-        chunk_rank = func.ts_rank_cd(
-            func.to_tsvector("english", MeetingChunk.raw_text),
-            ts_query,
-            32,  # weights: D=0.1, C=0.2, B=0.4, A=0.8
-        ).label("rank")
+        chunk_rows = []
+        note_rows = []
+        chunk_fuzzy_rows = []
+        note_fuzzy_rows = []
 
-        chunk_stmt = (
-            select(MeetingChunk, Meeting, chunk_rank)
-            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
-            .where(Meeting.project_name == project_name)
-            .where(
-                func.to_tsvector("english", MeetingChunk.raw_text).op("@@")(ts_query)
+        # -- Meeting chunks: Full-text search with cover density ranking ----
+        if search_meetings:
+            # ts_rank_cd provides normalized scores (0-1 range) better than raw ts_rank
+            chunk_rank = func.ts_rank_cd(
+                func.to_tsvector("english", MeetingChunk.raw_text),
+                ts_query,
+                32,  # weights: D=0.1, C=0.2, B=0.4, A=0.8
+            ).label("rank")
+
+            chunk_stmt = (
+                select(MeetingChunk, Meeting, chunk_rank)
+                .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+                .where(Meeting.project_name == project_name)
+                .where(
+                    func.to_tsvector("english", MeetingChunk.raw_text).op("@@")(ts_query)
+                )
+                .order_by(chunk_rank.desc())
+                .limit(fetch_limit)
             )
-            .order_by(chunk_rank.desc())
-            .limit(fetch_limit)
-        )
-        chunk_rows = (await session.execute(chunk_stmt)).all()
+            chunk_rows = (await session.execute(chunk_stmt)).all()
 
         # -- Notes: Full-text search with cover density ranking ----
-        note_rank = func.ts_rank_cd(
-            func.to_tsvector("english", Note.note_text),
-            ts_query,
-            32,
-        ).label("rank")
+        if search_notes:
+            note_rank = func.ts_rank_cd(
+                func.to_tsvector("english", Note.note_text),
+                ts_query,
+                32,
+            ).label("rank")
 
-        note_stmt = (
-            select(Note, note_rank)
-            .where(Note.project_name == project_name)
-            .where(func.to_tsvector("english", Note.note_text).op("@@")(ts_query))
-            .order_by(note_rank.desc())
-            .limit(fetch_limit)
-        )
-        note_rows = (await session.execute(note_stmt)).all()
+            note_stmt = (
+                select(Note, note_rank)
+                .where(Note.project_name == project_name)
+                .where(func.to_tsvector("english", Note.note_text).op("@@")(ts_query))
+                .order_by(note_rank.desc())
+                .limit(fetch_limit)
+            )
+            note_rows = (await session.execute(note_stmt)).all()
 
         # -- Fallback: Fuzzy/trigram matching for documents missed by full-text ----
         # Use similarity scores as supplementary retrieval
-        chunk_fuzzy_stmt = (
-            select(
-                MeetingChunk,
-                Meeting,
-                (func.similarity(MeetingChunk.raw_text, query) * 0.5).label("fuzzy_score"),
+        if search_meetings:
+            chunk_fuzzy_stmt = (
+                select(
+                    MeetingChunk,
+                    Meeting,
+                    (func.similarity(MeetingChunk.raw_text, query) * 0.5).label("fuzzy_score"),
+                )
+                .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
+                .where(Meeting.project_name == project_name)
+                .where(func.similarity(MeetingChunk.raw_text, query) > 0.1)  # threshold
+                .order_by(func.similarity(MeetingChunk.raw_text, query).desc())
+                .limit(fetch_limit)
             )
-            .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
-            .where(Meeting.project_name == project_name)
-            .where(func.similarity(MeetingChunk.raw_text, query) > 0.1)  # threshold
-            .order_by(func.similarity(MeetingChunk.raw_text, query).desc())
-            .limit(fetch_limit)
-        )
-        chunk_fuzzy_rows = (await session.execute(chunk_fuzzy_stmt)).all()
+            chunk_fuzzy_rows = (await session.execute(chunk_fuzzy_stmt)).all()
 
-        note_fuzzy_stmt = (
-            select(
-                Note,
-                (func.similarity(Note.note_text, query) * 0.5).label("fuzzy_score"),
+        if search_notes:
+            note_fuzzy_stmt = (
+                select(
+                    Note,
+                    (func.similarity(Note.note_text, query) * 0.5).label("fuzzy_score"),
+                )
+                .where(Note.project_name == project_name)
+                .where(func.similarity(Note.note_text, query) > 0.1)
+                .order_by(func.similarity(Note.note_text, query).desc())
+                .limit(fetch_limit)
             )
-            .where(Note.project_name == project_name)
-            .where(func.similarity(Note.note_text, query) > 0.1)
-            .order_by(func.similarity(Note.note_text, query).desc())
-            .limit(fetch_limit)
-        )
-        note_fuzzy_rows = (await session.execute(note_fuzzy_stmt)).all()
+            note_fuzzy_rows = (await session.execute(note_fuzzy_stmt)).all()
 
     docs: List[Document] = []
 
@@ -348,6 +366,8 @@ async def retrieve_hybrid(
     min_similarity: float = 0.3,
     min_fused_score: float = 0.0,
     rrf_k: int = 60,
+    search_notes: bool = True,
+    search_meetings: bool = True
 ) -> List[Document]:
     """Hybrid search combining vector similarity and keyword full-text search.
 
@@ -381,10 +401,15 @@ async def retrieve_hybrid(
         top ranks; higher values (80-100) treat ranks more equally.
     """
     vector_docs = await retrieve_by_vector(
-        query, project_name, limit, embed_query_fn, min_similarity=min_similarity
+        query, project_name, limit, embed_query_fn, min_similarity=min_similarity,
+          search_notes= search_notes, search_meetings= search_meetings
     )
 
-    keyword_docs = await retrieve_by_keyword(query, project_name, limit)
+    keyword_docs = await retrieve_by_keyword(
+        query, project_name, limit,
+        search_notes= search_notes,
+        search_meetings= search_meetings
+        )
 
     fused = _reciprocal_rank_fusion(
         [vector_docs, keyword_docs],

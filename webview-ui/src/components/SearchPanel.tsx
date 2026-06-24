@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, memo } from "react";
 import {
   Search,
   FileText,
@@ -6,7 +6,9 @@ import {
   Tag,
   Calendar,
   TrendingUp,
+  X,
 } from "lucide-react";
+import { vscode } from "../utilities/vscodeApi";
 
 interface SearchResult {
   id: string;
@@ -19,56 +21,51 @@ interface SearchResult {
   timestamp: string;
 }
 
-const mockResults: SearchResult[] = [
-  {
-    id: "1",
-    title: "Authentication Flow Implementation",
-    snippet:
-      "Used JWT tokens with refresh mechanism. The validateToken function checks token expiration, signature validity, and user permissions...",
-    type: "function",
-    filePath: "src/auth/validator.ts",
-    tags: ["auth", "security", "critical"],
-    similarity: 0.94,
-    timestamp: "2025-12-07T10:30:00",
-  },
-  {
-    id: "2",
-    title: "OAuth Integration Notes",
-    snippet:
-      "Implemented OAuth 2.0 flow with PKCE. Supports Google, GitHub, and Microsoft providers. Token validation includes...",
-    type: "feature",
-    tags: ["auth", "oauth", "integration"],
-    similarity: 0.87,
-    timestamp: "2025-12-06T16:45:00",
-  },
-  {
-    id: "3",
-    title: "Security Review Meeting",
-    snippet:
-      "Discussed authentication vulnerabilities and mitigation strategies. Action items include implementing rate limiting and...",
-    type: "meeting",
-    tags: ["security", "meeting", "action-items"],
-    similarity: 0.82,
-    timestamp: "2025-12-05T14:00:00",
-  },
-];
-
-export function SearchPanel() {
+export const SearchPanel = memo(function SearchPanel() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedResult, setSelectedResult] = useState<SearchResult | null>(
     null,
   );
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = () => {
+    if (!query.trim()) return;
+
     setIsSearching(true);
-    // Simulate search
-    setTimeout(() => {
-      setResults(mockResults);
-      setIsSearching(false);
-    }, 500);
+    setError(null);
+    vscode.postMessage("send_search_query", {
+      query: query,
+    });
   };
+
+  const handleClear = () => {
+    setQuery("");
+    setResults([]);
+    setSelectedResult(null);
+    setError(null);
+    setIsSearching(false);
+  };
+
+  // Handle messages from extension
+  const handleMessage = (event: any) => {
+    const message = event.data;
+
+    if (message.command === "search_results") {
+      setResults(message.data || []);
+      setIsSearching(false);
+    } else if (message.command === "search_error") {
+      setError(message.data?.error || "Search failed");
+      setIsSearching(false);
+    }
+  };
+
+  // Setup message listener
+  useEffect(() => {
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   return (
     <div className="h-full flex flex-col bg-[#1e1e1e]">
@@ -82,11 +79,25 @@ export function SearchPanel() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Search"
-            className="w-full pl-8 pr-2 py-1.5 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
+            className="w-full pl-8 pr-10 py-1.5 bg-[#3c3c3c] border border-[#3e3e42] rounded text-xs text-[#cccccc] placeholder-[#6a6a6a] focus:outline-none focus:border-[#007acc] transition-colors font-mono"
           />
+
+          {/* Clear button on the right side */}
+          <button
+            onClick={handleClear}
+            aria-label="Clear search"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-[#6a6a6a] hover:text-[#cccccc]"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Search Info */}
+        {error && (
+          <div className="mt-2 text-xs text-red-400 font-mono">
+            Error: {error}
+          </div>
+        )}
         {results.length > 0 && (
           <div className="mt-2 text-xs text-[#6a6a6a] font-mono">
             {results.length} results
@@ -96,11 +107,19 @@ export function SearchPanel() {
 
       {/* Results List */}
       <div className="flex-1 overflow-auto">
-        {results.length === 0 && !isSearching && (
+        {results.length === 0 && !isSearching && !error && (
           <div className="flex items-center justify-center h-full text-[#6a6a6a] px-4">
             <div className="text-center">
               <Search className="w-10 h-10 mx-auto mb-2 opacity-30" />
               <p className="text-xs">Enter a query to search</p>
+            </div>
+          </div>
+        )}
+
+        {error && !isSearching && (
+          <div className="flex items-center justify-center h-full text-red-400 px-4">
+            <div className="text-center">
+              <p className="text-xs">{error}</p>
             </div>
           </div>
         )}
@@ -174,7 +193,7 @@ export function SearchPanel() {
       )}
     </div>
   );
-}
+});
 
 function SearchResultCard({
   result,

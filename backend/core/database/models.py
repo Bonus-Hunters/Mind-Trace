@@ -8,7 +8,7 @@ from sqlalchemy import (
     Text,
     ForeignKeyConstraint,
     UniqueConstraint,
-    Float,
+    Float,  
     Identity,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship

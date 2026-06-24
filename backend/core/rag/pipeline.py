@@ -63,10 +63,29 @@ async def mind_trace_query(
     # 3. Generate
     final_context = build_context(docs)
     print(final_context)
-    
-    # Stream the response
-    for chunk in rag_chain.stream({"context": final_context, "question": query}):
-        yield chunk
+
+    return rag_chain.invoke({"context": final_context, "question": query})
+
+
+async def search(
+    query: str,
+    project_name: str,
+    embed_config: LLMConfig,
+    search_notes: bool = True,
+    search_meetings: bool = True,
+):
+    embeddings = get_embeddings(embed_config)
+    embed_query_fn = embeddings.embed_query
+
+    docs = await retrieve_hybrid(
+        query,
+        project_name,
+        limit=8,
+        embed_query_fn=embed_query_fn,
+        search_notes=search_notes,
+        search_meetings=search_meetings,
+    )
+    return docs
 
 
 # ---------------------------------------------------------------------------
