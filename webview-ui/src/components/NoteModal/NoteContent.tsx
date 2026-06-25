@@ -9,8 +9,8 @@ const noteTypesOptions = [
   { value: "omit", label: "Ommit Task" },
   { value: "suggestion", label: "Suggestion" },
 ];
-// TODO: retrieve projects from db -- done in meeting part?
-const projectOptions = [{ value: "Test Project2", label: "Test Project2" }];
+// TODO: retrieve projects from db -- done in meeting part?????????
+const projectOptions = [{ value: "Mozilla Issues", label: "Mozilla Issues" }];
 
 const NoteContent = ({
   description,

@@ -18,7 +18,7 @@ const languageOptions = [
   { value: "hi", label: "Hindi" },
 ];
 
-const projectOptions = [{ value: "Test Project2", label: "Test Project2" }];
+const projectOptions = [{ value: "Mozilla Issues", label: "Mozilla Issues" }];
 
 const handleUpload = () => {
   vscode.postMessage("selectAudioFile");
