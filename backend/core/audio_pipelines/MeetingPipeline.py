@@ -10,6 +10,9 @@ from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 import json
 
+import torch
+import torchaudio
+
 from models.audio.SileroVad import SileroVAD
 from models.audio.SpeakerDiarization import SpeakerDiarizer
 from models.audio.FasterWhisper import FasterWhisperTranscriber
@@ -115,6 +118,45 @@ class MeetingPipeline:
 
         self._models_loaded = True
 
+    @staticmethod
+    def normalize_audio(audio_path: str, target_sample_rate: int = 16000) -> str:
+        """
+        Normalize an audio file to mono-channel WAV at the target sample rate.
+
+        The pyannote diarization model and Silero VAD both require 16 kHz
+        mono audio. This method converts any supported format to a temporary
+        WAV file with the correct properties.
+
+        Args:
+            audio_path: Path to the source audio file.
+            target_sample_rate: Desired sample rate in Hz (default 16000).
+
+        Returns:
+            Path to the normalized temporary WAV file. The caller is
+            responsible for deleting this file when done.
+        """
+        waveform, sample_rate = torchaudio.load(audio_path)
+
+        # Convert to mono by averaging channels
+        if waveform.shape[0] > 1:
+            waveform = waveform.mean(dim=0, keepdim=True)
+
+        # Resample if necessary
+        if sample_rate != target_sample_rate:
+            resampler = torchaudio.transforms.Resample(
+                orig_freq=sample_rate,
+                new_freq=target_sample_rate,
+            )
+            waveform = resampler(waveform)
+
+        # Write to a temp WAV file
+        tmp = tempfile.NamedTemporaryFile(
+            suffix="_normalized.wav", delete=False
+        )
+        tmp.close()
+        torchaudio.save(tmp.name, waveform, target_sample_rate)
+        return tmp.name
+
     def process(
         self,
         audio_path: str,
@@ -144,9 +186,38 @@ class MeetingPipeline:
         if not os.path.exists(audio_path):
             raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
+        # Normalize audio to mono 16 kHz WAV before feeding the pipeline.
+        # This is required by both the pyannote diarization model and Silero
+        # VAD.  The original file is left untouched; a temporary WAV is used
+        # throughout and deleted at the end of this method.
+        normalized_path = self.normalize_audio(audio_path)
+        pipeline_audio_path = normalized_path
+
         # Load models
         self.load_models()
 
+        try:
+            return self._run_pipeline(
+                pipeline_audio_path,
+                language=language,
+                num_speakers=num_speakers,
+                min_speakers=min_speakers,
+                max_speakers=max_speakers,
+            )
+        finally:
+            # Always clean up the normalized temp file
+            if os.path.exists(normalized_path):
+                os.remove(normalized_path)
+
+    def _run_pipeline(
+        self,
+        audio_path: str,
+        language: Optional[str] = None,
+        num_speakers: Optional[int] = None,
+        min_speakers: Optional[int] = None,
+        max_speakers: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Internal pipeline execution on an already-normalized audio file."""
         # Step 1: Speaker Diarization - identify who spoke when
         diarization_result = self.diarizer.diarize(
             audio_path,
