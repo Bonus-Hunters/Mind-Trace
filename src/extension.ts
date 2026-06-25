@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import * as path from "path";
 import { Uri, Webview } from "vscode";
 import { handleReceivedMessages } from "./messages";
 
@@ -68,6 +69,7 @@ class MindTraceSidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = "my-sidebar-view";
 
   private _view?: vscode.WebviewView;
+  private _pendingQuickNote?: any;
 
   constructor(
     private readonly _extensionUri: Uri,
@@ -94,13 +96,40 @@ class MindTraceSidebarProvider implements vscode.WebviewViewProvider {
       this._extensionUri,
     );
 
-    handleReceivedMessages(webviewView.webview, this._context);
+    handleReceivedMessages(webviewView.webview, this._context, this);
   }
 
   /** Programmatically show the sidebar panel. */
   public show() {
     if (this._view) {
       this._view.show(true); // true = preserve focus on editor
+    }
+  }
+
+  /**
+   * Reveal the sidebar and open the compact "Add Note" form pre-filled with
+   * the given code context (function name, file, line).
+   */
+  public openAddNote(payload: any) {
+    this._pendingQuickNote = payload;
+    // Reveal the secondary sidebar (right panel) then focus our view.
+    vscode.commands.executeCommand("workbench.action.focusAuxiliaryBar");
+    vscode.commands.executeCommand("my-sidebar-view.focus");
+    this.flushPendingQuickNote();
+  }
+
+  /**
+   * Post any pending quick-note context to the webview. Called both right
+   * after openAddNote (warm path: webview already mounted) and from the
+   * "react_ready" handler (cold path: webview opening for the first time).
+   */
+  public flushPendingQuickNote() {
+    if (this._view && this._pendingQuickNote) {
+      this._view.webview.postMessage({
+        command: "openQuickNote",
+        data: this._pendingQuickNote,
+      });
+      this._pendingQuickNote = undefined;
     }
   }
 }
@@ -143,7 +172,36 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
-  context.subscriptions.push(extension_run_command, logout_command);
+  // "Add Note" command → triggered from the editor right-click menu on a selection
+  const add_note_command = vscode.commands.registerCommand(
+    "Mind-Trace.addNote",
+    () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage("No active editor to add a note from.");
+        return;
+      }
+
+      // The form lives in the logged-in webview — require auth first.
+      const email = context.globalState.get<string>("userEmail");
+      if (!email) {
+        vscode.window.showInformationMessage("Log in to Mind-Trace first.");
+        return;
+      }
+
+      const functionName = editor.document.getText(editor.selection).trim();
+      const fileName = path.basename(editor.document.fileName);
+      const lineNumber = editor.selection.start.line + 1;
+
+      provider.openAddNote({ functionName, fileName, lineNumber });
+    },
+  );
+
+  context.subscriptions.push(
+    extension_run_command,
+    logout_command,
+    add_note_command,
+  );
 }
 
 // This method is called when your extension is deactivated

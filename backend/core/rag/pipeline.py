@@ -22,7 +22,7 @@ async def mind_trace_query(
     project: str,
     llm_config: LLMConfig,
     embed_config: LLMConfig,
-):
+) -> AsyncGenerator[str, None]:
     """Run the full Mind-Trace RAG pipeline for a user query.
 
     Steps
@@ -63,7 +63,29 @@ async def mind_trace_query(
     # 3. Generate
     final_context = build_context(docs)
     print(final_context)
+
     return rag_chain.invoke({"context": final_context, "question": query})
+
+
+async def search(
+    query: str,
+    project_name: str,
+    embed_config: LLMConfig,
+    search_notes: bool = True,
+    search_meetings: bool = True,
+):
+    embeddings = get_embeddings(embed_config)
+    embed_query_fn = embeddings.embed_query
+
+    docs = await retrieve_hybrid(
+        query,
+        project_name,
+        limit=8,
+        embed_query_fn=embed_query_fn,
+        search_notes=search_notes,
+        search_meetings=search_meetings,
+    )
+    return docs
 
 
 # ---------------------------------------------------------------------------
@@ -87,8 +109,8 @@ if __name__ == "__main__":
 
         print("Streaming response:")
         async for chunk in mind_trace_query(
-            "what is the note written by Test Author? can you also comment on the note?",
-            "Test Project",
+            "how is javascript engine holding on",
+            "Mozilla Issues",
             llm_cfg,
             embed_cfg,
         ):

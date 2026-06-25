@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 
 class DatabaseConfigLoader:
@@ -9,8 +10,9 @@ class DatabaseConfigLoader:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(DatabaseConfigLoader, cls).__new__(cls)
-            cls._instance._load_config()
+            instance = super(DatabaseConfigLoader, cls).__new__(cls)
+            instance._load_config()
+            cls._instance = instance
         return cls._instance
 
     # load variables from .env file only once
@@ -32,8 +34,9 @@ class ConfigLoader:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(ConfigLoader, cls).__new__(cls)
-            cls._instance._load_config()
+            instance = super(ConfigLoader, cls).__new__(cls)
+            instance._load_config()
+            cls._instance = instance
         return cls._instance
 
     # load variables from .env file only once

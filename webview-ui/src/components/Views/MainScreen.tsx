@@ -1,6 +1,6 @@
 import TabButton from "../TabButton.tsx";
 import { SearchPanel } from "../SearchPanel.tsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { AddNoteModal } from "../NoteModal/AddNoteModal.tsx";
 import {
@@ -17,13 +17,55 @@ import { vscode } from "../../utilities/vscodeApi.ts";
 
 type View = "search" | "ai" | "meetings";
 
+interface LLMGroup {
+  provider: string;
+  models: string[];
+}
+
+const staticLLMGroups: LLMGroup[] = [
+  {
+    provider: "OpenAI",
+    models: ["GPT-5.4", "GPT-5.5", "GPT-5.5 Pro"],
+  },
+  {
+    provider: "Gemini",
+    models: ["Gemini 3.1 Pro", "Gemini 3.1 Flash", "Gemini 3.5 Flash"],
+  },
+];
+
 const MainScreen = () => {
   const [currentView, setCurrentView] = useState<View>("search");
   const [showAddNote, setShowAddNote] = useState(false);
-  const [selectedLLM, setSelectedLLM] = useState("GPT-4");
+  const [selectedLLM, setSelectedLLM] = useState("GPT-5.4");
   const [isLLMDropdownOpen, setIsLLMDropdownOpen] = useState(false);
+  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
 
-  const llmOptions = ["GPT-4", "gemini", "ollama", "gemini"];
+  const llmGroups: LLMGroup[] = [
+    ...staticLLMGroups,
+    { provider: "Ollama", models: ollamaModels },
+  ];
+
+  useEffect(() => {
+    vscode.postMessage("getOllamaModels");
+
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.command === "ollamaModels") {
+        console.log("REACT:: Received Ollama Models: ", message.data);
+        const models = Array.isArray(message.data)
+          ? message.data
+          : Array.isArray(message.data?.models)
+            ? message.data.models
+            : [];
+        setOllamaModels(models);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+ 
 
   const toggleLLMDropdown = () => {
     setIsLLMDropdownOpen((prev) => !prev);
@@ -103,19 +145,35 @@ const MainScreen = () => {
             />
 
             {isLLMDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-36 bg-[#252526] border border-[#3e3e42] rounded shadow-lg z-20">
-                {llmOptions.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => selectLLM(option)}
-                    className={`w-full text-left px-3 py-2 text-xs hover:bg-[#1a1a1a] ${
-                      selectedLLM === option
-                        ? "font-semibold text-[#4ec9b0]"
-                        : "text-[#cccccc]"
-                    }`}
-                  >
-                    {option}
-                  </button>
+              <div className="absolute right-0 mt-1 w-48 max-h-64 overflow-y-auto bg-[#252526] border border-[#3e3e42] rounded shadow-lg z-20">
+                {llmGroups.map((group, groupIdx) => (
+                  <div key={group.provider}>
+                    {groupIdx > 0 && (
+                      <div className="border-t border-[#3e3e42]" />
+                    )}
+                    <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-[#888] font-semibold">
+                      {group.provider}
+                    </div>
+                    {group.models.length > 0 ? (
+                      group.models.map((model) => (
+                        <button
+                          key={`${group.provider}-${model}`}
+                          onClick={() => selectLLM(model)}
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[#1a1a1a] ${
+                            selectedLLM === model
+                              ? "font-semibold text-[#4ec9b0]"
+                              : "text-[#cccccc]"
+                          }`}
+                        >
+                          {model}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-1.5 text-xs text-[#666] italic">
+                        No models available
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             )}
@@ -123,11 +181,19 @@ const MainScreen = () => {
         )}
       </div>
 
-      {/* Content */}
+      {/* Content — all panels stay mounted so their internal state
+          (search query/results, chat history, selections) is preserved
+          when switching tabs. Inactive panels are hidden via CSS. */}
       <div className="flex-1 overflow-hidden">
-        {currentView === "search" && <SearchPanel />}
-        {currentView === "ai" && <AISummaryPanel />}
-        {currentView === "meetings" && <MeetingMinutesView />}
+        <div className={currentView === "search" ? "h-full" : "hidden"}>
+          <SearchPanel />
+        </div>
+        <div className={currentView === "ai" ? "h-full" : "hidden"}>
+          <AISummaryPanel />
+        </div>
+        <div className={currentView === "meetings" ? "h-full" : "hidden"}>
+          <MeetingMinutesView />
+        </div>
       </div>
 
       {/* Add Note Modal */}
