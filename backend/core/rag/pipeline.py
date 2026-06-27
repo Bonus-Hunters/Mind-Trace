@@ -107,14 +107,11 @@ if __name__ == "__main__":
             model=EMBED_MODEL,
         )
 
-        print("Streaming response:")
-        async for chunk in mind_trace_query(
-            "how is javascript engine holding on",
-            "Mozilla Issues",
-            llm_cfg,
-            embed_cfg,
-        ):
-            print(chunk, end="", flush=True)
-        print()
+        docs = await search(
+            query="What happens to the garbage collection process?",
+            project_name="Mozilla Issues",
+            embed_config=embed_cfg,
+        )
+        print(docs)
 
     asyncio.run(main())
