@@ -355,12 +355,24 @@ class EmployeesRepository(BaseRepository):
             await session.commit()
             return True
 
+    async def get_all(self, company_id: int):
+        async with self._get_session() as session:
+            stmt = select(models.Employee).where(
+                models.Employee.company_id == company_id
+            )
+            result = await session.execute(stmt)
+            return result.scalars().all()
+
+    async def get_all_embeddings(self, company_id: int):
+        async with self._get_session() as session:
+            results = await self.get_all(company_id)
+            return [{i.name: i.voice_print} for i in results]
+
 
 class MeetingRepository(BaseRepository):
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
         super().__init__(tables_data.Meeting, session_maker)
 
-    # workind
     async def create(self, data: tables_data.Meeting):
         async with self._get_session() as session:
             try:

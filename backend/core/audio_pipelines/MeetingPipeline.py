@@ -43,6 +43,7 @@ class MeetingPipeline:
         summarization_config: Optional[Dict[str, Any]] = None,
         enable_code_switching: bool = False,
         code_switching_config: Optional[Dict[str, Any]] = None,
+        enable_speaker_identification: bool = False,
     ):
         """
         Initialize the meeting pipeline.
@@ -60,6 +61,7 @@ class MeetingPipeline:
                 standard Whisper model.
             code_switching_config: Optional kwargs forwarded to CodeSwitchingHandler
                 (e.g. whisper_model_id, translation_model_id, temperature).
+            enable_speaker_identification: Whether to identify speakers using enrolled DB.
         """
         self.whisper_model_size = whisper_model_size
         self.device = device
@@ -70,6 +72,7 @@ class MeetingPipeline:
         self.summarization_config = summarization_config or {}
         self.enable_code_switching = enable_code_switching
         self.code_switching_config = code_switching_config or {}
+        self.enable_speaker_identification = enable_speaker_identification
 
         # Initialize components (lazy loading)
         self.vad: Optional[SileroVAD] = None
@@ -227,6 +230,74 @@ class MeetingPipeline:
         )
 
         speaker_segments = diarization_result["segments"]
+
+        if self.enable_speaker_identification:
+            from Models.audio.SpeakerIdentification import (
+                extract_voice_embedding,
+                identify_speaker_by_embedding,
+            )
+            from core.database.postgresDatabase import PostgresDatabase
+            from core.database.repos import EmployeesRepository
+
+            import soundfile as sf
+            import math
+            import tempfile
+
+            db = PostgresDatabase()
+            employee_repo = EmployeesRepository(db.get_session_maker())
+            known_speakers = employee_repo.get_all_embeddings()
+
+            if known_speakers:
+                speaker_mapping = {}
+                for speaker in diarization_result["speakers"]:
+                    spk_segs = [s for s in speaker_segments if s["speaker"] == speaker]
+                    if not spk_segs:
+                        continue
+
+                    # Extract up to 3 secs of audio from the longest segment
+                    longest_seg = max(spk_segs, key=lambda s: s["end"] - s["start"])
+                    duration_to_extract = min(
+                        3.0, longest_seg["end"] - longest_seg["start"]
+                    )
+                    start_sec = longest_seg["start"]
+
+                    with tempfile.NamedTemporaryFile(
+                        suffix=".wav", delete=False
+                    ) as tmp_file:
+                        temp_audio_path = tmp_file.name
+
+                    try:
+                        info = sf.info(audio_path)
+                        sr = info.samplerate
+                        start_frame = math.floor(start_sec * sr)
+                        frames_to_read = math.ceil(duration_to_extract * sr)
+
+                        with sf.SoundFile(audio_path) as f:
+                            f.seek(start_frame)
+                            audio_data = f.read(frames=frames_to_read)
+
+                        sf.write(temp_audio_path, audio_data, sr)
+
+                        emb = extract_voice_embedding(temp_audio_path)
+                        identified_name, score = identify_speaker_by_embedding(
+                            emb, known_speakers
+                        )
+                        if identified_name != "-1":
+                            speaker_mapping[speaker] = identified_name
+                    except Exception as e:
+                        pass
+                    finally:
+                        if os.path.exists(temp_audio_path):
+                            os.remove(temp_audio_path)
+
+                # Apply mappings to segments and speaker list
+                for seg in speaker_segments:
+                    if seg["speaker"] in speaker_mapping:
+                        seg["speaker"] = speaker_mapping[seg["speaker"]]
+
+                diarization_result["speakers"] = [
+                    speaker_mapping.get(s, s) for s in diarization_result["speakers"]
+                ]
 
         # Step 2: Transcribe the full audio
         # For Arabic code-switching, detect language first (fast pass) then
@@ -508,6 +579,7 @@ def transcribe_meeting(
     whisper_model: str = "large-v2",
     device: str = "auto",
     hf_token: Optional[str] = None,
+    enable_speaker_identification: bool = False,
 ) -> Dict[str, Any]:
     """
     Convenience function to transcribe a meeting with speaker diarization.
@@ -524,7 +596,10 @@ def transcribe_meeting(
         Dialogue result dictionary
     """
     pipeline = MeetingPipeline(
-        whisper_model_size=whisper_model, device=device, hf_token=hf_token
+        whisper_model_size=whisper_model,
+        device=device,
+        hf_token=hf_token,
+        enable_speaker_identification=enable_speaker_identification,
     )
 
     try:
