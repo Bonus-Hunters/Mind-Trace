@@ -29,9 +29,12 @@ async def process_meeting_audio(
 ):
     # process meeting audio
     meetingPipeline = MeetingPipeline(
-        enable_summarization=True, hf_token=config_loader.get("HF_TOKEN")
+        enable_summarization=True,
+        enable_speaker_identification=True,
+        hf_token=config_loader.get("HF_TOKEN", company_id),
+        company_id=company_id,
     )
-    results = meetingPipeline.process(
+    results = await meetingPipeline.process(
         audio_path=file_path, language=get_language_code(language)
     )
 

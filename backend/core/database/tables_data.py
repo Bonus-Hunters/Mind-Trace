@@ -56,9 +56,10 @@ class Employees(BaseModel):
 
 
 class EmployeeUpdate(BaseModel):
-    name: Optional[str] = Field(..., max_length=255)
-    role: Optional[str] = Field(..., max_length=100)
-    skills: Optional[List[str]] = []
+    name: Optional[str] = Field(None, max_length=255)
+    role: Optional[str] = Field(None, max_length=100)
+    skills: Optional[List[str]] = None
+    voice_print: Optional[List[float]] = Field(None, min_length=EMBEDDING_SIZE_VOICE, max_length=EMBEDDING_SIZE_VOICE)
     model_config = ConfigDict(from_attributes=True)
 
 

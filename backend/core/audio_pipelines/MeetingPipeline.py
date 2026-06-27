@@ -44,6 +44,7 @@ class MeetingPipeline:
         enable_code_switching: bool = False,
         code_switching_config: Optional[Dict[str, Any]] = None,
         enable_speaker_identification: bool = False,
+        company_id: int = 0
     ):
         """
         Initialize the meeting pipeline.
@@ -73,6 +74,7 @@ class MeetingPipeline:
         self.enable_code_switching = enable_code_switching
         self.code_switching_config = code_switching_config or {}
         self.enable_speaker_identification = enable_speaker_identification
+        self.company_id = company_id
 
         # Initialize components (lazy loading)
         self.vad: Optional[SileroVAD] = None
@@ -160,7 +162,7 @@ class MeetingPipeline:
         torchaudio.save(tmp.name, waveform, target_sample_rate)
         return tmp.name
 
-    def process(
+    async def process(
         self,
         audio_path: str,
         language: Optional[str] = None,
@@ -200,7 +202,7 @@ class MeetingPipeline:
         self.load_models()
 
         try:
-            return self._run_pipeline(
+            return await self._run_pipeline(
                 pipeline_audio_path,
                 language=language,
                 num_speakers=num_speakers,
@@ -212,7 +214,7 @@ class MeetingPipeline:
             if os.path.exists(normalized_path):
                 os.remove(normalized_path)
 
-    def _run_pipeline(
+    async def _run_pipeline(
         self,
         audio_path: str,
         language: Optional[str] = None,
@@ -232,7 +234,7 @@ class MeetingPipeline:
         speaker_segments = diarization_result["segments"]
 
         if self.enable_speaker_identification:
-            from Models.audio.SpeakerIdentification import (
+            from models.audio.SpeakerIdentification import (
                 extract_voice_embedding,
                 identify_speaker_by_embedding,
             )
@@ -242,10 +244,22 @@ class MeetingPipeline:
             import soundfile as sf
             import math
             import tempfile
+            import numpy as np
 
             db = PostgresDatabase()
             employee_repo = EmployeesRepository(db.get_session_maker())
-            known_speakers = employee_repo.get_all_embeddings()
+            known_speakers_data = await employee_repo.get_all_embeddings(self.company_id)
+            
+            known_speakers = {}
+            for item in known_speakers_data:
+                for name, voice_print in item.items():
+                    if voice_print is not None:
+                        known_speakers[name] = np.array(voice_print, dtype=np.float32)
+
+            print("==============================================")
+            print("Id : " + str(self.company_id))
+            print(known_speakers)
+            print("==============================================")
 
             if known_speakers:
                 speaker_mapping = {}
@@ -282,10 +296,13 @@ class MeetingPipeline:
                         identified_name, score = identify_speaker_by_embedding(
                             emb, known_speakers
                         )
+                        
+                        print(str(identified_name) + " " + str(score))
+
                         if identified_name != "-1":
                             speaker_mapping[speaker] = identified_name
                     except Exception as e:
-                        pass
+                        print(f"    [WARN] Speaker identification failed for '{speaker}': {e}")
                     finally:
                         if os.path.exists(temp_audio_path):
                             os.remove(temp_audio_path)
@@ -572,7 +589,7 @@ class MeetingPipeline:
 
 
 # Convenience function for quick usage
-def transcribe_meeting(
+async def transcribe_meeting(
     audio_path: str,
     language: Optional[str] = None,
     num_speakers: Optional[int] = None,
@@ -603,7 +620,7 @@ def transcribe_meeting(
     )
 
     try:
-        return pipeline.process(
+        return await pipeline.process(
             audio_path, language=language, num_speakers=num_speakers
         )
     finally:
