@@ -14,9 +14,12 @@ import {
 } from "./Messages/authentication_messages";
 import {
   closeAddNoteModal,
+  get_meetings,
+  get_projects,
   handleFileSelection,
   process_meeting,
   save_note,
+  save_project,
   save_quick_note,
 } from "./Messages/saving_data_messages";
 
@@ -103,6 +106,15 @@ export function handleReceivedMessages(
           return;
         case "send_search_query":
           _send_search_query(panel, message.data);
+          return;
+        case "getMeetings":
+          get_meetings(panel, context);
+          return;
+        case "getProjects":
+          get_projects(panel, context);
+          return;
+        case "saveProject":
+          save_project(panel, context, message.data);
           return;
       }
     },

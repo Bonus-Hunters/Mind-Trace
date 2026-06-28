@@ -252,6 +252,7 @@ def render_sidebar() -> dict:
         )
 
         num_speakers = None
+        enable_speaker_identification = False
         if enable_diarization:
             speaker_mode = st.radio(
                 "Speaker Detection",
@@ -268,6 +269,12 @@ def render_sidebar() -> dict:
                     value=2,
                     help="Exact number of speakers in the audio",
                 )
+                
+            enable_speaker_identification = st.checkbox(
+                "🔍 Identify Speakers using Enrolled DB",
+                value=False,
+                help="Use the tempDB to match detected speakers with enrolled voiceprints."
+            )
 
         st.markdown("---")
         st.markdown("### 📊 Text Summarization")
@@ -358,6 +365,7 @@ def render_sidebar() -> dict:
             "summarization_config": summarization_config,
             "enable_code_switching": enable_code_switching,
             "code_switching_config": code_switching_config,
+            "enable_speaker_identification": enable_speaker_identification,
         }
 
 
@@ -836,59 +844,121 @@ def main():
 
     # Render UI
     render_header()
-    settings = render_sidebar()
+    
+    app_mode = st.sidebar.radio("Navigation", ["📝 Meeting Transcription", "🎙️ Speaker Enrollment"])
+    st.sidebar.markdown("---")
+    
+    if app_mode == "📝 Meeting Transcription":
+        settings = render_sidebar()
 
-    # Main content area
-    col1, col2 = st.columns([2, 1])
+        # Main content area
+        col1, col2 = st.columns([2, 1])
 
-    with col1:
-        uploaded_file = render_upload_section()
+        with col1:
+            uploaded_file = render_upload_section()
 
-    with col2:
+        with col2:
+            if uploaded_file:
+                st.markdown("### 🎵 Audio Preview")
+                st.audio(uploaded_file, format=uploaded_file.type)
+
+        # Transcription section
         if uploaded_file:
-            st.markdown("### 🎵 Audio Preview")
-            st.audio(uploaded_file, format=uploaded_file.type)
+            st.markdown("<br>", unsafe_allow_html=True)
 
-    # Transcription section
-    if uploaded_file:
-        st.markdown("<br>", unsafe_allow_html=True)
+            # Determine mode and model requirements
+            use_diarization = settings.get("enable_diarization", False)
 
-        # Determine mode and model requirements
-        use_diarization = settings.get("enable_diarization", False)
+            if use_diarization:
+                # For diarization mode (token is configured in model files)
+                if st.button("🚀 Process Meeting", use_container_width=True):
+                    run_diarization(uploaded_file, settings)
 
-        if use_diarization:
-            # For diarization mode (token is configured in model files)
-            if st.button("🚀 Process Meeting", use_container_width=True):
-                run_diarization(uploaded_file, settings)
-
-            # Display diarization results if available
-            if st.session_state.diarization_result:
-                render_dialogue_results(st.session_state.diarization_result)
-        else:
-            # Standard transcription mode
-            if not is_model_loaded():
-                st.markdown(
-                    """
-                <div class="warning-box">
-                    <p style="margin: 0; color: #f59e0b;">
-                        ⚠️ <strong>Model Required:</strong> Please load a model from the sidebar before transcribing.
-                    </p>
-                </div>
-                """,
-                    unsafe_allow_html=True,
-                )
-                st.button(
-                    "🚀 Transcribe Audio", use_container_width=True, disabled=True
-                )
+                # Display diarization results if available
+                if st.session_state.diarization_result:
+                    render_dialogue_results(st.session_state.diarization_result)
             else:
-                if st.button("🚀 Transcribe Audio", use_container_width=True):
-                    run_transcription(uploaded_file, settings)
+                # Standard transcription mode
+                if not is_model_loaded():
+                    st.markdown(
+                        """
+                    <div class="warning-box">
+                        <p style="margin: 0; color: #f59e0b;">
+                            ⚠️ <strong>Model Required:</strong> Please load a model from the sidebar before transcribing.
+                        </p>
+                    </div>
+                    """,
+                        unsafe_allow_html=True,
+                    )
+                    st.button(
+                        "🚀 Transcribe Audio", use_container_width=True, disabled=True
+                    )
+                else:
+                    if st.button("🚀 Transcribe Audio", use_container_width=True):
+                        run_transcription(uploaded_file, settings)
 
-            # Display transcription results if available
-            if st.session_state.transcription_result:
-                render_results(st.session_state.transcription_result)
+                # Display transcription results if available
+                if st.session_state.transcription_result:
+                    render_results(st.session_state.transcription_result)
+        else:
+            render_empty_state()
     else:
-        render_empty_state()
+        render_enrollment_page()
+
+def render_enrollment_page():
+    st.markdown("## 🎙️ Speaker Enrollment")
+    st.markdown("Enroll new speakers into the database for automatic identification during meeting transcription.")
+    
+    from Models.audio.tempDB.database_manager import DatabaseManager
+    from Models.audio.SpeakerIdentification import extract_voice_embedding
+    
+    db = DatabaseManager()
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.markdown("### Add New Speaker")
+        name = st.text_input("Speaker Name", help="Full name of the speaker")
+        company = st.text_input("Company/Role", help="Optional organizational role")
+        
+        # Audio upload for enrollment
+        enroll_audio = st.file_uploader("Upload Voice Sample (min 3-5 seconds)", type=SUPPORTED_FORMATS, key="enroll_audio")
+        
+        if st.button("💾 Enroll Voiceprint", type="primary"):
+            if not name:
+                st.error("Please enter a speaker name.")
+            elif not enroll_audio:
+                st.error("Please upload a voice sample.")
+            else:
+                with st.spinner("Extracting voiceprint..."):
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=Path(enroll_audio.name).suffix) as tmp_file:
+                        tmp_file.write(enroll_audio.getvalue())
+                        tmp_path = tmp_file.name
+                        
+                    try:
+                        embedding = extract_voice_embedding(tmp_path)
+                        success = db.add_speaker(name, company, embedding)
+                        if success:
+                            st.success(f"✅ Successfully enrolled {name}!")
+                        else:
+                            st.error(f"❌ Speaker '{name}' already exists in database.")
+                    except Exception as e:
+                        st.error(f"Failed to process audio: {str(e)}")
+                    finally:
+                        if os.path.exists(tmp_path):
+                            os.remove(tmp_path)
+                            
+    with col2:
+        st.markdown("### Enrolled Speakers")
+        speakers = db.get_all_speakers()
+        if speakers:
+            for spk in speakers:
+                with st.expander(f"👤 {spk['name']} - {spk.get('company', '')}"):
+                    if st.button("Delete Speaker", key=f"del_{spk['id']}"):
+                        db.delete_speaker(spk['id'])
+                        st.rerun()
+        else:
+            st.info("No speakers enrolled yet.")
 
 
 def run_transcription(uploaded_file, settings: dict):
@@ -958,6 +1028,7 @@ def run_diarization(uploaded_file, settings: dict):
                 summarization_config=settings.get("summarization_config", {}),
                 enable_code_switching=settings.get("enable_code_switching", False),
                 code_switching_config=settings.get("code_switching_config", {}),
+                enable_speaker_identification=settings.get("enable_speaker_identification", False),
             )
 
         # Run diarization

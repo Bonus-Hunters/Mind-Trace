@@ -10,6 +10,9 @@ from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 import json
 
+import torch
+import torchaudio
+
 from models.audio.SileroVad import SileroVAD
 from models.audio.SpeakerDiarization import SpeakerDiarizer
 from models.audio.FasterWhisper import FasterWhisperTranscriber
@@ -40,6 +43,8 @@ class MeetingPipeline:
         summarization_config: Optional[Dict[str, Any]] = None,
         enable_code_switching: bool = False,
         code_switching_config: Optional[Dict[str, Any]] = None,
+        enable_speaker_identification: bool = False,
+        company_id: int = 0
     ):
         """
         Initialize the meeting pipeline.
@@ -57,6 +62,7 @@ class MeetingPipeline:
                 standard Whisper model.
             code_switching_config: Optional kwargs forwarded to CodeSwitchingHandler
                 (e.g. whisper_model_id, translation_model_id, temperature).
+            enable_speaker_identification: Whether to identify speakers using enrolled DB.
         """
         self.whisper_model_size = whisper_model_size
         self.device = device
@@ -67,6 +73,8 @@ class MeetingPipeline:
         self.summarization_config = summarization_config or {}
         self.enable_code_switching = enable_code_switching
         self.code_switching_config = code_switching_config or {}
+        self.enable_speaker_identification = enable_speaker_identification
+        self.company_id = company_id
 
         # Initialize components (lazy loading)
         self.vad: Optional[SileroVAD] = None
@@ -115,7 +123,46 @@ class MeetingPipeline:
 
         self._models_loaded = True
 
-    def process(
+    @staticmethod
+    def normalize_audio(audio_path: str, target_sample_rate: int = 16000) -> str:
+        """
+        Normalize an audio file to mono-channel WAV at the target sample rate.
+
+        The pyannote diarization model and Silero VAD both require 16 kHz
+        mono audio. This method converts any supported format to a temporary
+        WAV file with the correct properties.
+
+        Args:
+            audio_path: Path to the source audio file.
+            target_sample_rate: Desired sample rate in Hz (default 16000).
+
+        Returns:
+            Path to the normalized temporary WAV file. The caller is
+            responsible for deleting this file when done.
+        """
+        waveform, sample_rate = torchaudio.load(audio_path)
+
+        # Convert to mono by averaging channels
+        if waveform.shape[0] > 1:
+            waveform = waveform.mean(dim=0, keepdim=True)
+
+        # Resample if necessary
+        if sample_rate != target_sample_rate:
+            resampler = torchaudio.transforms.Resample(
+                orig_freq=sample_rate,
+                new_freq=target_sample_rate,
+            )
+            waveform = resampler(waveform)
+
+        # Write to a temp WAV file
+        tmp = tempfile.NamedTemporaryFile(
+            suffix="_normalized.wav", delete=False
+        )
+        tmp.close()
+        torchaudio.save(tmp.name, waveform, target_sample_rate)
+        return tmp.name
+
+    async def process(
         self,
         audio_path: str,
         language: Optional[str] = None,
@@ -144,9 +191,38 @@ class MeetingPipeline:
         if not os.path.exists(audio_path):
             raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
+        # Normalize audio to mono 16 kHz WAV before feeding the pipeline.
+        # This is required by both the pyannote diarization model and Silero
+        # VAD.  The original file is left untouched; a temporary WAV is used
+        # throughout and deleted at the end of this method.
+        normalized_path = self.normalize_audio(audio_path)
+        pipeline_audio_path = normalized_path
+
         # Load models
         self.load_models()
 
+        try:
+            return await self._run_pipeline(
+                pipeline_audio_path,
+                language=language,
+                num_speakers=num_speakers,
+                min_speakers=min_speakers,
+                max_speakers=max_speakers,
+            )
+        finally:
+            # Always clean up the normalized temp file
+            if os.path.exists(normalized_path):
+                os.remove(normalized_path)
+
+    async def _run_pipeline(
+        self,
+        audio_path: str,
+        language: Optional[str] = None,
+        num_speakers: Optional[int] = None,
+        min_speakers: Optional[int] = None,
+        max_speakers: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Internal pipeline execution on an already-normalized audio file."""
         # Step 1: Speaker Diarization - identify who spoke when
         diarization_result = self.diarizer.diarize(
             audio_path,
@@ -156,6 +232,89 @@ class MeetingPipeline:
         )
 
         speaker_segments = diarization_result["segments"]
+
+        if self.enable_speaker_identification:
+            from models.audio.SpeakerIdentification import (
+                extract_voice_embedding,
+                identify_speaker_by_embedding,
+            )
+            from core.database.postgresDatabase import PostgresDatabase
+            from core.database.repos import EmployeesRepository
+
+            import soundfile as sf
+            import math
+            import tempfile
+            import numpy as np
+
+            db = PostgresDatabase()
+            employee_repo = EmployeesRepository(db.get_session_maker())
+            known_speakers_data = await employee_repo.get_all_embeddings(self.company_id)
+            
+            known_speakers = {}
+            for item in known_speakers_data:
+                for name, voice_print in item.items():
+                    if voice_print is not None:
+                        known_speakers[name] = np.array(voice_print, dtype=np.float32)
+
+            print("==============================================")
+            print("Id : " + str(self.company_id))
+            print(known_speakers)
+            print("==============================================")
+
+            if known_speakers:
+                speaker_mapping = {}
+                for speaker in diarization_result["speakers"]:
+                    spk_segs = [s for s in speaker_segments if s["speaker"] == speaker]
+                    if not spk_segs:
+                        continue
+
+                    # Extract up to 3 secs of audio from the longest segment
+                    longest_seg = max(spk_segs, key=lambda s: s["end"] - s["start"])
+                    duration_to_extract = min(
+                        3.0, longest_seg["end"] - longest_seg["start"]
+                    )
+                    start_sec = longest_seg["start"]
+
+                    with tempfile.NamedTemporaryFile(
+                        suffix=".wav", delete=False
+                    ) as tmp_file:
+                        temp_audio_path = tmp_file.name
+
+                    try:
+                        info = sf.info(audio_path)
+                        sr = info.samplerate
+                        start_frame = math.floor(start_sec * sr)
+                        frames_to_read = math.ceil(duration_to_extract * sr)
+
+                        with sf.SoundFile(audio_path) as f:
+                            f.seek(start_frame)
+                            audio_data = f.read(frames=frames_to_read)
+
+                        sf.write(temp_audio_path, audio_data, sr)
+
+                        emb = extract_voice_embedding(temp_audio_path)
+                        identified_name, score = identify_speaker_by_embedding(
+                            emb, known_speakers
+                        )
+                        
+                        print(str(identified_name) + " " + str(score))
+
+                        if identified_name != "-1":
+                            speaker_mapping[speaker] = identified_name
+                    except Exception as e:
+                        print(f"    [WARN] Speaker identification failed for '{speaker}': {e}")
+                    finally:
+                        if os.path.exists(temp_audio_path):
+                            os.remove(temp_audio_path)
+
+                # Apply mappings to segments and speaker list
+                for seg in speaker_segments:
+                    if seg["speaker"] in speaker_mapping:
+                        seg["speaker"] = speaker_mapping[seg["speaker"]]
+
+                diarization_result["speakers"] = [
+                    speaker_mapping.get(s, s) for s in diarization_result["speakers"]
+                ]
 
         # Step 2: Transcribe the full audio
         # For Arabic code-switching, detect language first (fast pass) then
@@ -430,13 +589,14 @@ class MeetingPipeline:
 
 
 # Convenience function for quick usage
-def transcribe_meeting(
+async def transcribe_meeting(
     audio_path: str,
     language: Optional[str] = None,
     num_speakers: Optional[int] = None,
     whisper_model: str = "large-v2",
     device: str = "auto",
     hf_token: Optional[str] = None,
+    enable_speaker_identification: bool = False,
 ) -> Dict[str, Any]:
     """
     Convenience function to transcribe a meeting with speaker diarization.
@@ -453,11 +613,14 @@ def transcribe_meeting(
         Dialogue result dictionary
     """
     pipeline = MeetingPipeline(
-        whisper_model_size=whisper_model, device=device, hf_token=hf_token
+        whisper_model_size=whisper_model,
+        device=device,
+        hf_token=hf_token,
+        enable_speaker_identification=enable_speaker_identification,
     )
 
     try:
-        return pipeline.process(
+        return await pipeline.process(
             audio_path, language=language, num_speakers=num_speakers
         )
     finally:
