@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 
-from core.rag.context import build_context
+from core.rag.context import build_context, decorate_answer_with_references
 from core.rag.llm_config import LLMConfig
 from core.rag.llm_factory import get_embeddings, get_llm
 from core.rag.models import EMBED_MODEL, LLM_MODEL
@@ -62,9 +62,10 @@ async def mind_trace_query(
 
     # 3. Generate
     final_context = build_context(docs)
+    print(" ----- context built -")
     print(final_context)
 
-    return rag_chain.invoke({"context": final_context, "question": query})
+    return await rag_chain.ainvoke({"context": final_context, "question": query})
 
 
 async def search(
@@ -113,5 +114,13 @@ if __name__ == "__main__":
             embed_config=embed_cfg,
         )
         print(docs)
+
+        answer = await mind_trace_query(
+            query="What happens to the garbage collection process?",
+            project="Mozilla Issues",
+            llm_config=llm_cfg,
+            embed_config=embed_cfg,
+        )
+        print(answer)
 
     asyncio.run(main())

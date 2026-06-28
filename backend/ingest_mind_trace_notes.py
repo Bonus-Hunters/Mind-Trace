@@ -14,7 +14,7 @@ from core.database.repos import (
 )
 from core.rag.models import EMBED_MODEL
 from langchain_ollama import OllamaEmbeddings
-from utils.constants import EMBEDDING_SIZE
+from utils.constants import EMBEDDING_SIZE_VOICE
 
 FOLDER_PATH = "./dataset/mind-trace-notes"
 COMPANY_DOMAIN = "gmail.com"
@@ -79,7 +79,7 @@ async def main():
                     password=DUMMY_PASSWORD,
                     role=None,
                     skills=[],
-                    voice_print=[0.0] * EMBEDDING_SIZE,
+                    voice_print=[0.0] * EMBEDDING_SIZE_VOICE,
                     company_id=company_id,
                 )
             )
