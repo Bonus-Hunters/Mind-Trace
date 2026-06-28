@@ -4,9 +4,10 @@ import {
   Clock,
   Users,
   Tag,
-  Filter,
   GripHorizontal,
+  CalendarX,
 } from "lucide-react";
+import { vscode } from "../../utilities/vscodeApi";
 
 interface Meeting {
   id: string;
@@ -19,153 +20,79 @@ interface Meeting {
   actionItems: string[];
 }
 
-const mockMeetings: Meeting[] = [
-  {
-    id: "1",
-    title: "Sprint Planning - Q1 2026",
-    date: "2025-12-04T15:00:00",
-    duration: "90 min",
-    attendees: ["Dev Team", "PM", "Design"],
-    tags: ["planning", "sprint", "q1-2026"],
-    content: `## Agenda
-1. Review Q4 2025 performance
-2. Q1 2026 roadmap discussion
-3. Resource allocation
-4. Timeline and milestones
+// Shape returned by the backend GET /meetings (cached) endpoint.
+interface BackendMeetingChunk {
+  id: number;
+  raw_text: string;
+  summary_text: string;
+  start_time_sec: number | null;
+  end_time_sec: number | null;
+  speaker_names: string[];
+  meta: Record<string, any> | null;
+}
 
-## Key Decisions
-- Focus on performance improvements in January
-- API v2 migration scheduled for February
-- New dashboard design approved for March release
-- Weekly sync meetings on Mondays at 10 AM
+interface BackendMeeting {
+  id: number;
+  title: string;
+  date: string | null;
+  duration_sec: number | null;
+  language: string | null;
+  project_name: string;
+  meta: Record<string, any> | null;
+  company_id: number;
+  chunks: BackendMeetingChunk[];
+}
 
-## Discussion Points
-**Performance Optimization:**
-- Current page load time averaging 3.2s
-- Target: reduce to under 1.5s
-- Will require database query optimization and caching layer
-
-**API v2 Migration:**
-- Breaking changes documented
-- Migration guide to be published by end of December
-- Deprecation timeline: 6 months from launch
-
-## Risks & Concerns
-- Resource constraints due to holiday season
-- Potential delays in third-party integrations
-- Need backup plan for cloud provider migration`,
-    actionItems: [
-      "@john: Create performance benchmarks by Dec 10",
-      "@sarah: Draft API migration guide",
-      "@mike: Review infrastructure requirements",
-      "@team: Submit Q1 goals by Friday",
-    ],
-  },
-  {
-    id: "2",
-    title: "Security Review Meeting",
-    date: "2025-12-05T14:00:00",
-    duration: "60 min",
-    attendees: ["Security Team", "Backend Team"],
-    tags: ["security", "review", "critical"],
-    content: `## Security Audit Results
-- Overall score: B+
-- Critical issues: 2 (both related to auth)
-- Medium issues: 5
-- Low issues: 12
-
-## Authentication Vulnerabilities Discussed
-1. **Token Expiration Policy**
-   - Current: 24 hours (too long)
-   - Recommended: 1 hour with refresh tokens
-   
-2. **Rate Limiting**
-   - Currently not implemented on all endpoints
-   - Need to add to: /api/auth/*, /api/user/*
-
-## Mitigation Strategies
-- Implement sliding session windows
-- Add Redis-based rate limiting
-- Enable 2FA for admin accounts
-- Regular security audits (quarterly)
-
-## Compliance Considerations
-- GDPR: Data retention policies need update
-- SOC2: Audit trail implementation required
-- CCPA: User data export functionality needed`,
-    actionItems: [
-      "@security: Implement rate limiting by Dec 15",
-      "@backend: Update token expiration logic",
-      "@compliance: Draft data retention policy",
-      "@all: Complete security training by month end",
-    ],
-  },
-  {
-    id: "3",
-    title: "Feature Kickoff: Dark Mode",
-    date: "2025-12-06T10:30:00",
-    duration: "45 min",
-    attendees: ["Frontend Team", "Design", "PM"],
-    tags: ["feature", "ui", "dark-mode"],
-    content: `## Feature Overview
-Implement system-wide dark mode with smooth transitions and theme persistence.
-
-## Design Specifications
-- Use CSS variables for all color values
-- Support system preference detection
-- Manual toggle in user settings
-- Smooth transition animations (200ms)
-
-## Technical Approach
-1. Define color tokens in CSS variables
-2. Create theme toggle context
-3. Persist preference in localStorage
-4. Respect prefers-color-scheme media query
-
-## Scope
-**In Scope:**
-- All main application pages
-- Dashboard components
-- Settings panel
-- Theme toggle UI
-
-**Out of Scope:**
-- Email templates (separate ticket)
-- Marketing pages (handled by marketing team)
-- Third-party embedded widgets
-
-## Timeline
-- Week 1: Setup infrastructure
-- Week 2: Implement toggle and persistence
-- Week 3: QA and polish
-- Week 4: Release to beta users`,
-    actionItems: [
-      "@design: Finalize dark mode color palette",
-      "@frontend: Create theme provider component",
-      "@qa: Prepare test cases for accessibility",
-      "@pm: Draft beta user communication",
-    ],
-  },
-];
-
-const allTags = [
-  "planning",
-  "sprint",
-  "security",
-  "review",
-  "feature",
-  "ui",
-  "critical",
-  "q1-2026",
-  "dark-mode",
-];
+// Map the backend meeting + chunks into the display shape this view renders.
+function mapBackendMeeting(m: BackendMeeting): Meeting {
+  const chunks = m.chunks ?? [];
+  const attendees = Array.from(
+    new Set(chunks.flatMap((c) => c.speaker_names ?? [])),
+  );
+  const content = chunks
+    .map((c) => c.summary_text || c.raw_text)
+    .filter(Boolean)
+    .join("\n\n");
+  return {
+    id: String(m.id),
+    title: m.title,
+    date: m.date ?? "",
+    duration: `${Math.round((m.duration_sec ?? 0) / 60)} min`,
+    attendees,
+    content,
+    tags: m.meta?.tags ?? [m.project_name],
+    actionItems: m.meta?.actionItems ?? [],
+  };
+}
 
 export function MeetingMinutesView() {
-  const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(
-    mockMeetings[0],
-  );
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
   const [topHeight, setTopHeight] = useState(50); // percentage
   const [isDragging, setIsDragging] = useState(false);
+
+  // request the cached meetings from the vsc side on mount and listen
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.command === "meetings_data") {
+        const mapped = ((message.data as BackendMeeting[]) ?? []).map(
+          mapBackendMeeting,
+        );
+        setMeetings(mapped);
+        setSelectedMeeting(mapped[0] ?? null);
+        setLoading(false);
+      } else if (message.command === "meetings_error") {
+        setMeetings([]);
+        setSelectedMeeting(null);
+        setLoading(false);
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    vscode.postMessage("getMeetings");
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -192,7 +119,7 @@ export function MeetingMinutesView() {
     setIsDragging(false);
   };
 
-  // Add and remove mouse event listeners
+  // add and remove mouse event listeners
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -204,6 +131,27 @@ export function MeetingMinutesView() {
     }
   }, [isDragging]);
 
+  // empty/loading state
+  if (meetings.length === 0) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center bg-[#1e1e1e] text-center p-6">
+        {loading ? (
+          <p className="text-xs text-[#6a6a6a] font-mono">Loading meetings…</p>
+        ) : (
+          <>
+            <CalendarX className="w-10 h-10 text-[#3e3e42] mb-3" />
+            <p className="text-sm text-[#cccccc] font-mono mb-1">
+              No meetings found
+            </p>
+            <p className="text-xs text-[#6a6a6a] font-mono">
+              Recorded meetings will appear here once processed.
+            </p>
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       id="meetings-container"
@@ -214,7 +162,7 @@ export function MeetingMinutesView() {
         className="overflow-auto p-2 space-y-2"
         style={{ height: selectedMeeting ? `${topHeight}%` : "100%" }}
       >
-        {mockMeetings.map((meeting) => (
+        {meetings.map((meeting) => (
           <MeetingCard
             key={meeting.id}
             meeting={meeting}
@@ -230,7 +178,7 @@ export function MeetingMinutesView() {
           onMouseDown={handleMouseDown}
           className={`
             flex items-center justify-center
-            border-t border-b border-[#3e3e42] 
+            border-t border-b border-[#3e3e42]
             bg-[#252526] cursor-ns-resize
             transition-colors
             ${isDragging ? "bg-[#007acc]" : "hover:bg-[#2a2d2e]"}
@@ -288,7 +236,7 @@ function MeetingCard({
       <div className="flex items-center gap-3 text-[10px] text-[#6a6a6a] mb-2">
         <div className="flex items-center gap-1">
           <Calendar className="w-3 h-3" />
-          {new Date(meeting.date).toLocaleDateString()}
+          {meeting.date ? new Date(meeting.date).toLocaleDateString() : "—"}
         </div>
         <div className="flex items-center gap-1">
           <Clock className="w-3 h-3" />
@@ -325,16 +273,18 @@ function MeetingDetails({ meeting }: { meeting: Meeting }) {
         <div className="flex flex-wrap gap-4 text-xs text-[#cccccc] mb-3">
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4 text-[#6a6a6a]" />
-            {new Date(meeting.date).toLocaleString()}
+            {meeting.date ? new Date(meeting.date).toLocaleString() : "—"}
           </div>
           <div className="flex items-center gap-1">
             <Clock className="w-4 h-4 text-[#6a6a6a]" />
             {meeting.duration}
           </div>
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4 text-[#6a6a6a]" />
-            {meeting.attendees.join(", ")}
-          </div>
+          {meeting.attendees.length > 0 && (
+            <div className="flex items-center gap-1">
+              <Users className="w-4 h-4 text-[#6a6a6a]" />
+              {meeting.attendees.join(", ")}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -356,7 +306,7 @@ function MeetingDetails({ meeting }: { meeting: Meeting }) {
       <div className="mb-6 p-4 bg-[#252526] border border-[#3e3e42] rounded">
         <div className="prose prose-invert prose-sm max-w-none">
           <div className="space-y-2 font-mono text-xs text-[#cccccc] whitespace-pre-wrap leading-relaxed">
-            {meeting.content}
+            {meeting.content || "No transcript available for this meeting."}
           </div>
         </div>
       </div>

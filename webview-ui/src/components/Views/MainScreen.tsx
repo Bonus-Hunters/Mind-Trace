@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { AISummaryPanel } from "../Panels/AISummaryPanel.tsx";
-import { MeetingMinutesView } from "../Panels/MeetingMinutesView.tsx";
+import { MeetingMinutesView } from "./MeetingMinutesView.tsx";
 import { vscode } from "../../utilities/vscodeApi.ts";
 
 type View = "search" | "ai" | "meetings";

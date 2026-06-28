@@ -14,11 +14,15 @@ const TabButton = ({
   className?: string;
   type: string;
 }) => {
+  const isIconOnly = !label;
+
   return (
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-colors min-w-0 ${className}
+        flex items-center justify-center rounded transition-colors min-w-0
+        ${isIconOnly ? "h-6 w-6 p-0" : "gap-1.5 px-3 py-1 text-xs"}
+        ${className}
         ${
           type === "black"
             ? active
@@ -28,8 +32,8 @@ const TabButton = ({
         }
       `}
     >
-      {icon && <span className="shrink-0">{icon}</span>}
-      <span className="truncate">{label}</span>
+      {icon && <span className="shrink-0 flex items-center justify-center">{icon}</span>}
+      {!isIconOnly && <span className="truncate">{label}</span>}
     </button>
   );
 };
