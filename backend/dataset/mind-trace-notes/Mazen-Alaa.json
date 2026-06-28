@@ -1,0 +1,22 @@
+[
+{
+        "project_name": "Mind Trace",
+        "note_text": "The Audio pipeline needs a speedup; it's too slow, even if we use small models.",
+        "function": "null",
+        "file_name": "MeetingPipeline.py",
+        "module": "voice",
+        "type": "optimization",
+        "tags": ["voice", "meeting pipeline", "performance"],
+        "author": "Mazen_Alaa"
+    },
+{
+        "project_name": "Mind Trace",
+        "note_text": "Testing the new Speaker Identification Model",
+        "function": "SpeakerIdentification",
+        "file_name": "SpeakerIdentification.py",
+        "module": "voice",
+        "type": "general task",
+        "tags": ["voice", "meeting pipeline", "testing"],
+        "author": "Mazen_Alaa"
+    }
+]

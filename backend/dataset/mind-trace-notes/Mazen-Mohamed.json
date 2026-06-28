@@ -1,0 +1,102 @@
+[
+    {
+        "project_name": "Mind Trace",
+        "note_text": "should add last k queries and their results to the prompt, so that the model can have more context about what has been asked and answered before",
+        "function": "mind_trace_query",
+        "file_name": "pipeline.py",
+        "module": "RAG",
+        "type": "general task",
+        "tags": ["RAG", "context", "query history"],
+        "author": "ELDA7EE7"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "make sure that the RAG pipeline uses all the metadata available in the documents, so that the model can have more context about the documents and their relevance to the query",
+        "function": "retrieve_hybrid",
+        "file_name": "search.py",
+        "module": "RAG",
+        "type": "general task",
+        "tags": ["RAG", "metadata", "Documents", "context"],
+        "author": "ELDA7EE7"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "add pagination to the search page, so that the user can see more results and not be limited to the top 10 results",
+        "function": "search",
+        "file_name": "pipeline.py",
+        "module": "RAG",
+        "type": "optimization",
+        "tags": ["search", "pagination", "user experience"],
+        "author": "ELDA7EE7"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "tryout different chunk sizes and embedding sizes for the documents and hyprid search parameters, to see if it improves the retrieval performance and the relevance of the results",
+        "function": "null",
+        "file_name": "null",
+        "module": "RAG",
+        "type": "optimization",
+        "tags": ["RAG", "trials", "performance"],
+        "author": "ELDA7EE7"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "add another llm factory so the user has more options to choose from when selecting the llm for the RAG pipeline",
+        "function": "get_llm",
+        "file_name": "llm_factory.py",
+        "module": "RAG",
+        "type": "suggestion",
+        "tags": ["RAG", "llm", "factory", "user experience"],
+        "author": "ELDA7EE7"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "search for a dataset containing arabezi audio files with their corresponding transcriptions, so that we can evaluate our own arabezi ASR model and compare it with the original model",
+        "function": "CodeSwitchingHandler",
+        "file_name": "CodeSwitchingHandler.py",
+        "module": "voice",
+        "type": "general task",
+        "tags": ["voice", "transcription", "arabezi","ASR", "dataset"],
+        "author": "Mazen_Alaa"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "try different ASR models and compare their performance on the arabezi dataset, to see which model performs better and can be used for our own arabezi ASR model",
+        "function": "null",
+        "file_name": "null",
+        "module": "voice",
+        "type": "general task",
+        "tags": ["voice", "transcription", "arabezi","ASR", "dataset"],
+        "author": "Mazen_Alaa"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "search for the best summarization model that can work on long dialouges",
+        "function": "null",
+        "file_name": "null",
+        "module": "voice",
+        "type": "optimization",
+        "tags": ["voice", "summarization", "dialouges"],
+        "author": "Mazen_Alaa"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "fallback to fuzzy search in the keyword search function if the exact match search returns no results, so that the user can still find relevant documents even if they don't know the exact keywords",
+        "function": "retrieve_by_keyword",
+        "file_name": "search.py",
+        "module": "RAG",
+        "type": "optimization",
+        "tags": ["RAG", "fuzzy search", "keyword search"],
+        "author": "ELDA7EE7"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "the mertrics for the search seem very low even tho we tried different RAG techniques. something is wrong with the search and we need to investigate it further. i think we need to check if the documents and the queries match",
+        "function": "run_evaluations",
+        "file_name": "evaluate_RAG.ipynb",
+        "module": "RAG",
+        "type": "bug",
+        "tags": ["RAG", "metrics", "bug", "search"],
+        "author": "ELDA7EE7"
+    }
+]

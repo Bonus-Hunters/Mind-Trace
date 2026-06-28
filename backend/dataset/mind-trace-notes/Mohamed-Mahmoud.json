@@ -1,0 +1,52 @@
+[
+    {
+        "project_name": "Mind Trace",
+        "note_text": "implement query expansion before retrieval by generating semantic variations of the user's query, then merge and rerank the retrieved documents to improve recall without sacrificing precision",
+        "function": "retrieve_hybrid",
+        "file_name": "search.py",
+        "module": "RAG",
+        "type": "optimization",
+        "tags": ["RAG", "query expansion", "retrieval", "reranking"],
+        "author": "Mohamed_Gad"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "cache embeddings for repeated queries and frequently accessed documents to reduce response latency and avoid unnecessary embedding generation",
+        "function": "mind_trace_query",
+        "file_name": "pipeline.py",
+        "module": "RAG",
+        "type": "optimization",
+        "tags": ["RAG", "cache", "embeddings", "performance"],
+        "author": "Mohamed_Gad"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "add a reranking stage using a cross-encoder after the initial retrieval step so that the final context passed to the LLM contains the most relevant documents",
+        "function": "retrieve_hybrid",
+        "file_name": "search.py",
+        "module": "RAG",
+        "type": "feature",
+        "tags": ["RAG", "reranker", "cross encoder", "retrieval"],
+        "author": "Mohamed_Gad"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "log retrieval scores, selected chunks, and generation latency for every query to simplify debugging and allow better analysis of the RAG pipeline performance",
+        "function": "mind_trace_query",
+        "file_name": "pipeline.py",
+        "module": "RAG",
+        "type": "general task",
+        "tags": ["RAG", "logging", "monitoring", "debugging"],
+        "author": "Mohamed_Gad"
+    },
+    {
+        "project_name": "Mind Trace",
+        "note_text": "support metadata-based filtering such as document source, category, author, and upload date before retrieval so users can narrow the search space and obtain more relevant results",
+        "function": "retrieve_hybrid",
+        "file_name": "search.py",
+        "module": "RAG",
+        "type": "feature",
+        "tags": ["RAG", "metadata", "filtering", "search"],
+        "author": "Mohamed_Gad"
+    }
+]

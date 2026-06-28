@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { X, FunctionSquare, Calendar } from "lucide-react";
+import { X, FunctionSquare, Calendar, FolderPlus } from "lucide-react";
 import MeetingContent from "./MeetingContent";
 import { TypeButton } from "./TypeButtons";
 import { vscode } from "../../utilities/vscodeApi.ts";
 import NoteContent from "./NoteContent";
+import ProjectContent from "./ProjectContent";
 
 interface AddNoteModalProps {
   onClose: () => void;
 }
 
-type NoteType = "note" | "meeting";
+type NoteType = "note" | "meeting" | "project";
 
 export function AddNoteModal({ onClose }: AddNoteModalProps) {
   // Note-specific fields
@@ -29,6 +30,10 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
   const [audioFile, setAudioFile] = useState(null);
   const [projectName, setProjectName] = useState("");
 
+  // Project-creation fields
+  const [newProjectName, setNewProjectName] = useState("");
+  const [projectCreationDate, setProjectCreationDate] = useState("");
+
   const closeModal = () => {
     vscode.postMessage("closeAddNoteModal", {
       audioFile: audioFile,
@@ -37,6 +42,15 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
   };
 
   const handleSave = () => {
+    if (noteType === "project") {
+      vscode.postMessage("saveProject", {
+        projectName: newProjectName,
+        creationDate: projectCreationDate,
+      });
+      onClose();
+      return;
+    }
+
     vscode.postMessage("saveNote", {
       noteType: noteType,
       title: title,
@@ -61,7 +75,11 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#3e3e42]">
           <h2 className="text-sm text-[#ffffff]">
-            {noteType === "meeting" ? "Add New Meeting" : "Add New Note"}
+            {noteType === "meeting"
+              ? "Add New Meeting"
+              : noteType === "project"
+                ? "Add New Project"
+                : "Add New Note"}
           </h2>
           <button
             onClick={closeModal}
@@ -78,7 +96,7 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
             <label className="block text-xs text-[#cccccc] mb-2 font-mono">
               Select Note Type
             </label>
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-3 gap-3">
               <TypeButton
                 icon={<FunctionSquare className="w-4 h-4" />}
                 label="Note"
@@ -91,6 +109,13 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
                 label="Meeting"
                 selected={noteType === "meeting"}
                 onClick={() => setNoteType("meeting")}
+              />
+
+              <TypeButton
+                icon={<FolderPlus className="w-4 h-4" />}
+                label="Project"
+                selected={noteType === "project"}
+                onClick={() => setNoteType("project")}
               />
             </div>
           </div>
@@ -110,6 +135,13 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
               setAudioFile={setAudioFile}
               setProjectName={setProjectName}
               projectName={projectName}
+            />
+          ) : noteType === "project" ? (
+            <ProjectContent
+              projectName={newProjectName}
+              setProjectName={setNewProjectName}
+              creationDate={projectCreationDate}
+              setCreationDate={setProjectCreationDate}
             />
           ) : (
             <NoteContent
@@ -148,11 +180,17 @@ export function AddNoteModal({ onClose }: AddNoteModalProps) {
             disabled={
               noteType === "meeting"
                 ? !title || !meetingDate || !audioFile
-                : !description
+                : noteType === "project"
+                  ? !newProjectName || !projectCreationDate
+                  : !description
             }
             className="px-4 py-1.5 text-xs bg-[#0e639c] hover:bg-[#1177bb] text-[#ffffff] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {noteType === "meeting" ? "Save Meeting" : "Save Note"}
+            {noteType === "meeting"
+              ? "Save Meeting"
+              : noteType === "project"
+                ? "Save Project"
+                : "Save Note"}
           </button>
         </div>
       </div>

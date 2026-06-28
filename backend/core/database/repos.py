@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy import select, update
 from typing import Any, Type, TypeVar, Generic, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.orm import selectinload
 from core.database.models import Base
 from sqlalchemy.exc import SQLAlchemyError
 import core.database.tables_data as tables_data
@@ -140,6 +141,16 @@ class ProjectRepository(BaseRepository):
             stmt = select(models.Project).where(models.Project.id == id)
             result = await session.execute(stmt)
             return result.scalars().first()
+
+    async def get_all_by_company(
+        self, company_id: int
+    ) -> List[tables_data.Project]:
+        async with self._get_session() as session:
+            stmt = select(models.Project).where(
+                models.Project.company_id == company_id
+            )
+            result = await session.execute(stmt)
+            return result.scalars().all()
 
     async def create(self, data: tables_data.Project) -> bool:
         async with self._get_session() as session:
@@ -473,6 +484,27 @@ class MeetingRepository(BaseRepository):
         async with self._get_session() as session:
             stmt = select(models.MeetingChunk).where(
                 models.MeetingChunk.meeting_id == meeting_id
+            )
+            result = await session.execute(stmt)
+            return result.scalars().all()
+
+    # eager-loads chunks so they stay accessible after the session closes
+    # (relies on expire_on_commit=False set in PostgresDatabase)
+    async def get_all(self) -> List[models.Meeting]:
+        async with self._get_session() as session:
+            stmt = select(models.Meeting).options(
+                selectinload(models.Meeting.chunks)
+            )
+            result = await session.execute(stmt)
+            return result.scalars().all()
+
+    # same as get_all but scoped to a single company (eager-loads chunks)
+    async def get_all_by_company(self, company_id: int) -> List[models.Meeting]:
+        async with self._get_session() as session:
+            stmt = (
+                select(models.Meeting)
+                .where(models.Meeting.company_id == company_id)
+                .options(selectinload(models.Meeting.chunks))
             )
             result = await session.execute(stmt)
             return result.scalars().all()

@@ -4,7 +4,8 @@ __pycache__/
 *$py.class
 diagrams/*
 ./calude.md
-backend/dataset/*
+backend/dataset/mozilla_core.csv
+backend/dataset/mozilla_issues.json
 # C extensions
 *.so
 ./env   
