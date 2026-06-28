@@ -1,20 +1,20 @@
 from datetime import datetime
-from typing import List, Optional, Dict, Any
-from sqlalchemy import (
-    String,
-    ForeignKey,
-    DateTime,
-    ARRAY,
-    Text,
-    ForeignKeyConstraint,
-    UniqueConstraint,
-    Float,  
-    Identity,
-)
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import Any, Dict, List, Optional
+
 from pgvector.sqlalchemy import Vector
-from utils.constants import EMBEDDING_SIZE
+from sqlalchemy import (
+    ARRAY,
+    DateTime,
+    Float,
+    ForeignKey,
+    Identity,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from utils.constants import EMBEDDING_SIZE
 
 
 class Base(DeclarativeBase):
