@@ -34,6 +34,7 @@ def _chunk_to_document(
         page_content=chunk.raw_text,
         metadata={
             "source": "meeting",
+            "meeting_id": chunk.meeting_id,
             "project": project_name,
             "title": meeting_title,
             "speaker_names": chunk.speaker_names,
