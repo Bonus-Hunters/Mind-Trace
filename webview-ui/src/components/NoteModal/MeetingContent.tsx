@@ -1,7 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X, Calendar, Upload } from "lucide-react";
 import TagsInput from "./TagsInput";
 import { vscode } from "../../utilities/vscodeApi.ts";
+
+interface ProjectOption {
+  value: string;
+  label: string;
+}
 
 const languageOptions = [
   { value: "en", label: "English" },
@@ -17,8 +22,6 @@ const languageOptions = [
   { value: "ar", label: "Arabic" },
   { value: "hi", label: "Hindi" },
 ];
-
-const projectOptions = [{ value: "Mozilla Issues", label: "Mozilla Issues" }];
 
 const handleUpload = () => {
   vscode.postMessage("selectAudioFile");
@@ -38,6 +41,8 @@ const MeetingContent = ({
   setProjectName,
   projectName,
 }: any) => {
+  const [projectOptions, setProjectOptions] = useState<ProjectOption[]>([]);
+
   useEffect(() => {
     // TODO: should execute each time user upload a video
     // define the listener function
@@ -55,16 +60,28 @@ const MeetingContent = ({
             size: message.data.size,
           });
           break;
+        case "projects_data": {
+          const options = ((message.data as string[]) ?? []).map((name) => ({
+            value: name,
+            label: name,
+          }));
+          setProjectOptions(options);
+          // default the dropdown to the first project once loaded
+          if (options.length > 0) setProjectName(options[0].value);
+          break;
+        }
       }
     };
 
     // Add the listener to the window
     window.addEventListener("message", handleMessage);
 
+    // request the company's projects from the extension host
+    vscode.postMessage("getProjects");
+
     // Clean up the listener when the component unmounts
     return () => window.removeEventListener("message", handleMessage);
   }, []);
-  setProjectName(projectOptions[0].value); // Set default project name on component mount
   return (
     <>
       <div>

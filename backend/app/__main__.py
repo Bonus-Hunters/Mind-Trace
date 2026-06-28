@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from app.apis import authentication_apis, meeting_apis, notes_apis, llm_apis
 from fastapi import FastAPI
 import uvicorn
@@ -19,8 +20,17 @@ def include_routers(app: FastAPI):
     app.include_router(llm_apis.router, prefix="/llms")
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # warm the meetings cache from the DB on startup
+    await meeting_apis.startup_event()
+    yield
+    # cleanup temp audio files on shutdown
+    await meeting_apis.shutdown_event()
+
+
 def create_server():
-    app = FastAPI()
+    app = FastAPI(lifespan=lifespan)
     include_routers(app)
     return app
 

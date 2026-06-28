@@ -1,5 +1,11 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import TagsInput from "./TagsInput";
+import { vscode } from "../../utilities/vscodeApi.ts";
+
+interface ProjectOption {
+  value: string;
+  label: string;
+}
 
 const noteTypesOptions = [
   { value: "general", label: "General" },
@@ -9,8 +15,6 @@ const noteTypesOptions = [
   { value: "omit", label: "Ommit Task" },
   { value: "suggestion", label: "Suggestion" },
 ];
-// TODO: retrieve projects from db -- done in meeting part?????????
-const projectOptions = [{ value: "Mozilla Issues", label: "Mozilla Issues" }];
 
 const NoteContent = ({
   description,
@@ -32,7 +36,27 @@ const NoteContent = ({
   moduleName,
   setModuleName,
 }: any) => {
-  setProjectName(projectOptions[0].value);
+  const [projectOptions, setProjectOptions] = useState<ProjectOption[]>([]);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.command === "projects_data") {
+        const options = ((message.data as string[]) ?? []).map((name) => ({
+          value: name,
+          label: name,
+        }));
+        setProjectOptions(options);
+        // default the dropdown to the first project once loaded
+        if (options.length > 0) setProjectName(options[0].value);
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    // request the company's projects from the extension host
+    vscode.postMessage("getProjects");
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
   setNoteCategory(noteTypesOptions[0].value);
   return (
     <>
