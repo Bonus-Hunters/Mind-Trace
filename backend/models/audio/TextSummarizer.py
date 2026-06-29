@@ -6,7 +6,7 @@ Chunks meeting dialogue, generates summaries, and creates embeddings for semanti
 from core.rag.models import EMBED_MODEL
 import torch
 from typing import Optional, List, Dict, Any
-from transformers import AutoModel, AutoTokenizer, pipeline
+from transformers import AutoModel, AutoTokenizer
 from langchain_ollama import OllamaEmbeddings
 
 

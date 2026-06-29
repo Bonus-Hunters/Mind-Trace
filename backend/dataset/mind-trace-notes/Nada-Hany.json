@@ -1,0 +1,53 @@
+[
+    {
+        "project_name": "Mind Trace",
+        "note_text": "when error happen while verification process is runninng the login process needs to restart since the login button gets stuck on sending OTP",
+        "function":null,
+        "file_name": "LoginScreen.tsx",
+        "module": "frontend",
+        "type": "bug",
+        "tags": ["error", "frontend", "login", "authentication"],
+        "author": "Nada"
+    },
+      {
+        "project_name": "Mind Trace",
+        "note_text": "Need to retrieve all meeting data to display it in the UI instead of dummy data",
+        "function":null,
+        "file_name": "MeetingMinutesView.tsx",
+        "module": "frontend",
+        "type": "general task",
+        "tags": ["frontend", "meetings data"],
+        "author": "Nada"
+    },
+      {
+        "project_name": "Mind Trace",
+        "note_text": "check if company of logged in user already exist in dp or not to add it only once",
+        "function": "register_user",
+        "file_name": "authentication_apis.py",
+        "module": "backend",
+        "type": "general task",
+        "tags": ["backend"],
+        "author": "Nada"
+    }
+    ,
+      {
+        "project_name": "Mind Trace",
+        "note_text": "split all messages from react side to vsc side into mulltiple files to make it more easy in navigation",
+        "function":null,
+        "file_name": "messages.ts",
+        "module": "backend",
+        "type": "optimization",
+        "tags": ["backend"],
+        "author": "Nada"
+    }  ,
+      {
+        "project_name": "Mind Trace",
+        "note_text": "add a new section for the user t add a new project",
+        "function":null,
+        "file_name": "MainView.tsx",
+        "module": "frontend",
+        "type": "general task",
+        "tags": ["frontend", "project"],
+        "author": "Nada"
+    }
+]

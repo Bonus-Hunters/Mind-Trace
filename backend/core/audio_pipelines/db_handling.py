@@ -80,6 +80,7 @@ async def process_meeting_audio(
         except Exception as e:
             print(f"--- Error creating meeting chunks in DB: {e} ---")
             return False
+        return meeting_id
     else:
         print(f"--- Error: Meeting ID not returned after creation ---")
         return False
