@@ -113,7 +113,9 @@ class CompanyRepository(BaseRepository):
 
     async def delete(self, company_id: int) -> bool:
         async with self._get_session() as session:
-            company = await self.get_by_id(company_id)
+            company = await session.scalar(
+                select(models.Company).where(models.Company.id == company_id)
+            )
             if not company:
                 print(
                     f"--- Error deleting company: Company with id {company_id} does not exist ---"
@@ -262,7 +264,12 @@ class CategoryMapRepository(BaseRepository):
         self, feature_name: str, project_name: str, data: tables_data.CategoryMapUpdate
     ) -> bool:
         async with self._get_session() as session:
-            obj = await self._get_obj(feature_name, project_name)
+            stmt = select(models.CategoryMap).where(
+                models.CategoryMap.name == feature_name,
+                models.CategoryMap.project_name == project_name,
+            )
+            result = await session.execute(stmt)
+            obj = result.scalars().first()
             if not obj:
                 print(
                     f"--- Error updating category map: Category map {feature_name} in project {project_name} does not exist ---"
@@ -275,7 +282,12 @@ class CategoryMapRepository(BaseRepository):
 
     async def delete(self, feature_name: str, project_name: str) -> bool:
         async with self._get_session() as session:
-            res = await self._get_obj(feature_name, project_name)
+            stmt = select(models.CategoryMap).where(
+                models.CategoryMap.name == feature_name,
+                models.CategoryMap.project_name == project_name,
+            )
+            result = await session.execute(stmt)
+            res = result.scalars().first()
 
             if not res:
                 print(
@@ -339,7 +351,9 @@ class EmployeesRepository(BaseRepository):
 
     async def delete(self, name: str) -> bool:
         async with self._get_session() as session:
-            res = await self._get_obj(name)
+            stmt = select(models.Employee).where(models.Employee.name == name)
+            result = await session.execute(stmt)
+            res = result.scalars().first()
             if not res:
                 print(
                     f"--- Error deleting developer: Developer name {name} does not exist ---"
@@ -352,7 +366,9 @@ class EmployeesRepository(BaseRepository):
 
     async def update(self, name: str, data: tables_data.EmployeeUpdate) -> bool:
         async with self._get_session() as session:
-            employee = await self._get_obj(name)
+            stmt = select(models.Employee).where(models.Employee.name == name)
+            result = await session.execute(stmt)
+            employee = result.scalars().first()
 
             if not employee:
                 print(
@@ -444,7 +460,9 @@ class MeetingRepository(BaseRepository):
 
     async def delete(self, meeting_id: int) -> bool:
         async with self._get_session() as session:
-            obj = await self.get_by_id(meeting_id)
+            obj = await session.scalar(
+                select(models.Meeting).where(models.Meeting.id == meeting_id)
+            )
             if obj is None:
                 print(
                     f"--- Error deleting meeting: Meeting ID {meeting_id} does not exist ---"
@@ -562,7 +580,11 @@ class MeetingChunkRepository(BaseRepository):
 
     async def delete(self, meeting_chunk_id: int) -> bool:
         async with self._get_session() as session:
-            obj = await self.get_by_id(meeting_chunk_id)
+            obj = await session.scalar(
+                select(models.MeetingChunk).where(
+                    models.MeetingChunk.id == meeting_chunk_id
+                )
+            )
             if obj is None:
                 print(
                     f"--- Error deleting meeting chunk: Meeting Chunk ID {meeting_chunk_id} does not exist ---"
@@ -688,7 +710,9 @@ class NoteRepository(BaseRepository):
 
     async def delete(self, note_id: int) -> bool:
         async with self._get_session() as session:
-            obj = await self.get_by_id(note_id)
+            obj = await session.scalar(
+                select(models.Note).where(models.Note.id == note_id)
+            )
             if obj is None:
                 print(f"--- Error deleting note: Note ID {note_id} does not exist ---")
                 return False
@@ -793,7 +817,9 @@ class TaskRepository(BaseRepository):
 
     async def delete(self, task_id: int) -> bool:
         async with self._get_session() as session:
-            obj = await self.get_by_id(task_id)
+            obj = await session.scalar(
+                select(models.Task).where(models.Task.id == task_id)
+            )
             if obj is None:
                 print(f"--- Error deleting task: Task ID {task_id} does not exist ---")
                 return False

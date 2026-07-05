@@ -24,7 +24,8 @@ from core.database.postgresDatabase import PostgresDatabase
 
 def _chunk_to_document(
     chunk: MeetingChunk,
-    meeting: Meeting,
+    meeting_title: str | None,
+    meeting_date,
     project_name: str,
     score: float,
 ) -> Document:
@@ -33,12 +34,11 @@ def _chunk_to_document(
         page_content=chunk.raw_text,
         metadata={
             "source": "meeting",
-            "type": "meeting_chunk",
+            "meeting_id": chunk.meeting_id,
             "project": project_name,
-            "title": meeting.title,
-            "meeting_id": meeting.id,
+            "title": meeting_title,
             "speaker_names": chunk.speaker_names,
-            "date": meeting.date.isoformat() if meeting.date else None,
+            "date": meeting_date.isoformat() if meeting_date else None,
             "score": score,
         },
     )
@@ -59,6 +59,8 @@ def _note_to_document(
             "project": project_name,
             "author": note.author,
             "file_name": note.file_name,
+            "function_name":note.function,
+            "line_number": note.line_number,
             "module": note.module,
             "tags": note.tags,
             "date": note.date.isoformat() if note.date else None,
@@ -88,7 +90,8 @@ async def _vector_search_chunks(
         chunk_stmt = (
             select(
                 MeetingChunk,
-                Meeting,
+                Meeting.title.label("meeting_title"),
+                Meeting.date.label("meeting_date"),
                 MeetingChunk.embedding.cosine_distance(query_embedding).label(
                     "distance"
                 ),
@@ -169,11 +172,17 @@ async def retrieve_by_vector(
     docs: List[Document] = []
 
     # Process meeting chunks with similarity threshold
-    for chunk, meeting, distance in chunk_rows:
+    for chunk, meeting_title, meeting_date, distance in chunk_rows:
         similarity = 1 - distance
         if similarity >= min_similarity:
             docs.append(
-                _chunk_to_document(chunk, meeting, project_name, score=similarity)
+                _chunk_to_document(
+                    chunk,
+                    meeting_title,
+                    meeting_date,
+                    project_name,
+                    score=similarity,
+                )
             )
     
     # Process notes with similarity threshold
@@ -204,7 +213,7 @@ async def _keyword_search_chunks(
         ).label("rank")
 
         chunk_stmt = (
-            select(MeetingChunk, Meeting, chunk_rank)
+            select(MeetingChunk, Meeting.title, Meeting.date, chunk_rank)
             .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
             .where(Meeting.project_name == project_name)
             .where(
@@ -245,7 +254,8 @@ async def _fuzzy_search_chunks(
         chunk_fuzzy_stmt = (
             select(
                 MeetingChunk,
-                Meeting,
+                Meeting.title.label("meeting_title"),
+                Meeting.date.label("meeting_date"),
                 (func.similarity(MeetingChunk.raw_text, query) * 0.5).label("fuzzy_score"),
             )
             .join(Meeting, MeetingChunk.meeting_id == Meeting.id)
@@ -334,20 +344,32 @@ async def retrieve_by_keyword(
     docs: List[Document] = []
 
     # Add full-text ranked results
-    for chunk, meeting, rank in chunk_rows:
+    for chunk, meeting_title, meeting_date, rank in chunk_rows:
         docs.append(
-            _chunk_to_document(chunk, meeting, project_name, score=float(rank))
+            _chunk_to_document(
+                chunk,
+                meeting_title,
+                meeting_date,
+                project_name,
+                score=float(rank),
+            )
         )
 
     for note, rank in note_rows:
         docs.append(_note_to_document(note, project_name, score=float(rank)))
 
     # Add fuzzy matches (with lower scores, scaled to 0-1)
-    for chunk, meeting, fuzzy_score in chunk_fuzzy_rows:
+    for chunk, meeting_title, meeting_date, fuzzy_score in chunk_fuzzy_rows:
         # Avoid duplicates
-        if not any(d.metadata["meeting_id"] == meeting.id for d in docs):
+        if not any(d.metadata.get("title") == meeting_title for d in docs):
             docs.append(
-                _chunk_to_document(chunk, meeting, project_name, score=float(fuzzy_score))
+                _chunk_to_document(
+                    chunk,
+                    meeting_title,
+                    meeting_date,
+                    project_name,
+                    score=float(fuzzy_score),
+                )
             )
 
     for note, fuzzy_score in note_fuzzy_rows:

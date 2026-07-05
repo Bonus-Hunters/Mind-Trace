@@ -212,6 +212,7 @@ class TextSummarizer:
             "start_time_sec": start_time,
             "end_time_sec": end_time,
             "speaker_ids": list(speakers),
+            "speaker_names": list(speakers),
             "raw_text": raw_text.strip(),
             "summary_text": summary_text,
             "embedding": embedding_vector,
