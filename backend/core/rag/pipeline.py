@@ -108,16 +108,16 @@ if __name__ == "__main__":
             model=EMBED_MODEL,
         )
 
-        docs = await search(
-            query="What happens to the garbage collection process?",
-            project_name="Mozilla Issues",
-            embed_config=embed_cfg,
-        )
-        print(docs)
+        # docs = await search(
+        #     query="What happens to the garbage collection process?",
+        #     project_name="Mozilla Issues",
+        #     embed_config=embed_cfg,
+        # )
+        # print(docs)
 
         answer = await mind_trace_query(
-            query="What happens to the garbage collection process?",
-            project="Mozilla Issues",
+            query="how to make the model have more context?",
+            project="Mind Trace",
             llm_config=llm_cfg,
             embed_config=embed_cfg,
         )
