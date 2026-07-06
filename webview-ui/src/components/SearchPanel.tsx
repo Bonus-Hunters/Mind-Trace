@@ -153,10 +153,7 @@ export const SearchPanel = memo(function SearchPanel() {
               <h3 className="text-xs text-[#ffffff] flex-1">
                 {selectedResult.title}
               </h3>
-              <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#1e1e1e] rounded text-[10px] text-[#4ec9b0] ml-2">
-                <TrendingUp className="w-3 h-3" />
-                {(selectedResult.similarity * 100).toFixed(0)}%
-              </div>
+       
             </div>
 
             {selectedResult.filePath && (
@@ -186,9 +183,7 @@ export const SearchPanel = memo(function SearchPanel() {
             </div>
           </div>
 
-          <button className="w-full px-3 py-1.5 text-xs bg-[#0e639c] hover:bg-[#1177bb] text-[#ffffff] rounded transition-colors">
-            Open Full Note
-          </button>
+
         </div>
       )}
     </div>
@@ -238,10 +233,6 @@ function SearchResultCard({
               {result.filePath}
             </div>
           )}
-        </div>
-        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#1e1e1e] rounded text-[10px] text-[#4ec9b0]">
-          <TrendingUp className="w-3 h-3" />
-          {(result.similarity * 100).toFixed(0)}%
         </div>
       </div>
 

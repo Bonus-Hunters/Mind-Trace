@@ -1,6 +1,7 @@
 import "./App.css";
 import MainScreen from "./components/Views/MainScreen.tsx";
 import LoginScreen from "./components/Views/LoginScreen.tsx";
+import VoiceEnrollmentScreen from "./components/Views/VoiceEnrollmentScreen.tsx";
 import { useState, useEffect } from "react";
 import { OTPVerificationModal } from "./components/OTPVerificationModal.tsx";
 import { QuickNoteModal } from "./components/NoteModal/QuickNoteModal.tsx";
@@ -13,7 +14,7 @@ interface QuickNoteCtx {
 }
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [name, setName] = useState("");
@@ -22,6 +23,7 @@ function App() {
     null,
   );
   const [isLoginLoading, setLoginLoading] = useState(false);
+  const [showVoiceEnrollment, setShowVoiceEnrollment] = useState(false);
   const [quickNoteCtx, setQuickNoteCtx] = useState<QuickNoteCtx | null>(null);
 
   useEffect(() => {
@@ -46,6 +48,8 @@ function App() {
         setIsLoggedIn(true);
         setPendingEmail("");
         setOtpVerificationId(null);
+        // New users must complete voice enrollment before the main app opens.
+        if (message.data?.isNewUser) setShowVoiceEnrollment(true);
       } else if (message.command === "otp-error") {
         console.error("OTP Error:", message.data.error);
       } else if (message.command === "openQuickNote") {
@@ -108,6 +112,13 @@ function App() {
           />
         )}
       </>
+    );
+  }
+  if (showVoiceEnrollment) {
+    return (
+      <VoiceEnrollmentScreen
+        onComplete={() => setShowVoiceEnrollment(false)}
+      />
     );
   }
   return (

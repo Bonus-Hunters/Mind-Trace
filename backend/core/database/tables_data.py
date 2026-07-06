@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, ConfigDict, Field
-from utils.constants import EMBEDDING_SIZE
+from utils.constants import EMBEDDING_SIZE, VOICE_PRINT_SIZE
 
 
 class Company(BaseModel):
@@ -49,7 +50,7 @@ class Employees(BaseModel):
     role: Optional[str] = Field(..., max_length=100)
     skills: Optional[List[str]] = []
     voice_print: Optional[List[float]] = Field(
-        ..., min_items=EMBEDDING_SIZE, max_items=EMBEDDING_SIZE
+        ..., min_items=VOICE_PRINT_SIZE, max_items=VOICE_PRINT_SIZE
     )
     company_id: int
     model_config = ConfigDict(from_attributes=True)

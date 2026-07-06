@@ -14,7 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from utils.constants import EMBEDDING_SIZE
+from utils.constants import EMBEDDING_SIZE, VOICE_PRINT_SIZE
 
 
 class Base(DeclarativeBase):
@@ -145,7 +145,7 @@ class Employee(Base):
     password: Mapped[str] = mapped_column(String(60))
     skills: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), nullable=True)
     voice_print: Mapped[Optional[List[float]]] = mapped_column(
-        Vector(dim=EMBEDDING_SIZE), nullable=True
+        Vector(dim=VOICE_PRINT_SIZE), nullable=True
     )
     company_id: Mapped[int] = mapped_column(
         ForeignKey("companies.id", ondelete="CASCADE"), nullable=False

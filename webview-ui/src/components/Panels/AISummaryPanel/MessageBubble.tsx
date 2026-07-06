@@ -1,12 +1,27 @@
 import { Bot, User } from "lucide-react";
 import type { Message } from "./types";
+import type { ResolvedFileMap } from "./fileLinkUtils";
+import { tokenizeContent } from "./fileLinkUtils";
+import { FileNameToken } from "./FileNameToken";
 
 interface Props {
   message: Message;
+  resolved?: ResolvedFileMap;
 }
 
-export function MessageBubble({ message }: Props) {
+export function MessageBubble({ message, resolved }: Props) {
   const isAssistant = message.role === "assistant";
+
+  // Only assistant replies get filename link processing.
+  const contentNodes = isAssistant
+    ? tokenizeContent(message.content, resolved).map((token, i) =>
+        token.type === "file" ? (
+          <FileNameToken key={i} name={token.name} matches={token.matches} />
+        ) : (
+          <span key={i}>{token.value}</span>
+        ),
+      )
+    : message.content;
 
   return (
     <div className="flex items-start gap-3">
@@ -33,7 +48,7 @@ export function MessageBubble({ message }: Props) {
           }`}
         >
           <div className="text-xs text-[#cccccc] leading-relaxed whitespace-pre-wrap font-mono">
-            {message.content}
+            {contentNodes}
           </div>
         </div>
 
